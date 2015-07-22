@@ -19,11 +19,11 @@
 # Setup google appengine locally
 # 
 # Start goappengine locally
-cd ~/GitHub/cov/
+cd ~/GitHub/cov/dialogue
 goapp serve
 #
 # Start React Transformation
-cd ~/GitHub/cov/static/cov
+cd ~/GitHub/cov/dialogue/static/cov
 jsx -w -x jsx js js
 
 ## Deploy local server to cloud
