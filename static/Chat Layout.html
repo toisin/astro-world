@@ -1,0 +1,133 @@
+<!doctype html>
+
+<style>
+
+.chat {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  font-family: sans-serif;
+  font-size: 15px;
+}
+
+.researcher, .user {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+
+.researcher {
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+}
+
+.user {
+  -webkit-flex-direction: row-reverse;
+  flex-direction: row-reverse;
+  -webkit-align-items: flex-end;
+  align-items: flex-end;
+}
+
+.name {
+  margin: 5px;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+
+.user .name {
+  margin-bottom: 10px;
+}
+
+.researcher .name {
+  margin-top: 10px;
+}
+
+.message {
+  padding: 5px 10px;
+  margin: 5px;
+  border: 0;
+  border-radius: 4px;
+  position: relative;
+  border: 1px solid #ddd;  
+}
+
+.researcher .message {
+  background: lightyellow;
+}
+
+.user .message {
+  background: mintcream;
+}
+
+.user {
+  align-self: flex-end;
+}
+
+.message:before {
+  content: '';
+  position: absolute;
+  height: 10px;
+  width: 10px;
+  overflow: hidden;
+  transform: rotateZ(45deg);
+  -webkit-transform: rotateZ(45deg);    
+}
+
+.user .message:before {
+  bottom: 8px;
+  right: -6px;
+  background: mintcream;
+  border-right: 1px solid #ddd;
+  border-top:  1px solid #ddd;
+}
+
+.researcher .message:before {
+  top: 8px;
+  left: -6px;
+  background: lightyellow;
+  border-left: 1px solid #ddd;
+  border-bottom:  1px solid #ddd;
+}
+
+</style>
+
+<div class="chat">
+  <div class="researcher">
+    <div class="name">Researcher</div>
+    <div class="message">
+      Hello Teddy<br>
+      Welcome to the Challenge
+    </div>
+  </div>
+
+  <div class="researcher">
+    <div class="name">Researcher</div>
+    <div class="message">
+      Let's get started! What feature have you investigated?
+    </div>
+  </div>
+
+  <div class="user">
+    <div class="name">Teddy</div>
+    <div class="message">
+      Umbrellas
+    </div>
+  </div>
+
+  <div class="researcher">
+    <div class="name">Researcher</div>
+    <div class="message">
+      Let's get started! What feature have you investigated?
+    </div>
+  </div>
+
+  <div class="user">
+    <div class="name">Teddy</div>
+    <div class="message">
+      Umbrellas<br>
+      And more umbrellas
+    </div>
+  </div>
+</div>

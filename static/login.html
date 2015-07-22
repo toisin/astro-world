@@ -1,0 +1,63 @@
+<!doctype html>
+<style>
+
+#error {
+	display: none;
+}
+
+
+</style>
+<script>
+
+function handleSubmit(e) {
+	e.preventDefault();
+
+	var username = document.getElementById('username').value;
+	if (!username) {
+		// handleError('Missing username');
+		return;
+	}
+
+	var xhr = new XMLHttpRequest();
+	var self = this;
+	xhr.onload = function() {
+		if (xhr.status != 200) {
+			handleError();
+		} else {	
+			handleResponse(username);
+		}
+	};
+    var formData = new FormData();
+
+    formData.append("user", username);
+	xhr.open('POST', '/cov/getuser');
+	xhr.send(formData);
+	return false;
+
+	// TODO Bypass actual login for now
+	var data = {Username: username};
+	handleResponse(data);
+
+}
+
+function handleResponse(username) {
+	// window.location = '/cov/' + data.name;
+	window.location = '/cov/?user=' + encodeURIComponent(username);
+}
+
+function handleError() {
+	var error = document.getElementById('error');
+	error.style.display = 'block';
+}
+
+</script>
+
+<div id="error">You entered a wrong user name. Please re-enter or <a href="newuser.html">click here to create a new user</a></div>
+
+<form onsubmit="handleSubmit(event)">
+	<p>Enter your username: <input type="text" id="username"></p>
+	<p><button>Enter</button></p>
+</form>
+
+<p><a href="newuser.html">New User, Click here</a></p>
+
