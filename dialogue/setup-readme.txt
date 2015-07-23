@@ -15,13 +15,18 @@
 # Go Tutorial
 # http://tour.golang.org/
 
+## Setup GitHub .gitignore to not sycn react generated files
+/dialogue/static/cov/js/*.*
+/dialogue/static/cov/js/*
+/dialogue/static/cov/js/.*
+
 ## Dev setup procedure
 # Setup google appengine locally
 # 
 # Start goappengine locally
 cd ~/GitHub/cov/dialogue
 goapp serve
-#
+
 # Start React Transformation
 cd ~/GitHub/cov/dialogue/static/cov
 jsx -w -x jsx js js
