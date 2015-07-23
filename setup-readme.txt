@@ -27,9 +27,9 @@ cd ~/GitHub/cov/dialogue/static/cov
 jsx -w -x jsx js js
 
 ## Deploy local server to cloud
-cd ~/GitHub/
+cd ~/GitHub/cov/
 # replace <app-name> with actual app name
-goapp deploy -oauth -application <app-name> cov
+goapp deploy -oauth -application <app-name> dialogue
 
 # app url
 # replace <app-name> with actual app name
@@ -37,4 +37,4 @@ http://<app-name>.appspot.com/
 
 # app dashboard
 # replace <app-name> with actual app name
-https://console.developers.google.com/project/apps~<app-name./appengine
+https://console.developers.google.com/project/apps~<app-name>/appengine

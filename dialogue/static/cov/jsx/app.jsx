@@ -17,7 +17,7 @@ var Title = React.createClass({
               <div className="name">Researcher</div>
               <div className="message">
                 Hello {human}<br/>
-                Welcome to the C
+                Welcome to the Challenge
               </div>
             </div>;
   }
