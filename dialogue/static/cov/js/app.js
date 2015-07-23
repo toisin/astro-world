@@ -17,7 +17,7 @@ var Title = React.createClass({displayName: 'Title',
               React.DOM.div( {className:"name"}, "Researcher"),
               React.DOM.div( {className:"message"}, 
                 " Hello ", human,React.DOM.br(null),
-                " Welcome to the Challenge "
+                " Welcome to the C "
               )
             );
   }
