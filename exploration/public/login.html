@@ -1,0 +1,52 @@
+<!doctype html>
+<style>
+
+#error {
+	display: none;
+}
+
+
+</style>
+<script>
+
+function handleSubmit() {
+	var username = document.getElementById('username').value;
+	if (!username) {
+		// handleError('Missing username');
+		return;
+	}
+
+	var xhr = new XMLHttpRequest();
+	var self = this;
+	xhr.onload = function() {
+		if (xhr.status != 200) {
+			handleError();
+		} else {	
+			handleResponse(JSON.parse(xhr.responseText));
+		}
+	};
+	xhr.open('GET', '/users/' + username);
+	xhr.send(null);
+	return false;
+}
+
+function handleResponse(data) {
+	window.location = 'carts.html#' + data.name;
+}
+
+function handleError() {
+	var error = document.getElementById('error');
+	error.style.display = 'block';
+}
+
+</script>
+
+<div id="error">You entered a wrong user name. Please re-enter or <a href="newuser.html">click here to create a new user</a></div>
+
+<form onsubmit="return handleSubmit()">
+	<p>Enter your username: <input type="text" id="username"></p>
+	<p><button>Enter</button></p>
+</form>
+
+<p><a href="newuser.html">New User, Click here</a></p>
+

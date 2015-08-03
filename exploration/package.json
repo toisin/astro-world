@@ -1,0 +1,23 @@
+{
+  "name": "scientific-inquiry",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Scientific Inquiry work in progress",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@heroku.com:peaceful-depths-4393.git"
+  },
+  "author": "Arvidsson",
+
+  "dependencies": {
+    "express": "~3.4.7",
+    "mongoose": "~3.8.3"
+  },
+  "engines": {
+    "node": "0.10.x"
+  }
+}

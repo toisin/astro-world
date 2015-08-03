@@ -1,0 +1,53 @@
+<!doctype html>
+<style>
+
+#error {
+	display: none;
+}
+
+
+</style>
+<script>
+
+function handleSubmit() {
+	var username = document.getElementById('username').value;
+	if (!username) {
+		// handleError('Missing username');
+		return;
+	}
+
+	var xhr = new XMLHttpRequest();
+	var self = this;
+	xhr.onload = function() {
+		if (xhr.status != 200) {
+			handleError();
+		} else {	
+			handleResponse(JSON.parse(xhr.responseText));
+		}
+	};
+	xhr.open('POST', '/users/');
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	var data = {name: username};
+	xhr.send(JSON.stringify(data));
+	return false;
+}
+
+function handleResponse(data) {
+	window.location = 'carts.html#' + data.name;
+}
+
+function handleError() {
+	var error = document.getElementById('error');
+	error.style.display = 'block';
+}
+
+</script>
+
+<div id="error">The username you entered is taken. Please enter a new name or <a href="login.html">click here to login as an existing user</a></div>
+
+<form onsubmit="return handleSubmit()">
+	<p>Enter a new username: <input type="text" id="username"></p>
+	<p><button>Create new user</button></p>
+</form>
+
+
