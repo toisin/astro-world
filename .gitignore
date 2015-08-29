@@ -1,3 +1,5 @@
 /dialogue/static/cov/js/*
 /exploration/public/js/*
 /exploration/data/*
+
+*.pid

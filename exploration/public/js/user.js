@@ -16,11 +16,12 @@ User.prototype = {
   loadAllUserData: function(renderCallback) {
     var self = this;
 
-    var challengePromise = self.loadUserChallengeData();
+    //var challengePromise = self.loadUserChallengeData();
 
-    var cartPromise = challengePromise.then(function() {
-      self.loadUserResultData();
-    });
+    // var cartPromise = challengePromise.then(function() {
+    //   self.loadUserResultData();
+    // });
+    var cartPromise = self.loadUserResultData();
     cartPromise.then(renderCallback, function(error) {
                                             console.error("Failed!", error);
                                           });
@@ -56,7 +57,7 @@ User.prototype = {
       resultsReq.onload = function() {
         debugger;
         self.results = JSON.parse(resultsReq.responseText);
-        resolve();
+        resolve(self);
       };
       resultsReq.onerror = function() {
         reject(Error("It broke"));
@@ -106,22 +107,19 @@ User.prototype = {
     var self = this;
     
     self.updateCart(result);
-
+    debugger;
     var addCartPromise = new Promise(function(resolve, reject) {
       var xhr = new XMLHttpRequest();
-      xhr.onload = function() {
-        resolve(self);
-      };
-      xhr.error = function() {
-        reject();
-      }; 
+      xhr.onload = function() { resolve(self); };
+      xhr.error = function() { reject(); };
       xhr.open('POST', '/usercart/' + self.username + '/addcartdata');
       xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.send(JSON.stringify(result));
     });
 
     var loadUserCartPromise = addCartPromise.then(function() {
-      self.loadUserResultData();
+      debugger;
+      return self.loadUserResultData();
     });
 
     loadUserCartPromise.then(renderCallback);
