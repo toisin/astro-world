@@ -106,7 +106,7 @@ var Request = React.createClass({
     return <form onSubmit={this.handleSubmit} onChange={this.handleChange}
             className="request">
       <table><tbody>{variables}</tbody></table>
-      <button type="submit" disabled={!this.isEnabled()}>See Results!</button>
+      <button type="submit" disabled={!this.isEnabled()}>See Results</button>
     </form>;
   }
 });
