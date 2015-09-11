@@ -19,3 +19,4 @@ node server.js
 cd ~/GitHub/cov/exploration
 jsx -w -x jsx public/jsx public/js
 
+# Program running on URL http://localhost:3000/
