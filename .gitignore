@@ -4,7 +4,10 @@
 /dialogue/static/cov/js/.*
 /dialogue/static/cov/js/*.*
 
-
 /exploration/data/*
 /exploration/data/.*
 /exploration/data/*.*
+
+/exploration/public/js/*
+/exploration/public/js/.*
+/exploration/public/js/*.*
