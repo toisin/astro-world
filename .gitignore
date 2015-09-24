@@ -8,6 +8,3 @@
 /exploration/data/.*
 /exploration/data/*.*
 
-/exploration/public/js/*
-/exploration/public/js/.*
-/exploration/public/js/*.*

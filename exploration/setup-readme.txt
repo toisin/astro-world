@@ -15,6 +15,9 @@
 cd ~/GitHub/cov/exploration
 node server.js
 
+# Install Reach tools
+npm install -g react-tools@0.13.3
+
 # Start React Transformation
 cd ~/GitHub/cov/exploration
 jsx -w -x jsx public/jsx public/js
