@@ -4,19 +4,19 @@
 # Database - MongoDB (https://www.mongodb.org/)
 #          - Accessed through http requests handled by Express (http://expressjs.com/4x/api.html)
 
+# Install Reach tools
+npm install -g react-tools@0.13.3
+
 ## Setup GitHub .gitignore to not sync react generated files
 /exploration/public/js/*
 
-## Dev setup procedure
+##### Startup procedure
 # Start DB
 ~/Web/mongodb/bin/mongod --dbpath ~/GitHub/cov/exploration/data/
 
 # Start webserver
 cd ~/GitHub/cov/exploration
 node server.js
-
-# Install Reach tools
-npm install -g react-tools@0.13.3
 
 # Start React Transformation
 cd ~/GitHub/cov/exploration

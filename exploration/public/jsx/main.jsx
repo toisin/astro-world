@@ -56,7 +56,7 @@ if (!username) {
   var user = new User(username);
 
   user.loadAllUserData(callback = function() {
-                         React.renderComponent(
+                         React.render(
                            <App variableModels={variableModels} user={user}/>,
                          document.body);});
 }
