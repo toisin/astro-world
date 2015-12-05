@@ -1,0 +1,15 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+body {
+  background: white;
+  color: black;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.dialog {
+  backgroun: red;
+}
+
+.action {
+backgroun: blue;
+}
