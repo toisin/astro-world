@@ -54,7 +54,7 @@
     <br>
     Ok, you selected Record #4, Jane Lopez.<br>
     What did you find out?<br>
-    Does fitness make a difference? Yes or No?<br>
+    Does fitness make a difference?<br>
     <br>
     Student:<br>
     Yes! It makes a difference!<br>
@@ -69,7 +69,50 @@
     That may be true. But can we really tell for sure that Jane had a higher grade than Daisy because he has excellent fitness? Couldn't someone say that it is because Jane has college and that is why Jane has a better grade than Daisy? Do you really know for sure that fitness made the difference? Yes or No?<br>
     <br>
     Student:<br>
-    <form action="dialog10.html">
+    No. I don't really know for sure.<br>
+    <br>
+    Director:<br>
+    Seems like we cannot be sure by comparing Daisy and Jane. Can we find a better comparison with Daisy so that we can be 100% whether fitness matters?<br>
+    What record would we need?<br>
+    <br>
+    Ok, you selected Record #6, Natasha O'Connor.<br>
+    What did you find out?<br>
+    Does fitness make a difference? Yes or No?<br>
+    <br>
+    Student:<br>
+    Yes! It makes a difference!<br>
+    <br>
+    Director:<br>
+    What makes you say that?<br>
+    <br>
+    Student:<br>
+    Because Natasha got a better grade than Daisy and he has excellent fitness.<br>
+    <br>
+    Director:<br>
+    But does it have to be fitness that is making the difference? Could I say that Natasha has a better grade than Daisy because he has excellent for parents' health?<br>
+    <br>
+    Student:<br>
+    No, because they have the same parents' health<br>
+    <br>
+    Director:<br>
+    I see! Ok. Now, Suppose someone disagrees with you and doesn't think that fitness makes a difference. What would you say to them to convince them?<br>
+    <br>
+    Student:<br>
+    I would say that it really matters because everything is the same but Daisy has a lower grade because she has average fitness.<br>
+    <br>
+    Director:<br>
+    Ok, great, so you are sure then?<br>
+    <br>
+    Student:<br>
+    Yes.<br>
+    <br>
+    Director:<br>
+    Ok. Let's write down what you found out here as a memo to the foundation.<br>
+    Can you go ahead and fill out the form? What did you find out about whether Fitness matters?<br>
+    Be sure to click OK when you are done.<br>
+    <br>
+    Student:<br>
+    <form action="dialog12.html">
       <input type="text" placeholder="Enter your answer here" class="answer">
     </form>
 
@@ -77,16 +120,29 @@
 
   <div class="action">
 
-
-
+    <div class="mbox">
+        <h3>Memo to the foundation</h3>
+    
+        <form action="dialog13.html">
+        <p>
+          We recommend that you ask applicants about <u>Fitness</u> because
+          <input type="text" class="con" placeholder="Enter your answer here"><br>
+          <br>
+          Our evidence for claiming this is:<br>
+          <textarea class="evid" placeholder="Enter your answer here"></textarea><br>
+          <a href="dialog13.html" class="button">OK</a>
+        </p>
+        </form>
+        
+    </div><!-- .mbox -->
 
     <h3>Investigating Factor: <b>Fitness</b></h3>
 
     <div class="hbox">
-     <div class="frame">
+    <div class="frame">
         <table class="record">
           <tr>
-            <td colspan="3" class="robot">Record #4 <b>Jane Lopez</b>
+            <td colspan="3" class="robot">Record #6 <b>Natasha O'Connor</b>
             <td class="robot">Gender: F
         </table>
 
@@ -114,17 +170,17 @@
             Small</label>
           <tr>
             <td>Education
-            <td><label><img src="graphics/college.jpg"><br>
+            <td><label class="dimmed"><img src="graphics/college.jpg"><br>
             College</label>
             <td><label class="dimmed"><img src="graphics/some college.jpg"><br>
             Some College</label>
-            <td><label class="dimmed"><img src="graphics/no college.jpg"><br>
+            <td><label><img src="graphics/no college.jpg"><br>
             No College</label>
 
         </table>
 
         <p class="performance-level">Performance Level:
-          <span class="grade">A</span>
+          <span class="grade">C</span>
         </p>
 
       </div><!-- .frame -->
@@ -176,6 +232,7 @@
       </div><!-- .frame -->
 
     </div><!-- .hbox -->
+
   </div>
 </div>
 

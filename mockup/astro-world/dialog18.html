@@ -5,82 +5,78 @@
 
 <div class="content">
   <div class="dialog">
-
-
     Director:<br>
-    You wanted to look at one record.<br>
-    Which one would you like to see? Go ahead and select a level for each factor, and the computer will find you an applicant who is like that and tell you his/her performance<br>
+    OK. You wanted to look at two records.<br>
+    Which ones would you like to see? For each record, go ahead and select a level for each factor, and the computer will find you an applicant who is like that and tell you his/her performance<br>
     Click "OK" when you are ready.<br>
-    <br>
-    So, you want to look at record #18, Daisy Smith. Now, before I show you the performance. Can you tell me what you would be able to figure out by looking at this record?<br>
+    So, you want to look at record #4, Jane Lopez and #10, David Foster. Now, before I show you the performances. Can you tell me what you would be able to figure out by looking at these records?<br>
     <br>
     Student:<br>
-    I will find out if Daisy has good score.<br>
+    I will find out if parents health matters.<br>
     <br>
     Director:<br>
-    Ok, now that you saw the performance. What did you find out?<br>
+    Ok, now that you saw the performances. What did you find out?
+    Does Parents' Health make a difference? Yes or No?<br>
     <br>
     Student:<br>
-    I found out that Daisy does not have very good grade.<br>
-    <br>
-    Director:<br>
-    Do you have enough information to say whether fitness makes a difference to the performance in the space? Yes or No?<br>
-    <br>
-    Student:<br>
-    Yes<br>
-    <br>
-    Director:<br>
-    Ok. Does fitness make a difference to the performance?<br>
-    <br>
-    Student:<br>
-    I think it does.<br>
-    <br>
-    Director:<br>
-    What will happen to the performance for this applicant if fitness was Excellent?<br>
-    <br>
-    Student:<br>
-    She will get a higher grade.<br>
-    <br>
-    Director:<br>
-    Ok. Do you know for sure?<br>
-    <br>
-    Student:<br>
-    No...<br>
-    <br>
-    Director:<br>
-    Why don't you test it out? What record would you need?<br>
-    To find the record, go ahead and select a level for each factor, and the computer will find you an applicant.<br>
-    Remember to click "OK" when you are ready.<br>
-    <br>
-    Ok, you selected Record #4, Jane Lopez.<br>
-    What did you find out?<br>
-    Does fitness make a difference? Yes or No?<br>
-    <br>
-    Student:<br>
-    Yes! It makes a difference!<br>
+    Yes! It really does!<br>
     <br>
     Director:<br>
     What makes you say that?<br>
     <br>
     Student:<br>
-    Because Jane got a better grade than Daisy and he has excellent fitness.<br>
+    Because Jane got a better grade than David and she has excellent parents health.<br>
     <br>
     Director:<br>
-    That may be true. But can we really tell for sure that Jane had a higher grade than Daisy because he has excellent fitness? Couldn't someone say that it is because Jane has college and that is why Jane has a better grade than Daisy? Do you really know for sure that fitness made the difference? Yes or No?<br>
+    But does it have to be Parents' Health that is making the difference? Could I say that Jane has a better grade than David because he has excellent for Fitness?<br>
     <br>
     Student:<br>
-    <form action="dialog10.html">
+    No, because they have the same fitness<br>
+    <br>
+    Director:<br>
+    I see! Ok. Now, what if I change your comparison so that instead of David, I compare Jane with Mathew like I show you here. Would I still be able to tell if Parents' Health make a difference? Yes or No?<br>
+    <br>
+    Student:<br>
+    No, because education is also changing. We wouldn't be able to tell.<br>
+    <br>
+    Director:<br>
+    Ok, so you would only want to compare Jane with David then, right? Yes or No?<br>
+    <br>
+    Student:<br>
+    Yes!<br>
+    <br>
+    Director:<br>
+    Ok, Here are Jane with David again.<br>
+    Let's write down what you found out here as a memo to the foundation.<br>
+    Can you go ahead and fill out the form? What did you find out about whether Parents' Healther matters?<br>
+    Be sure to click OK when you are done.<br>
+    <br>
+    Student:<br>
+    <form action="dialog18.html">
       <input type="text" placeholder="Enter your answer here" class="answer">
     </form>
 
   </div>
 
+
   <div class="action">
+    <div class="mbox">
+        <h3>Memo to the foundation</h3>
+    
+        <form action="dialog18.html">
+        <p>
+          We recommend that you ask applicants about <u>Parents' Health</u> because
+          <input type="text" class="con" placeholder="Enter your answer here"><br>
+          <br>
+          Our evidence for claiming this is:<br>
+          <textarea class="evid" placeholder="Enter your answer here"></textarea><br>
+          <a href="dialog18.html" class="button">OK</a>
+        </p>
+        </form>
+        
+    </div><!-- .mbox -->
 
-
-
-
-    <h3>Investigating Factor: <b>Fitness</b></h3>
+    <h3>Investigating Factor: <b>Parents' Health</b></h3>
 
     <div class="hbox">
      <div class="frame">
@@ -132,24 +128,24 @@
       <div class="frame">
         <table class="record">
           <tr>
-            <td colspan="3" class="robot">Record #18 <b>Daisy Smith</b>
-            <td class="robot">Gender: F
+            <td colspan="3" class="robot">Record #10 <b>David Foster</b>
+            <td class="robot">Gender: M
         </table>
 
         <table class="xxx">
           <tr>
             <td>Fitness
-            <td><label class="dimmed"><img src="graphics/excellent fitness.jpg"><br>
+            <td><label><img src="graphics/excellent fitness.jpg"><br>
             Excellent</label>
             <td>&nbsp;
-            <td><label><img src="graphics/average fitness.jpg"><br>
+            <td><label class="dimmed"><img src="graphics/average fitness.jpg"><br>
             Average</label>
           <tr>
             <td>Parents health
-            <td><label><img src="graphics/excellent parents.jpg"><br>
+            <td><label class="dimmed"><img src="graphics/excellent parents.jpg"><br>
             Excellent</label>
             <td>&nbsp;
-            <td><label class="dimmed"><img src="graphics/fair parents.jpg"><br>
+            <td><label><img src="graphics/fair parents.jpg"><br>
             Fair</label>
           <tr>
             <td>Family size
@@ -160,17 +156,17 @@
             Small</label>
           <tr>
             <td>Education
-            <td><label class="dimmed"><img src="graphics/college.jpg"><br>
+            <td><label><img src="graphics/college.jpg"><br>
             College</label>
             <td><label class="dimmed"><img src="graphics/some college.jpg"><br>
             Some College</label>
-            <td><label><img src="graphics/no college.jpg"><br>
+            <td><label class="dimmed"><img src="graphics/no college.jpg"><br>
             No College</label>
 
         </table>
 
         <p class="performance-level">Performance Level:
-          <span class="grade">D</span>
+          <span class="grade">B</span>
         </p>
 
       </div><!-- .frame -->
