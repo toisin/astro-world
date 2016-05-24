@@ -64,7 +64,7 @@ if (!username) {
   //                   document.body);
 
   user.loadAllUserData(callback = function() {
-                         React.renderComponent(
+                         React.render(
                            <App user={user}/>,
                          document.body);});
 }

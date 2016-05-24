@@ -115,6 +115,10 @@ a.button {
   margin: 10px;
 }
 
+.action .chart img {
+  width: 800px;
+}
+
 .hbox {
   display: flex;
   flex-direction: row;
