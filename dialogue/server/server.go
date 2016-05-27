@@ -371,7 +371,7 @@ func UpdateUserData(c appengine.Context, username string, workflowStateID string
 		ud.CurrentPrompt = workflow.GetFirstState()
 		ud.User.CurrentWorkflowStateId = ud.CurrentPrompt.GetId()
     	//fmt.Fprint(os.Stderr, ud.CurrentPrompt.Ptype())
-	} else if (currentWorkflowStateId) != "" && (currentWorkflowStateId != workflow.END_STATE) {
+	} else if (currentWorkflowStateId) != "" && (currentWorkflowStateId != workflow.PROMPT_END) {
 		nid := workflow.GetStateMap()[currentWorkflowStateId].GetNextStateId()
 		ud.CurrentPrompt = workflow.GetStateMap()[nid]
 		ud.User.CurrentWorkflowStateId = nid

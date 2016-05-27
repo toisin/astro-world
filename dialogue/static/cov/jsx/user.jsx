@@ -8,6 +8,7 @@ var PROMPT_TEXT = "TEXT";
 var PROMPT_YES_NO = "YES_NO";
 var PROMPT_NO_RESPONSE = "NO_RESPONSE";
 var PROMPT_MC = "MC";
+var PROMPT_END = "COMPLETE"
 
 
 function User(name) {

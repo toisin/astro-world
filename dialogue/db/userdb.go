@@ -20,7 +20,7 @@ type User struct {
 	CurrentX string
 	Case1 string
 	Case2 string
-	CompletedX []string
+	// CompletedX []string // What is that?
 }
 
 type Message struct {

@@ -6,7 +6,7 @@ const (
 	PROMPT_YES_NO = "YES_NO"
 	PROMPT_MC = "MC"
 
-	END_STATE = "COMPLETE"
+	PROMPT_END = "COMPLETE"
 )
 
 var stateMap = make(map[string]State)
@@ -40,7 +40,8 @@ func InitWorkflowMaps() {
 						"4"}
 	stateMap["4"] = &TextPromptState{PROMPT_TEXT, "4", "What did you find out about %X1?", "3", "5"}
 	stateMap["5"] = &TextPromptState{PROMPT_TEXT, "5", "How do you know?", "4", "6"}
-	stateMap["6"] = &TextPromptState{PROMPT_TEXT, "6", "Which records show you are right?", "5", "COMPLETE"}
+	stateMap["6"] = &TextPromptState{PROMPT_TEXT, "6", "Which records show you are right?", "5", PROMPT_END}
+	stateMap[PROMPT_END] = &TextPromptState{PROMPT_END, PROMPT_END, "You have done!", "6", PROMPT_END}
 	// stateMap["8"] = &MCPromptState{"8", "What level is your?", ""}
 	// stateMap["9"] = &MCPromptState{"9", "How do you know?", ""}
 	// stateMap["10"] = &MCPromptState{"10", "How do you know?", ""}

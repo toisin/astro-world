@@ -3,6 +3,34 @@
 // npm install -g react-tools
 // jsx -w -x jsx public/js public/js
 
+// var Challenge = React.createClass({
+
+//   render: function() {
+//     var state = this.state;
+//     var user = this.props.user;
+//     var app = this.props.app;
+//     return  <div className="action">
+//               <p>
+//                 <a href="chart.html" className="button">Show Charts</a>
+//                 <br/><br/>
+//               </p>
+//               <table>
+//                 <tr>
+//                   <td colspan="2">What would you need to predict his/her performance?</td>
+//                 </tr>
+//                 <tr>
+//                   <td colspan="2">&nbsp;</td>
+//                 </tr>
+//               </table>
+//               <p>
+//                 <a href="dialog26.html" className="button">OK</a>
+//               </p>
+//             </div>;
+//   }
+// });
+
+
+
 // function ChallengeHandler(challenge) {
 //   this.username = username;
 //   this.oldCart = null;
