@@ -21,6 +21,7 @@ func init() {
 
     http.Handle(COV, &GetHandler{})
     http.Handle(COV_STATIC, &StaticHandler{})
+    http.Handle(COV_REACT_STATIC, &StaticHandler{})
     http.Handle(COV_HISTORY, &HistoryHandler{})
     http.Handle(COV_NEWUSER, &NewUserHandler{})
     http.Handle(COV_GETUSER, &GetUserHandler{})
@@ -47,6 +48,7 @@ func (staticH *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 
 const COV = "/astro-world/"
 const COV_STATIC = "/astro-world/js/"
+const COV_REACT_STATIC = "/astro-world/react-js/"
 const COV_HISTORY = "/astro-world/history"
 const COV_NEWUSER = "/astro-world/newuser"
 const COV_GETUSER = "/astro-world/getuser"
