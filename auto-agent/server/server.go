@@ -219,7 +219,7 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         		db.Message{
 					Text: r.FormValue("questionText"),
 					Mtype: db.ROBOT,
-					WorflowStateID: workflowStateID,
+					WorkflowStateID: workflowStateID,
 				    Date: time.Now(),
 				    RecordNo: rc1,
         		},
@@ -227,7 +227,7 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					Value: r.FormValue("responseValue"),
 					Text: r.FormValue("responseText"),
 					Mtype: db.HUMAN,
-					WorflowStateID: workflowStateID,
+					WorkflowStateID: workflowStateID,
 				    Date: time.Now(),
 				    RecordNo: rc2,
         		}}

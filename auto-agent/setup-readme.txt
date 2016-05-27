@@ -30,6 +30,7 @@
 /exploration/public/js/.*
 /exploration/public/js/*.*
 
+*.js
 
 
 

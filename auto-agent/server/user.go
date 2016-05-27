@@ -39,12 +39,12 @@ type UserData struct {
 // 						Username: u.username,
 // 						Text: workflow.StateMap["1"].Text(),
 // 						Mtype:db.ROBOT,
-// 						WorflowStateID: workflow.StateMap["1"].Id()}
+// 						WorkflowStateID: workflow.StateMap["1"].Id()}
 // 	u.history[1] = db.Message{
 // 						Username: u.username,
 // 						Text: "",
 // 						Mtype:db.HUMAN,
-// 						WorflowStateID: workflow.StateMap["2"].Id()}
+// 						WorkflowStateID: workflow.StateMap["2"].Id()}
 // 	return u.history
 // }
 
