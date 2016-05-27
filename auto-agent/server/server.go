@@ -45,12 +45,12 @@ func (staticH *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
     http.ServeFile(w, r, "static" + r.URL.Path)
 }
 
-const COV = "/cov/"
-const COV_STATIC = "/cov/js/"
-const COV_HISTORY = "/cov/history"
-const COV_NEWUSER = "/cov/newuser"
-const COV_GETUSER = "/cov/getuser"
-const COV_SENDRESPONSE = "/cov/sendresponse"
+const COV = "/astro-world/"
+const COV_STATIC = "/astro-world/js/"
+const COV_HISTORY = "/astro-world/history"
+const COV_NEWUSER = "/astro-world/newuser"
+const COV_GETUSER = "/astro-world/getuser"
+const COV_SENDRESPONSE = "/astro-world/sendresponse"
 
 type GetHandler StaticHandler
 type HistoryHandler StaticHandler
@@ -86,10 +86,10 @@ func (covH *GetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if len(r.URL.Path[len(COV):]) != 0 {
-			http.ServeFile(w, r, "static/cov" + r.URL.Path)
+			http.ServeFile(w, r, "static/astro-world" + r.URL.Path)
 			return
 		} else {
-			http.ServeFile(w, r, "static/cov/index.html")
+			http.ServeFile(w, r, "static/astro-world/index.html")
 			return
 		}
 	} else {

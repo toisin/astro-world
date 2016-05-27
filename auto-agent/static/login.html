@@ -30,7 +30,7 @@ function handleSubmit(e) {
     var formData = new FormData();
 
     formData.append("user", username);
-	xhr.open('POST', '/cov/getuser');
+	xhr.open('POST', '/astro-world/getuser');
 	xhr.send(formData);
 	return false;
 
@@ -41,8 +41,8 @@ function handleSubmit(e) {
 }
 
 function handleResponse(username) {
-	// window.location = '/cov/' + data.name;
-	window.location = '/cov/?user=' + encodeURIComponent(username);
+	// window.location = '/astro-world/' + data.name;
+	window.location = '/astro-world/?user=' + encodeURIComponent(username);
 }
 
 function handleError() {
