@@ -17,9 +17,9 @@ type User struct {
 	Screenname string
     Date time.Time
     CurrentWorkflowStateId string
-	CurrentX string
-	Case1 string
-	Case2 string
+	// CurrentX string
+	// Case1 string
+	// Case2 string
 	// CompletedX []string // What is that?
 }
 
@@ -28,7 +28,7 @@ type Message struct {
 	Value string
 	Text string
 	Mtype string // ROBOT | HUMAN
-	WorflowStateID string
+	WorkflowStateID string
     Date time.Time
     RecordNo int
 }

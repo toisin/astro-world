@@ -8,7 +8,7 @@ package db
 
 
 // type Record struct {
-// 	Id string
+// 	ID string
 // 	Name string
 // 	NumberOfFactors int
 //     FactorNames []string

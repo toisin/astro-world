@@ -1,8 +1,10 @@
 *.pid
 
-/dialogue/static/cov/js/*
-/dialogue/static/cov/js/.*
-/dialogue/static/cov/js/*.*
+/auto-agent/static/astro-world/js/*
+/auto-agent/static/astro-world/js/.*
+/auto-agent/static/astro-world/js/*.*
+/auto-agent/static/astro-world/js/*.js
+
 
 /exploration/data/*
 /exploration/data/.*
@@ -11,3 +13,5 @@
 /exploration/public/js/*
 /exploration/public/js/.*
 /exploration/public/js/*.*
+
+*.js

@@ -18,9 +18,9 @@
 ## Setup GitHub .gitignore to not sync react generated files
 *.pid
 
-/dialogue/static/cov/js/*
-/dialogue/static/cov/js/.*
-/dialogue/static/cov/js/*.*
+/auto-agent/static/astro-world/js/*
+/auto-agent/static/astro-world/js/.*
+/auto-agent/static/astro-world/js/*.*
 
 /exploration/data/*
 /exploration/data/.*
@@ -29,6 +29,12 @@
 /exploration/public/js/*
 /exploration/public/js/.*
 /exploration/public/js/*.*
+
+
+
+
+
+
 
 ## Dev setup procedure
 # Setup google appengine locally
@@ -40,6 +46,12 @@ goapp serve
 # Start React Transformation
 cd ~/GitHub/astro-world/auto-agent/static/astro-world
 jsx -w -x jsx jsx js
+
+
+
+
+
+
 
 ## Deploy local server to cloud
 cd ~/GitHub/astro-world/
