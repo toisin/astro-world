@@ -1,0 +1,59 @@
+package workflow
+
+type Prompt interface {
+	// TODO add these bigger structure
+	// GetParentPhase() Phase
+	// GetParentStrategy() Strategy
+	GetDisplayText() string
+	GetActionModeId() int
+	GetState() State
+	GetResponseText() string
+	GetNextPrompt() Prompt
+	SetResponse(Response)
+}
+
+
+// type Factor struct {
+// 	// TODO
+// }
+
+type PromptGenerator interface {
+	GetPromptText() string // actual text ready to be displayed as a prompt
+	GetActionModeId() int  // the mode of rendering for Action UI
+}
+
+
+
+type ExpectedResponseHandler struct {
+	expectedResponseMap map[string]Prompt
+}
+
+func (erh *ExpectedResponseHandler) GetNextPrompt(r Response) Prompt {
+	return erh.expectedResponseMap[r.GetId()]
+}
+
+type Response interface {
+	GetText() string
+	GetId() string
+}
+
+func NewTextResponse(t string, id string) *TextResponse {
+	return &TextResponse{t, id}
+	// n := new(TextResponse)
+	// n.text = t
+	// n.id = id
+	// return n
+}
+
+type TextResponse struct {
+	text string
+	id string
+}
+
+func (tr *TextResponse) GetText() string {
+	return tr.text
+}
+
+func (tr *TextResponse) GetId() string {
+	return tr.id
+}

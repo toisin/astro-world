@@ -1,5 +1,19 @@
 package workflow
 
+type State struct {
+	xxx []string
+	// GetActivePhase() Phase
+	// GetCompletedPhases() []Phase
+	// GetFuturePhases() []Phase
+	// GetHistory() []Prompt
+}
+
+
+
+
+
+
+
 const (
 	PROMPT_NO_RESPONSE = "NO_RESPONSE"
 	PROMPT_TEXT = "TEXT"
@@ -9,10 +23,11 @@ const (
 	PROMPT_END = "COMPLETE"
 )
 
-var stateMap = make(map[string]State)
+var stateMap = make(map[string]OldState)
 var variableMap = make(map[string]Variable)
 
-func InitWorkflowMaps() {
+func InitWorkflow() {
+	InitCovPromptLogic() // TODO only do cov for now
 	variableMap["Y"] = Variable{ Text: "Performance"}
 	variableMap["X1"] = Variable{"Health Index", true, false}
 	variableMap["X2"] = Variable{"Height", false, false}
@@ -52,11 +67,11 @@ func GetVariableMap() map[string]Variable{
 	return variableMap
 }
 
-func GetStateMap() map[string]State{
+func GetStateMap() map[string]OldState{
 	return stateMap
 }
 
-func GetFirstState() State {
+func GetFirstState() OldState {
 	return stateMap["1"]
 }
 
@@ -67,7 +82,7 @@ type Variable struct {
 }
 
 
-type State interface {
+type OldState interface {
 	Display() string
 	GetNextStateId() string
 	GetId() string
@@ -115,6 +130,7 @@ func (ps *MCPromptState) Display() string {
 }
 
 func (ps *MCPromptState) GetNextStateId() string {
+	//TODO Totally just hardcoding
 	if ps.WorkflowStateID == "1" {
 		return "2"
 	}

@@ -27,7 +27,7 @@ func init() {
     http.Handle(COV_GETUSER, &GetUserHandler{})
     http.Handle(COV_SENDRESPONSE, &ResponseHandler{})
 
-    workflow.InitWorkflowMaps()
+    workflow.InitWorkflow()
 }
 
 type TextHandler string
