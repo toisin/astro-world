@@ -23,6 +23,7 @@ type Prompt interface {
 type PromptGenerator interface {
 	GetPromptText() string // actual text ready to be displayed as a prompt
 	GetActionModeId() int  // the mode of rendering for Action UI
+	GenerateUIPrompt() UIPrompt
 }
 
 

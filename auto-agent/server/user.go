@@ -6,6 +6,16 @@ import (
 )
 
 type UserData struct {
+	uiUserData UIUserData
+	CurrentPrompt workflow.Prompt
+}
+
+func (u *UserData)GetUIUserData() *UIUserData {
+	return &u.uiUserData
+}
+
+// Includes only the variables that are needed on the client side
+type UIUserData struct {
 	User db.User
 	History []db.Message
 	CurrentUIPrompt workflow.UIPrompt

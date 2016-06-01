@@ -76,6 +76,7 @@ func InitCovPromptLogic() {
 }
 
 func MakeFirstPrompt() Prompt {
+	// TODO Hardcoding the first prompt as CovPrompt
 	p:= MakeCovPrompt(promptTreeConfig)
 	fmt.Fprintf(os.Stderr, " %s", p.GetDisplayText())
 	return p

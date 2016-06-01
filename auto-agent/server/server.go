@@ -105,12 +105,12 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query()["user"] != nil {
 		// Always handle username in lowercase
 		username := strings.ToLower(r.URL.Query()["user"][0])
-		ud, err := UpdateUserData(c, username, "")
+		ud, err := MakeUIUserData(c, username)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
-		s, err := stringify(ud)
+		s, err := stringify(*(ud.GetUIUserData()))
 		if err != nil {
 			fmt.Println("Error converting messages to json", err)
 		}
@@ -275,12 +275,12 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// fmt.Fprint(w, "{	\"prompt\": {\"type\": \"TEXT\", \"text\": \"First Question\", \"workflowStateID\": \"2\"}, \"messages\": [{	\"text\": \"" + history[0].Text + "\",\"type\": \"robot\"},{ \"text\": \"hello22\",\"type\": \"student\"}]}")
 
-		ud, err := UpdateUserData(c, username, workflowStateID)
+		ud, err := MakeUIUserData(c, username)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
-		s, err := stringify(ud)
+		s, err := stringify(*(ud.GetUIUserData()))
 		if err != nil {
 			fmt.Println("Error converting messages to json", err)
 		}
@@ -330,9 +330,10 @@ func GetHistoryCount(c appengine.Context, username string) (rc int, err error) {
     return
 }
 
-func UpdateUserData(c appengine.Context, username string, workflowStateID string) (ud UserData, err error) {
+func MakeUIUserData(c appengine.Context, username string) (ud UserData, err error) {
 
 	ud = UserData {}
+	uiud := ud.GetUIUserData()
 
 	u, _, err := GetUser(c, username)
 
@@ -346,7 +347,7 @@ func UpdateUserData(c appengine.Context, username string, workflowStateID string
     	return
 	}
 
-	ud.User = u
+	uiud.User = u
     // TODO What does this comment mean...
     // Ancestor queries, as shown here, are strongly consistent with the High
     // Replication Datastore. Queries that span entity groups are eventually
@@ -355,28 +356,24 @@ func UpdateUserData(c appengine.Context, username string, workflowStateID string
     // show up in a query.
     // [START query]
  
-	ud.History, err = GetHistory(c, username)
+	uiud.History, err = GetHistory(c, username)
     if err != nil {
     	fmt.Fprint(os.Stderr, "DB Error Getting list of messages:" + err.Error() + "!\n\n")
         return
     }
 
-    var currentWorkflowStateId string
-    if workflowStateID == "" {
-	    currentWorkflowStateId = ud.User.CurrentWorkflowStateId
-	} else {
-		currentWorkflowStateId = workflowStateID
-	}
+    currentWorkflowStateId := uiud.User.CurrentWorkflowStateId
 
 	if currentWorkflowStateId == "" {
 		// Start from the beginning
-		ud.CurrentUIPrompt = workflow.MakeFirstPrompt().GetUIPrompt()
-		ud.User.CurrentWorkflowStateId = ud.CurrentUIPrompt.GetId()
+		ud.CurrentPrompt = workflow.MakeFirstPrompt()
+		uiud.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt()
+		uiud.User.CurrentWorkflowStateId = uiud.CurrentUIPrompt.GetId()
     	//fmt.Fprint(os.Stderr, ud.CurrentUIPrompt.Ptype())
 	} else if (currentWorkflowStateId) != "" && (currentWorkflowStateId != workflow.UI_PROMPT_END) {
 		nid := workflow.GetStateMap()[currentWorkflowStateId].GetNextStateId()
-		ud.CurrentUIPrompt = workflow.GetStateMap()[nid]
-		ud.User.CurrentWorkflowStateId = nid
+		uiud.CurrentUIPrompt = workflow.GetStateMap()[nid]
+		uiud.User.CurrentWorkflowStateId = nid
 	}
 
     return
