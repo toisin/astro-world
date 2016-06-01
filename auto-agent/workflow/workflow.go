@@ -73,12 +73,12 @@ func InitCovPromptLogic() {
 		//TODO cleanup
 		//fmt.Fprintf(os.Stderr, " %s: %s\n", promptTree.Id, (promptTree.ExpectedResponses[0]).Id)
 	}
-	MakeFirstPrompt()
 }
 
-func MakeFirstPrompt()  {
+func MakeFirstPrompt() Prompt {
 	p:= MakeCovPrompt(promptTreeConfig)
 	fmt.Fprintf(os.Stderr, " %s", p.GetDisplayText())
+	return p
 }
 
 
@@ -103,7 +103,7 @@ const (
 	UI_PROMPT_END = "COMPLETE"
 )
 
-var stateMap = make(map[string]UIState)
+var stateMap = make(map[string]UIPrompt)
 var variableMap = make(map[string]Variable)
 
 func InitWorkflow() {
@@ -114,8 +114,8 @@ func InitWorkflow() {
 	variableMap["X3"] = Variable{"Weight", true, false}
 	variableMap["X4"] = Variable{"Laughters", true, false}
 
-	// stateMap["1"] = &UIMCPromptState{UI_PROMPT_NO_RESPONSE, "1", "Let's get started!", ""}
-	stateMap["1"] = &UIMCPromptState{
+	// stateMap["1"] = &UIMCPrompt{UI_PROMPT_NO_RESPONSE, "1", "Let's get started!", ""}
+	stateMap["1"] = &UIMCPrompt{
 						UI_PROMPT_MC,
 						"1",
 						"Let's get started! What feature have you investigated?",
@@ -125,34 +125,30 @@ func InitWorkflow() {
 					 		UIOption{variableMap["X2"].Text,"X2"},
 					 		UIOption{variableMap["X3"].Text,"X3"},
 					 		UIOption{variableMap["X4"].Text,"X4"}}}
-	stateMap["2"] = &UITextPromptState{UI_PROMPT_YES_NO, "2", "Do you think it makes a difference?", "1", "3"}
+	stateMap["2"] = &UITextPrompt{UI_PROMPT_YES_NO, "2", "Do you think it makes a difference?", "1", "3"}
 	//stateMap["2"] = &LogicPromptState{UI_PROMPT_YES_NO, "2", "Do you think it makes a difference?", "1"}
-	stateMap["3"] = &UITextPromptState{
+	stateMap["3"] = &UITextPrompt{
 						UI_PROMPT_TEXT,
 						"3",
 						"When %X1 goes up, what happens to %Y?",
 						"2",
 						"4"}
-	stateMap["4"] = &UITextPromptState{UI_PROMPT_TEXT, "4", "What did you find out about %X1?", "3", "5"}
-	stateMap["5"] = &UITextPromptState{UI_PROMPT_TEXT, "5", "How do you know?", "4", "6"}
-	stateMap["6"] = &UITextPromptState{UI_PROMPT_TEXT, "6", "Which records show you are right?", "5", UI_PROMPT_END}
-	stateMap[UI_PROMPT_END] = &UITextPromptState{UI_PROMPT_END, UI_PROMPT_END, "You have done!", "6", UI_PROMPT_END}
-	// stateMap["8"] = &UIMCPromptState{"8", "What level is your?", ""}
-	// stateMap["9"] = &UIMCPromptState{"9", "How do you know?", ""}
-	// stateMap["10"] = &UIMCPromptState{"10", "How do you know?", ""}
-	// stateMap["11"] = &UIMCPromptState{"11", "How do you know?", ""}
+	stateMap["4"] = &UITextPrompt{UI_PROMPT_TEXT, "4", "What did you find out about %X1?", "3", "5"}
+	stateMap["5"] = &UITextPrompt{UI_PROMPT_TEXT, "5", "How do you know?", "4", "6"}
+	stateMap["6"] = &UITextPrompt{UI_PROMPT_TEXT, "6", "Which records show you are right?", "5", UI_PROMPT_END}
+	stateMap[UI_PROMPT_END] = &UITextPrompt{UI_PROMPT_END, UI_PROMPT_END, "You have done!", "6", UI_PROMPT_END}
+	// stateMap["8"] = &UIMCPrompt{"8", "What level is your?", ""}
+	// stateMap["9"] = &UIMCPrompt{"9", "How do you know?", ""}
+	// stateMap["10"] = &UIMCPrompt{"10", "How do you know?", ""}
+	// stateMap["11"] = &UIMCPrompt{"11", "How do you know?", ""}
 }
 
 func GetVariableMap() map[string]Variable{
 	return variableMap
 }
 
-func GetStateMap() map[string]UIState{
+func GetStateMap() map[string]UIPrompt{
 	return stateMap
-}
-
-func GetFirstState() UIState {
-	return stateMap["1"]
 }
 
 type Variable struct {
@@ -162,13 +158,13 @@ type Variable struct {
 }
 
 
-type UIState interface {
+type UIPrompt interface {
 	Display() string
 	GetNextStateId() string
 	GetId() string
 }
 
-type UITextPromptState struct {
+type UITextPrompt struct {
 	Ptype string
 	WorkflowStateID string
 	Text string
@@ -176,19 +172,19 @@ type UITextPromptState struct {
 	NextStateId string
 }
 
-func (ps *UITextPromptState) GetId() string {
+func (ps *UITextPrompt) GetId() string {
 	return ps.WorkflowStateID
 }
 
-func (ps *UITextPromptState) Display() string {
+func (ps *UITextPrompt) Display() string {
 	return ps.Text
 }
 
-func (ps *UITextPromptState) GetNextStateId() string {
+func (ps *UITextPrompt) GetNextStateId() string {
 	return ps.NextStateId
 }
 
-type UIMCPromptState struct {
+type UIMCPrompt struct {
 	Ptype string
 	WorkflowStateID string
 	Text string
@@ -201,15 +197,15 @@ type UIOption struct {
 	Value string
 }
 
-func (ps *UIMCPromptState) GetId() string {
+func (ps *UIMCPrompt) GetId() string {
 	return ps.WorkflowStateID
 }
 
-func (ps *UIMCPromptState) Display() string {
+func (ps *UIMCPrompt) Display() string {
 	return ps.Text
 }
 
-func (ps *UIMCPromptState) GetNextStateId() string {
+func (ps *UIMCPrompt) GetNextStateId() string {
 	//TODO Totally just hardcoding
 	if ps.WorkflowStateID == "1" {
 		return "2"

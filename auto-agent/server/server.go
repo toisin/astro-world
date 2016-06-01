@@ -370,7 +370,7 @@ func UpdateUserData(c appengine.Context, username string, workflowStateID string
 
 	if currentWorkflowStateId == "" {
 		// Start from the beginning
-		ud.CurrentUIPrompt = workflow.GetFirstState()
+		ud.CurrentUIPrompt = workflow.MakeFirstPrompt().GetUIPrompt()
 		ud.User.CurrentWorkflowStateId = ud.CurrentUIPrompt.GetId()
     	//fmt.Fprint(os.Stderr, ud.CurrentUIPrompt.Ptype())
 	} else if (currentWorkflowStateId) != "" && (currentWorkflowStateId != workflow.UI_PROMPT_END) {

@@ -12,6 +12,7 @@ type Prompt interface {
 	GetResponseText() string
 	GetNextPrompt() Prompt
 	SetResponse(Response)
+	GetUIPrompt() UIPrompt
 }
 
 

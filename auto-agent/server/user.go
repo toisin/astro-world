@@ -8,7 +8,7 @@ import (
 type UserData struct {
 	User db.User
 	History []db.Message
-	CurrentUIPrompt workflow.UIState
+	CurrentUIPrompt workflow.UIPrompt
 }
 
 // func (u *User)GetHistory() []db.Message {
