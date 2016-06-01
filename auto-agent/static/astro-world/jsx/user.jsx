@@ -4,18 +4,18 @@
 // jsx -w -x jsx public/js public/js
 
 
-var PROMPT_TEXT = "TEXT";
-var PROMPT_YES_NO = "YES_NO";
-var PROMPT_NO_RESPONSE = "NO_RESPONSE";
-var PROMPT_MC = "MC";
-var PROMPT_END = "COMPLETE"
+var UI_PROMPT_TEXT = "TEXT";
+var UI_PROMPT_YES_NO = "YES_NO";
+var UI_PROMPT_NO_RESPONSE = "NO_RESPONSE";
+var UI_PROMPT_MC = "MC";
+var UI_PROMPT_END = "COMPLETE"
 
 
 function User(name) {
   this.Username = name;
   this.Screenname = "";
   this.History = [];
-  this.CurrentPrompt = {};
+  this.CurrentUIPrompt = {};
 }
 
 User.prototype = {
@@ -38,7 +38,7 @@ User.prototype = {
   },
 
   getPrompt: function() {
-    return this.CurrentPrompt;
+    return this.CurrentUIPrompt;
   },
 
   getScreenname: function() {
@@ -49,8 +49,8 @@ User.prototype = {
     var self = this;
     self.Screenname = j.User.Screenname;
     self.History = j.History;
-    self.CurrentPrompt = j["CurrentPrompt"];
-    //self.CurrentPrompt = {"ptype": PROMPT_TEXT, "text": "First Question", "workflowStateID": "2"};    
+    self.CurrentUIPrompt = j["CurrentUIPrompt"];
+    //self.CurrentUIPrompt = {"ptype": UI_PROMPT_TEXT, "text": "First Question", "workflowStateID": "2"};    
   },
 
   loadHistory: function() {
@@ -78,10 +78,10 @@ User.prototype = {
   submitResponse: function(workflowStateID, value, renderCallback) {
     var self = this;
     var text = value;
-    var question = self.CurrentPrompt.Text;
+    var question = self.CurrentUIPrompt.Text;
 
-    if (self.CurrentPrompt.Ptype == PROMPT_MC) {
-      var options = self.CurrentPrompt.Options;
+    if (self.CurrentUIPrompt.Ptype == UI_PROMPT_MC) {
+      var options = self.CurrentUIPrompt.Options;
       for (i = 0; i < options.length; i++) {
         if (options[i].Value == value) {
           text = options[i].Label;

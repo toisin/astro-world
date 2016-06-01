@@ -117,7 +117,7 @@ var Input = React.createClass({
     var type = prompt.Ptype;
     var human = this.props.user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
 
-    if (type == PROMPT_TEXT) {
+    if (type == UI_PROMPT_TEXT) {
       return  <div>
                 <div className="researcher">
                   <div className="name">{DisplayText[MSG_ROBOT]}</div>
@@ -137,7 +137,7 @@ var Input = React.createClass({
                 </div>
               </div>;
     }
-    if (type == PROMPT_YES_NO) {
+    if (type == UI_PROMPT_YES_NO) {
       return  <div>
                 <div className="researcher">
                   <div className="name">{DisplayText[MSG_ROBOT]}</div>
@@ -164,7 +164,7 @@ var Input = React.createClass({
                 </div>
               </div>;
     }
-    if (type == PROMPT_MC) {
+    if (type == UI_PROMPT_MC) {
       if (!prompt.Options) {
         console.error("Error: MC Prompt without options!");    
         return <div></div>;
@@ -193,7 +193,7 @@ var Input = React.createClass({
                 </div>
               </div>;
     }
-    if (type == PROMPT_NO_RESPONSE) {
+    if (type == UI_PROMPT_NO_RESPONSE) {
       return  <div>
                 <div className="researcher">
                   <div className="name">{DisplayText[MSG_ROBOT]}</div>
@@ -201,7 +201,7 @@ var Input = React.createClass({
                 </div>
               </div>;
     }
-    if (type == PROMPT_END) {
+    if (type == UI_PROMPT_END) {
       return  <div></div>;
     }
     console.error("Error: Unknown prompt type!");  

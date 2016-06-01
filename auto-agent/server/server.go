@@ -116,7 +116,7 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprint(w, s)
 
-		// fmt.Fprint(w, "{	\"prompt\": {\"type\": \""+workflow.PROMPT_MC+"\", \"text\": \"First Question\", \"workflowStateID\": \"2\", \"options\": [{\"label\": \"health\", \"value\": \"X1\"},{\"label\": \"height\", \"value\": \"X2\"}]}, \"messages\": [{	\"text\": \"" + t + "\",\"type\": \"robot\"},{ \"text\": \"hello22\",\"type\": \"student\"}]}")
+		// fmt.Fprint(w, "{	\"prompt\": {\"type\": \""+workflow.UI_PROMPT_MC+"\", \"text\": \"First Question\", \"workflowStateID\": \"2\", \"options\": [{\"label\": \"health\", \"value\": \"X1\"},{\"label\": \"height\", \"value\": \"X2\"}]}, \"messages\": [{	\"text\": \"" + t + "\",\"type\": \"robot\"},{ \"text\": \"hello22\",\"type\": \"student\"}]}")
 	} else {
 		fmt.Fprint(os.Stderr, "Error: username not provided for getting history!\n\n")
 	}
@@ -370,12 +370,12 @@ func UpdateUserData(c appengine.Context, username string, workflowStateID string
 
 	if currentWorkflowStateId == "" {
 		// Start from the beginning
-		ud.CurrentPrompt = workflow.GetFirstState()
-		ud.User.CurrentWorkflowStateId = ud.CurrentPrompt.GetId()
-    	//fmt.Fprint(os.Stderr, ud.CurrentPrompt.Ptype())
-	} else if (currentWorkflowStateId) != "" && (currentWorkflowStateId != workflow.PROMPT_END) {
+		ud.CurrentUIPrompt = workflow.GetFirstState()
+		ud.User.CurrentWorkflowStateId = ud.CurrentUIPrompt.GetId()
+    	//fmt.Fprint(os.Stderr, ud.CurrentUIPrompt.Ptype())
+	} else if (currentWorkflowStateId) != "" && (currentWorkflowStateId != workflow.UI_PROMPT_END) {
 		nid := workflow.GetStateMap()[currentWorkflowStateId].GetNextStateId()
-		ud.CurrentPrompt = workflow.GetStateMap()[nid]
+		ud.CurrentUIPrompt = workflow.GetStateMap()[nid]
 		ud.User.CurrentWorkflowStateId = nid
 	}
 

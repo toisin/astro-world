@@ -1,5 +1,7 @@
 package workflow
 
+
+
 type Prompt interface {
 	// TODO add these bigger structure
 	// GetParentPhase() Phase
@@ -26,6 +28,15 @@ type PromptGenerator interface {
 
 type ExpectedResponseHandler struct {
 	expectedResponseMap map[string]Prompt
+}
+
+func MakeExpectedResponseHandler(ecs[]ExpectedResponseConfig) *ExpectedResponseHandler {
+	erh := new(ExpectedResponseHandler)
+	erh.expectedResponseMap = make(map[string]Prompt)
+	for _, v := range ecs {
+		erh.expectedResponseMap[v.Id] = MakeCovPrompt(v.NextPrompt)
+	}
+	return erh
 }
 
 func (erh *ExpectedResponseHandler) GetNextPrompt(r Response) Prompt {
