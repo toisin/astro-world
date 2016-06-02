@@ -203,7 +203,9 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("user") != "" {
 		// Always handle username in lowercase
 		username := strings.ToLower(r.FormValue("user"))
-		workflowStateID := r.FormValue("workflowStateID")
+		// workflowStateID := r.FormValue("workflowStateID")
+		promptId := r.FormValue("promptId")
+		phaseId := r.FormValue("phaseId")
         
         // Get the count of existing messages
 		rc, err := GetHistoryCount(c, username)
@@ -221,7 +223,7 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         		db.Message{
 					Text: r.FormValue("questionText"),
 					Mtype: db.ROBOT,
-					WorkflowStateID: workflowStateID,
+					// WorkflowStateID: workflowStateID,
 				    Date: time.Now(),
 				    RecordNo: rc1,
         		},
@@ -229,7 +231,7 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					Value: r.FormValue("responseValue"),
 					Text: r.FormValue("responseText"),
 					Mtype: db.HUMAN,
-					WorkflowStateID: workflowStateID,
+					// WorkflowStateID: workflowStateID,
 				    Date: time.Now(),
 				    RecordNo: rc2,
         		}}
@@ -259,7 +261,9 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	        return
 	    }
 
-        u.CurrentWorkflowStateId = workflowStateID
+	    u.CurrentPhaseId = phaseId
+	    u.CurrentPromptId = promptId
+        // u.CurrentWorkflowStateId = workflowStateID
 
 	    err = PutUser(c, u, k)
 	    if err != nil {
@@ -362,18 +366,26 @@ func MakeUIUserData(c appengine.Context, username string) (ud UserData, err erro
         return
     }
 
-    currentWorkflowStateId := uiud.User.CurrentWorkflowStateId
+    // currentWorkflowStateId := uiud.User.CurrentWorkflowStateId
 
-	if currentWorkflowStateId == "" {
+	// if currentWorkflowStateId == "" {
+    if ud.CurrentPrompt == nil {
 		// Start from the beginning
 		ud.CurrentPrompt = workflow.MakeFirstPrompt()
 		uiud.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt()
-		uiud.User.CurrentWorkflowStateId = uiud.CurrentUIPrompt.GetId()
-    	//fmt.Fprint(os.Stderr, ud.CurrentUIPrompt.Ptype())
-	} else if (currentWorkflowStateId) != "" && (currentWorkflowStateId != workflow.UI_PROMPT_END) {
-		nid := workflow.GetStateMap()[currentWorkflowStateId].GetNextStateId()
-		uiud.CurrentUIPrompt = workflow.GetStateMap()[nid]
-		uiud.User.CurrentWorkflowStateId = nid
+		uiud.User.CurrentPhaseId = ud.CurrentPrompt.GetPhaseId()
+		// uiud.User.CurrentWorkflowStateId = uiud.CurrentUIPrompt.GetId()
+    	//fmt.Fprint(os.Stderr, ud.CurrentUIPrompt.Type())
+	// } else if (currentWorkflowStateId) != "" && (currentWorkflowStateId != workflow.UI_PROMPT_END) {
+	} else {
+		// TODO get the next step for real
+		// nid := workflow.GetStateMap()[currentWorkflowStateId].GetNextStateId()
+		// uiud.CurrentUIPrompt = workflow.GetStateMap()[nid]
+		// uiud.User.CurrentWorkflowStateId = nid
+		// This should be get next prompt based on current response instead
+		ud.CurrentPrompt = workflow.MakePrompt(uiud.User.CurrentPromptId, uiud.User.CurrentPhaseId)
+		uiud.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt()
+		// uiud.User.CurrentWorkflowStateId = uiud.CurrentUIPrompt.GetId()
 	}
 
     return

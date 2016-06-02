@@ -3,85 +3,49 @@
 // npm install -g react-tools
 // jsx -w -x jsx public/js public/js
 
-var MSG_ROBOT = 'robot';
-var MSG_HUMAN = 'student';
-var DisplayText = {};
-DisplayText[MSG_ROBOT] = 'Researcher';
 
-var Dialog = React.createClass({
+var CovAction = React.createClass({
+
+  getInitialState: function() {
+    return {mode: 0};
+  },
+
   render: function() {
     var state = this.state;
     var user = this.props.user;
     var app = this.props.app;
-    var messages = user.getHistory() ? user.getHistory().map(
-        function(message, i) {
-          return  <div className="dialog" key={i}>
-                    <Message message={message} user={user}/>
-                  </div>;
-        }) : {};
     var prompt = user.getPrompt();
 
-    if ((!prompt) || (Object.keys(prompt).length == 0)) {
-        return  <div className="dialog">
-                <div className="chat">
-                  <Title user={user}/>
-                  {messages}
-                </div></div>;
-    } else {
-        return  <div className="dialog">
-                <div className="chat">
-                  <Title user={user}/>
-                  {messages}
-                  <Input user={user} prompt={prompt} onComplete={app.changeState}/>
-                </div></div>;
-    }
+    // switch (state.mode) {
+    //   case "cov":
+        return  <div className="action">
+              <h3>Investigating Factor: <b>Fitness</b></h3>
 
-  },
-});
+              <table>
+                <tbody>
+                  <tr>
+                    <td>&nbsp;</td>
+                    <td colSpan="3" className="question">Which record would you like to see?</td>
+                  </tr>
+                  <tr>
+                          <td colSpan="4">
+                          <ActionInput user={user} prompt={prompt} onComplete={app.changeState}/></td>
+                  </tr>
+                </tbody>
+              </table>
+                </div>;
+    //   case "chart":
+    //     return <div></div>
+    //   case "prediction":
+    //     return <div></div>
 
-
-// Render the title of the chat window
-var Title = React.createClass({
-  render: function() {
-    var human = this.props.user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
-
-    return  <div className="researcher">
-              <div className="name">Researcher</div>
-              <div className="message">
-                Hello {human}<br/>
-                Welcome to the Challenge
-              </div>
-            </div>;
+    //     break;
+    // }
   }
 });
 
 
-// Render each message
-var Message = React.createClass({
-  render: function() {
-    var message = this.props.message;
-    var human = this.props.user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
-
-    if (message.Mtype == MSG_ROBOT) {
-      return  <div className="researcher">
-                <div className="name">{DisplayText[MSG_ROBOT]}</div>
-                <div className="message">{message.Text}</div>
-              </div>;
-    } else if (message.Mtype == MSG_HUMAN) {
-      return  <div className="human">
-                <div className="name">{human}</div>
-                <div className="message">{message.Text}</div>
-              </div>;
-    }
-    console.error("Unknown sender!", error);
-    return  <div className="researcher">
-              <div className="message">{this.props.message.Text}</div>
-            </div>;
-  }
-});
-
-// Renter input window
-var Input = React.createClass({
+var ActionInput = React.createClass({
 
   getInitialState: function() {
     return {enabled: false};
@@ -118,9 +82,8 @@ var Input = React.createClass({
 
     var promptId = prompt.PromptId;
     var phaseId = user.CurrentPhaseId;
-
     var type = prompt.Type;
-    var human = this.props.user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
+    var human = user.getScreenname() ? user.getScreenname() : user.getUsername();
 
     if (type == UI_PROMPT_TEXT) {
       return  <div>
@@ -131,8 +94,7 @@ var Input = React.createClass({
                 <div className="human">
                   <div className="name">{human}</div>
                   <div className="form">
-                    <form id="inputForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
-                    className="request">
+                    <form id="inputForm" onSubmit={this.handleSubmit} onChange={this.handleChange} className="request">
                       <textarea name="input"></textarea>
                       <br/>
                       <input type="hidden" id="promptId" value={promptId}/>
@@ -178,7 +140,7 @@ var Input = React.createClass({
       }
       var options = prompt.Options.map(
         function(option, i) {
-          return <PromptOption option={option} key={i}/>;
+          return <ActionPromptOption option={option} key={i}/>;
         });
 
       return  <div>
@@ -209,15 +171,12 @@ var Input = React.createClass({
                 </div>
               </div>;
     }
-    if (type == UI_PROMPT_END) {
-      return  <div></div>;
-    }
-    console.error("Error: Unknown prompt type!");  
+    // console.error("Error: Unknown prompt type!");  
     return <div></div>;  
   },
 });
 
-var PromptOption = React.createClass({
+var ActionPromptOption = React.createClass({
 
   render: function() {
     var option = this.props.option;
@@ -227,10 +186,5 @@ var PromptOption = React.createClass({
               </label>
   },
 });
-
-
-
-
-
 
 

@@ -6,12 +6,12 @@ type Prompt interface {
 	// TODO add these bigger structure
 	// GetParentPhase() Phase
 	// GetParentStrategy() Strategy
-	GetDisplayText() string
-	GetActionModeId() int
-	GetState() State
-	GetResponseText() string
-	GetNextPrompt() Prompt
-	SetResponse(Response)
+	// GetDisplayText() string
+	// GetUIActionModeId() string
+	GetPhaseId() string
+	// GetResponseText() string
+	// GetNextPrompt() Prompt
+	// SetResponse(Response)
 	GetUIPrompt() UIPrompt
 }
 
@@ -21,8 +21,8 @@ type Prompt interface {
 // }
 
 type PromptGenerator interface {
-	GetPromptText() string // actual text ready to be displayed as a prompt
-	GetActionModeId() int  // the mode of rendering for Action UI
+	// GetPromptText() string // actual text ready to be displayed as a prompt
+	// GetUIActionModeId() string  // the mode of rendering for Action UI
 	GenerateUIPrompt() UIPrompt
 }
 
@@ -41,32 +41,32 @@ func MakeExpectedResponseHandler(ecs[]ExpectedResponseConfig) *ExpectedResponseH
 	return erh
 }
 
-func (erh *ExpectedResponseHandler) GetNextPrompt(r Response) Prompt {
-	return erh.expectedResponseMap[r.GetId()]
-}
+// func (erh *ExpectedResponseHandler) GetNextPrompt(r Response) Prompt {
+// 	return erh.expectedResponseMap[r.GetId()]
+// }
 
-type Response interface {
-	GetText() string
-	GetId() string
-}
+// type Response interface {
+// 	GetText() string
+// 	GetId() string
+// }
 
-func NewTextResponse(t string, id string) *TextResponse {
-	return &TextResponse{t, id}
-	// n := new(TextResponse)
-	// n.text = t
-	// n.id = id
-	// return n
-}
+// func NewTextResponse(t string, id string) *TextResponse {
+// 	return &TextResponse{t, id}
+// 	// n := new(TextResponse)
+// 	// n.text = t
+// 	// n.id = id
+// 	// return n
+// }
 
-type TextResponse struct {
-	text string
-	id string
-}
+// type TextResponse struct {
+// 	text string
+// 	id string
+// }
 
-func (tr *TextResponse) GetText() string {
-	return tr.text
-}
+// func (tr *TextResponse) GetText() string {
+// 	return tr.text
+// }
 
-func (tr *TextResponse) GetId() string {
-	return tr.id
-}
+// func (tr *TextResponse) GetId() string {
+// 	return tr.id
+// }

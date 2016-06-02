@@ -9,12 +9,18 @@ var UI_PROMPT_YES_NO = "YES_NO";
 var UI_PROMPT_NO_RESPONSE = "NO_RESPONSE";
 var UI_PROMPT_MC = "MC";
 var UI_PROMPT_END = "COMPLETE"
+var PHASE_COV = "Cov"
+var PHASE_CHART = "Chart"
+var PHASE_PREDICTION = "Prediction"
+var FIRST_PHASE = "START"
+var LAST_PHASE = "END"
 
 
 function User(name) {
   this.Username = name;
   this.Screenname = "";
   this.History = [];
+  this.CurrentPhaseId = "";
   this.CurrentUIPrompt = {};
 }
 
@@ -37,6 +43,10 @@ User.prototype = {
     return this.History;
   },
 
+  getCurrentPhaseId: function() {
+    return this.CurrentPhaseId;
+  },
+
   getPrompt: function() {
     return this.CurrentUIPrompt;
   },
@@ -49,8 +59,8 @@ User.prototype = {
     var self = this;
     self.Screenname = j.User.Screenname;
     self.History = j.History;
+    self.CurrentPhaseId = j.User.CurrentPhaseId;
     self.CurrentUIPrompt = j["CurrentUIPrompt"];
-    //self.CurrentUIPrompt = {"ptype": UI_PROMPT_TEXT, "text": "First Question", "workflowStateID": "2"};    
   },
 
   loadHistory: function() {
@@ -75,12 +85,14 @@ User.prototype = {
 
   //After submitting the response
   //Update user with new history etc.
-  submitResponse: function(workflowStateID, value, renderCallback) {
+  submitResponse: function(promptId, phaseId, value, renderCallback) {
     var self = this;
     var text = value;
     var question = self.CurrentUIPrompt.Text;
+    var phaseId = self.CurrentPhaseId;
+    var promptId = self.CurrentUIPrompt.PromptId;
 
-    if (self.CurrentUIPrompt.Ptype == UI_PROMPT_MC) {
+    if (self.CurrentUIPrompt.Type == UI_PROMPT_MC) {
       var options = self.CurrentUIPrompt.Options;
       for (i = 0; i < options.length; i++) {
         if (options[i].Value == value) {
@@ -95,7 +107,9 @@ User.prototype = {
     formData.append("questionText", question);
     formData.append("responseValue", value);
     formData.append("responseText", text);
-    formData.append("workflowStateID", workflowStateID);
+    // formData.append("workflowStateID", workflowStateID);
+    formData.append("promptId", promptId);
+    formData.append("phaseId", phaseId);
 
     var responsePromise = new Promise(function(resolve, reject) {
       var xhr = new XMLHttpRequest();

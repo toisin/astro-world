@@ -13,7 +13,7 @@ type Action interface {
 }
 
 // type CovPhase struct {
-// 	// Ptype string
+// 	// Type string
 // 	// WorkflowStateID string
 // 	// Text string
 // 	// LastStateId string

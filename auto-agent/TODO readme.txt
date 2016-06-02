@@ -6,3 +6,6 @@ http://stackoverflow.com/questions/24790175/when-is-the-init-function-in-go-gola
 
 *** Why can't I return a pointer to an interface
 http://openmymind.net/Things-I-Wish-Someone-Had-Told-Me-About-Go/
+
+*** Setting initial state in React
+https://facebook.github.io/react/tips/props-in-getInitialState-as-anti-pattern.html
