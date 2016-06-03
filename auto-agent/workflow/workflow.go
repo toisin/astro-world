@@ -31,6 +31,12 @@ const (
 	UIACTION_INACTIVE = "NO_UIACTION"
 	// ***TODO MUST FIX!!! server cannot be shut down when json is mulformed
 	// PhaseConfig->PromptConfig->ExpectedReponseConfig
+
+	// Configuration Rules:
+	// 1. id must be unique and are treated as case insensitive
+	// 2. if there is only one expected response, ExpectedResponses. Text might be omitted because it 
+	//    is likely to be open-ended
+	// 3. "TEXT" type prompt should only have one ExpectedResponses
 	promptTreeJsonStream = `
 	{
 		"Id": "Cov",
@@ -53,7 +59,19 @@ const (
 						"Text": "Which one would you like to see?",
 						"Type": "TEXT",
 						"UIActionModeId": "RECORD_SELECT_ONE",
-						"ExpectedResponses": []
+						"ExpectedResponses": 
+						[
+							{
+								"Id": "p1r1p1r1",
+								"NextPrompt":
+								{
+									"Id": "p1r1p1r1p1",
+									"Text": "Thank you",
+									"Type": "COMPLETE",
+									"UIActionModeId": "CONCLUDE"
+								}
+							}
+						]
 					}
 				},
 				{
@@ -65,7 +83,19 @@ const (
 						"Text": "Which records would you like to see?",
 						"Type": "TEXT",
 						"UIActionModeId": "RECORD_SELECT_TWO",
-						"ExpectedResponses": []
+						"ExpectedResponses": 
+						[
+							{
+								"Id": "p1r2p1r1",
+								"NextPrompt":
+								{
+									"Id": "p1r2p1r1p1",
+									"Text": "Thank you too",
+									"Type": "COMPLETE",
+									"UIActionModeId": "CONCLUDE"
+								}
+							}
+						]
 					}
 				}
 			]
@@ -76,7 +106,7 @@ const (
 type ExpectedResponseConfig struct {
 	Id string
 	Text string
-	NextPrompt PromptConfig
+	NextPrompt *PromptConfig
 }
 
 type PromptConfig struct {
@@ -97,7 +127,7 @@ type PhaseConfig struct {
 var phaseConfigMap = make(map[string]PhaseConfig)
 var promptConfigMap = make(map[string]*PromptConfig) //key:PhaseConfig.Id+PromptConfig.Id
 
-func InitCovPromptLogic() {
+func InitWorkflow() {
 	dec := json.NewDecoder(strings.NewReader(promptTreeJsonStream))
 	for {
 		var phaseConfig PhaseConfig
@@ -122,7 +152,7 @@ func InitCovPromptLogic() {
 func populatePromptConfigMap(pc *PromptConfig, phaseId string) {
 	promptConfigMap[phaseId+pc.Id] = pc
 	for i := range pc.ExpectedResponses {
-		populatePromptConfigMap(&(pc.ExpectedResponses[i].NextPrompt), phaseId)
+		populatePromptConfigMap(pc.ExpectedResponses[i].NextPrompt, phaseId)
 	}
 }
 
@@ -133,15 +163,22 @@ func MakeFirstPrompt() Prompt {
 	return p
 }
 
-func MakePrompt(pId string, phaseId string) Prompt {
-	pc := GetPromptConfig(pId, phaseId)
-	p:= MakeCovPrompt(*pc)
-	// fmt.Fprintf(os.Stderr, " %s", p.GetDisplayText())
-	return p
+func MakePrompt(promptId string, phaseId string) Prompt {
+	pc := GetPromptConfig(promptId, phaseId)
+	return MakePromptFromConfig(pc, phaseId)
 }
 
-func GetPromptConfig(pId string, phaseId string) *PromptConfig {
-	return promptConfigMap[phaseId+pId]
+func MakePromptFromConfig(pc *PromptConfig, phaseId string) Prompt {
+	switch phaseId {
+	case PHASE_COV:
+		return MakeCovPrompt(*pc)
+	}
+	// fmt.Fprintf(os.Stderr, " %s", p.GetDisplayText())
+	return nil
+}
+
+func GetPromptConfig(promptId string, phaseId string) *PromptConfig {
+	return promptConfigMap[phaseId+promptId]
 }
 
 // type State struct {
@@ -155,11 +192,13 @@ func GetPromptConfig(pId string, phaseId string) *PromptConfig {
 
 
 
+
+
 // var stateMap = make(map[string]UIPrompt)
 // var variableMap = make(map[string]Variable)
 
-func InitWorkflow() {
-	InitCovPromptLogic() // TODO only do cov for now
+// func InitWorkflow() {
+// 	InitCovPromptLogic() // TODO only do cov for now
 	// variableMap["Y"] = Variable{ Text: "Performance"}
 	// variableMap["X1"] = Variable{"Health Index", true, false}
 	// variableMap["X2"] = Variable{"Height", false, false}
@@ -194,7 +233,7 @@ func InitWorkflow() {
 	// stateMap["9"] = &UIMCPrompt{"9", "How do you know?", ""}
 	// stateMap["10"] = &UIMCPrompt{"10", "How do you know?", ""}
 	// stateMap["11"] = &UIMCPrompt{"11", "How do you know?", ""}
-}
+// }
 
 // func GetVariableMap() map[string]Variable{
 // 	return variableMap
@@ -219,11 +258,9 @@ type UIPrompt interface {
 
 type UITextPrompt struct {
 	Type string
-	// WorkflowStateID string
 	Text string
-	LastStateId string
-	NextStateId string
 	PromptId string
+	ResponseId string
 }
 
 func NewUITextPrompt() *UITextPrompt {
@@ -237,6 +274,12 @@ func (ps *UITextPrompt) GetId() string {
 func (ps *UITextPrompt) Display() string {
 	return ps.Text
 }
+
+func NewUIEndPrompt() *UITextPrompt {
+    return &UITextPrompt{Type:UI_PROMPT_END}
+}
+
+
 
 // func (ps *UITextPrompt) GetNextStateId() string {
 // 	return ps.NextStateId
@@ -256,8 +299,8 @@ func NewUIMCPrompt() *UIMCPrompt {
 }
 
 type UIOption struct {
-	Label string
-	Value string
+	ResponseId string
+	Text string
 }
 
 func (ps *UIMCPrompt) GetId() string {

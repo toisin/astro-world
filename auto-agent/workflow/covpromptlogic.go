@@ -1,12 +1,22 @@
 package workflow
 
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"strings"
+	"os"
+)
+
 type CovPrompt struct {
-	previousPrompt Prompt
-	// response Response
+	// previousPrompt Prompt
+	response Response
 	expectedResponseHandler *ExpectedResponseHandler
 	// promptGenerator PromptGenerator
 	currentUIPrompt UIPrompt
 	promptConfig PromptConfig
+	nextPrompt Prompt
 }
 
 func MakeCovPrompt(p PromptConfig) *CovPrompt {
@@ -15,7 +25,7 @@ func MakeCovPrompt(p PromptConfig) *CovPrompt {
 	// pg.uiActionModeId = p.UIActionModeId
 	// pg.promptText = p.Text
 
-	erh := MakeExpectedResponseHandler(p.ExpectedResponses)
+	erh := MakeExpectedResponseHandler(p.ExpectedResponses, PHASE_COV)
 
 	n := new(CovPrompt)
 	n.promptConfig = p
@@ -35,9 +45,41 @@ func (cp *CovPrompt) GetPhaseId() string {
 	return PHASE_COV
 }
 
-// func (cp *CovPrompt) SetResponse(r Response) {
-// 	cp.response = r
-// }
+func (cp *CovPrompt) GetPromptId() string {
+	return cp.promptConfig.Id
+}
+
+func (cp *CovPrompt) ProcessResponse(r string) {
+	if r != "" {
+		dec := json.NewDecoder(strings.NewReader(r))
+		for {
+			if err := dec.Decode(&cp.response); err == io.EOF {
+				break
+			} else if err != nil {
+				fmt.Fprintf(os.Stderr, "%s", err)
+				log.Fatal(err)
+				return
+			}
+			//TODO cleanup
+			// fmt.Fprintf(os.Stderr, " %s: %s\n", cp.response.Id, cp.response.Text)
+			cp.nextPrompt = cp.expectedResponseHandler.GetNextPrompt(cp.response.Id)
+			//TODO handle last case
+			// if (cp.nextPrompt == nil) {
+			// 	cp.nextPrompt = 
+			// }
+			//TODO cleanup
+			// fmt.Fprintf(os.Stderr, " Next Prompt: ", cp.nextPrompt, "\n")
+		}
+	}
+}
+
+func (cp *CovPrompt) GetNextPrompt() Prompt {
+	return cp.nextPrompt
+}
+
+func (cp *CovPrompt) GetResponse() Response {
+	return cp.response
+}
 
 // func (cp *CovPrompt) GetNextPrompt() Prompt {
 // 	return cp.expectedResponseHandler.GetNextPrompt(cp.response)
@@ -54,10 +96,10 @@ func (cp *CovPrompt) GetUIPrompt() UIPrompt {
 		case UI_PROMPT_MC:
 			p := NewUIMCPrompt()
 			p.Text = cp.promptConfig.Text // TODO need to process dynamic data
-			// p.WorkflowStateID = "1" // TODO clean up legacy
+			// p.WorkflowStateID = "1" // TODO cleanup legacy
 			p.Options = make([]UIOption, len(pc.ExpectedResponses))
 			for i := range pc.ExpectedResponses {
-				p.Options[i] = UIOption{pc.ExpectedResponses[i].Text, pc.ExpectedResponses[i].Id}
+				p.Options[i] = UIOption{pc.ExpectedResponses[i].Id, pc.ExpectedResponses[i].Text}
 			}
 			p.PromptId = pc.Id
 			cp.currentUIPrompt = p
@@ -65,7 +107,14 @@ func (cp *CovPrompt) GetUIPrompt() UIPrompt {
 		case UI_PROMPT_TEXT:
 			p := NewUITextPrompt()
 			p.Text = cp.promptConfig.Text // TODO need to process dynamic data
-			// p.WorkflowStateID = "1" // TODO clean up legacy
+			// p.WorkflowStateID = "1" // TODO cleanup legacy
+			p.PromptId = pc.Id
+			p.ResponseId = pc.ExpectedResponses[0].Id
+			cp.currentUIPrompt = p
+			break
+		case UI_PROMPT_END:
+			p := NewUIEndPrompt()
+			p.Text = cp.promptConfig.Text // TODO need to process dynamic data
 			p.PromptId = pc.Id
 			cp.currentUIPrompt = p
 			break

@@ -81,7 +81,7 @@ func (covH *GetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	    }
 
 	    if u.Username == "" {
-			fmt.Fprint(os.Stderr, "Why was I hear?!\n\n")
+			fmt.Fprint(os.Stderr, "Why was I here?!\n\n")
 
 	    	http.ServeFile(w, r, "static/index.html")
 	    	return
@@ -105,9 +105,21 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query()["user"] != nil {
 		// Always handle username in lowercase
 		username := strings.ToLower(r.URL.Query()["user"][0])
-		ud, err := MakeUIUserData(c, username)
+		// ud, err := MakeUIUserData(c, username)
+	    // Query to see if user exists
+ 		u, _, err := GetUser(c, username)
+
+	    if err != nil {
+			fmt.Fprint(os.Stderr, "DB Error Getting User:" + err.Error() + "!\n\n")
+	        http.Error(w, err.Error(), http.StatusInternalServerError)
+	        return
+	    }
+		ud := MakeUserData(&u)
+		ud.GetUIUserData().History, err = GetHistory(c, username)
 		if err != nil {
+	     	fmt.Fprint(os.Stderr, "DB Error Getting list of messages:" + err.Error() + "!\n\n")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		s, err := stringify(*(ud.GetUIUserData()))
@@ -206,7 +218,40 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// workflowStateID := r.FormValue("workflowStateID")
 		promptId := r.FormValue("promptId")
 		phaseId := r.FormValue("phaseId")
-        
+
+	    // Query to see if user exists
+ 		u, k, err := GetUser(c, username)
+
+	    if err != nil {
+			fmt.Fprint(os.Stderr, "DB Error Getting User:" + err.Error() + "!\n\n")
+	        http.Error(w, err.Error(), http.StatusInternalServerError)
+	        return
+	    }
+
+	    // First time user will have empty currentPhaseId & currentPromptId
+	    if u.CurrentPhaseId != "" {
+	    	if (u.CurrentPhaseId != phaseId) {
+				fmt.Fprint(os.Stderr, "Out of sync error! User info and DB are out of sync.\n\n. Revert to what's in the DB")
+		    }
+		}
+	    if u.CurrentPromptId != "" {
+	    	if (u.CurrentPromptId != promptId) {
+				fmt.Fprint(os.Stderr, "Out of sync error! User info and DB are out of sync.\n\n. Revert to what's in the DB")
+		    }
+		}
+
+	    //TODO cleanup
+		// fmt.Fprint(os.Stderr, "Before MakeUserData", u, "!\n\n")
+
+	    
+	    // Process submitted answers
+		ud := MakeUserData(&u)
+		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"))
+
+		responseId := ud.CurrentPrompt.GetResponse().Id
+		responseText := ud.CurrentPrompt.GetResponse().Text
+		questionText := ud.CurrentPrompt.GetUIPrompt().Display()
+
         // Get the count of existing messages
 		rc, err := GetHistoryCount(c, username)
 	    if err != nil {
@@ -214,6 +259,8 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	        return
 	    }
 
+	    //TODO need to find a way to save the responses that are not text
+	    //Process submitted answers
 	    rc++
 	    rc1:= rc
 	    rc++
@@ -221,15 +268,15 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
         m := []db.Message{
         		db.Message{
-					Text: r.FormValue("questionText"),
+					Text: questionText,
 					Mtype: db.ROBOT,
 					// WorkflowStateID: workflowStateID,
 				    Date: time.Now(),
 				    RecordNo: rc1,
         		},
         		db.Message{
-					Value: r.FormValue("responseValue"),
-					Text: r.FormValue("responseText"),
+					Id: responseId,
+					Text: responseText,
 					Mtype: db.HUMAN,
 					// WorkflowStateID: workflowStateID,
 				    Date: time.Now(),
@@ -248,26 +295,20 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	    _, err = datastore.PutMulti(c, keys, m)
 	    if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Adding Messages:" + err.Error() + "!\n\n")
+			return
 	        //http.Error(w, err.Error(), http.StatusInternalServerError)
 	        //return
 	    }
 
-	    // Query to see if user exists
- 		u, k, err := GetUser(c, username)
-
-	    if err != nil {
-			fmt.Fprint(os.Stderr, "DB Error Getting User:" + err.Error() + "!\n\n")
-	        http.Error(w, err.Error(), http.StatusInternalServerError)
-	        return
-	    }
-
-	    u.CurrentPhaseId = phaseId
-	    u.CurrentPromptId = promptId
         // u.CurrentWorkflowStateId = workflowStateID
+
+	    // Move to the next prompt
+		ud.UpdateWithNextPrompt()
 
 	    err = PutUser(c, u, k)
 	    if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Put User:" + err.Error() + "!\n\n")
+			return
 	        //http.Error(w, err.Error(), http.StatusInternalServerError)
 	        //return
 	    }
@@ -279,14 +320,22 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// fmt.Fprint(w, "{	\"prompt\": {\"type\": \"TEXT\", \"text\": \"First Question\", \"workflowStateID\": \"2\"}, \"messages\": [{	\"text\": \"" + history[0].Text + "\",\"type\": \"robot\"},{ \"text\": \"hello22\",\"type\": \"student\"}]}")
 
-		ud, err := MakeUIUserData(c, username)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		// ud, err := MakeUIUserData(c, username)
+		// if err != nil {
+		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+		// }
+
+	    // Update history
+		ud.GetUIUserData().History, err = GetHistory(c, username)
+	    if err != nil {
+	    	fmt.Fprint(os.Stderr, "DB Error Getting list of messages:" + err.Error() + "!\n\n")
+	        return
+	    }
 
 		s, err := stringify(*(ud.GetUIUserData()))
 		if err != nil {
 			fmt.Println("Error converting messages to json", err)
+			return
 		}
 		fmt.Fprint(w, s)
 	}
@@ -296,6 +345,9 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func PutUser(c appengine.Context, u db.User, key *datastore.Key) (err error){
     _, err = datastore.Put(c, key, &u)
+
+ //    //TODO cleanup
+	// fmt.Fprint(os.Stderr, "User", u, "!\n\n")
     return
 }
 
@@ -334,62 +386,62 @@ func GetHistoryCount(c appengine.Context, username string) (rc int, err error) {
     return
 }
 
-func MakeUIUserData(c appengine.Context, username string) (ud UserData, err error) {
+// func MakeUIUserData(c appengine.Context, username string) (ud UserData, err error) {
 
-	ud = UserData {}
-	uiud := ud.GetUIUserData()
+// 	ud = UserData {}
+// 	uiud := ud.GetUIUserData()
 
-	u, _, err := GetUser(c, username)
+// 	u, _, err := GetUser(c, username)
 
-    if err != nil {
-		fmt.Fprint(os.Stderr, "DB Error Getting User to update:" + err.Error() + "!\n\n")
-        return
-    }
+//     if err != nil {
+// 		fmt.Fprint(os.Stderr, "DB Error Getting User to update:" + err.Error() + "!\n\n")
+//         return
+//     }
 
-    if u.Username == "" {
-    	err = errors.New("Error updating userdata: Cannot find user!")
-    	return
-	}
+//     if u.Username == "" {
+//     	err = errors.New("Error updating userdata: Cannot find user!")
+//     	return
+// 	}
 
-	uiud.User = u
-    // TODO What does this comment mean...
-    // Ancestor queries, as shown here, are strongly consistent with the High
-    // Replication Datastore. Queries that span entity groups are eventually
-    // consistent. If we omitted the .Ancestor from this query there would be
-    // a slight chance that Message that had just been written would not
-    // show up in a query.
-    // [START query]
+// 	uiud.User = &u
+//     // TODO What does this comment mean...
+//     // Ancestor queries, as shown here, are strongly consistent with the High
+//     // Replication Datastore. Queries that span entity groups are eventually
+//     // consistent. If we omitted the .Ancestor from this query there would be
+//     // a slight chance that Message that had just been written would not
+//     // show up in a query.
+//     // [START query]
  
-	uiud.History, err = GetHistory(c, username)
-    if err != nil {
-    	fmt.Fprint(os.Stderr, "DB Error Getting list of messages:" + err.Error() + "!\n\n")
-        return
-    }
+// 	uiud.History, err = GetHistory(c, username)
+//     if err != nil {
+//     	fmt.Fprint(os.Stderr, "DB Error Getting list of messages:" + err.Error() + "!\n\n")
+//         return
+//     }
 
-    // currentWorkflowStateId := uiud.User.CurrentWorkflowStateId
+//     // currentWorkflowStateId := uiud.User.CurrentWorkflowStateId
 
-	// if currentWorkflowStateId == "" {
-    if ud.CurrentPrompt == nil {
-		// Start from the beginning
-		ud.CurrentPrompt = workflow.MakeFirstPrompt()
-		uiud.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt()
-		uiud.User.CurrentPhaseId = ud.CurrentPrompt.GetPhaseId()
-		// uiud.User.CurrentWorkflowStateId = uiud.CurrentUIPrompt.GetId()
-    	//fmt.Fprint(os.Stderr, ud.CurrentUIPrompt.Type())
-	// } else if (currentWorkflowStateId) != "" && (currentWorkflowStateId != workflow.UI_PROMPT_END) {
-	} else {
-		// TODO get the next step for real
-		// nid := workflow.GetStateMap()[currentWorkflowStateId].GetNextStateId()
-		// uiud.CurrentUIPrompt = workflow.GetStateMap()[nid]
-		// uiud.User.CurrentWorkflowStateId = nid
-		// This should be get next prompt based on current response instead
-		ud.CurrentPrompt = workflow.MakePrompt(uiud.User.CurrentPromptId, uiud.User.CurrentPhaseId)
-		uiud.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt()
-		// uiud.User.CurrentWorkflowStateId = uiud.CurrentUIPrompt.GetId()
-	}
+// 	// if currentWorkflowStateId == "" {
+//     if ud.CurrentPrompt == nil {
+// 		// Start from the beginning
+// 		ud.CurrentPrompt = workflow.MakeFirstPrompt()
+// 		uiud.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt()
+// 		uiud.User.CurrentPhaseId = ud.CurrentPrompt.GetPhaseId()
+// 		// uiud.User.CurrentWorkflowStateId = uiud.CurrentUIPrompt.GetId()
+//     	//fmt.Fprint(os.Stderr, ud.CurrentUIPrompt.Type())
+// 	// } else if (currentWorkflowStateId) != "" && (currentWorkflowStateId != workflow.UI_PROMPT_END) {
+// 	} else {
+// 		// TODO get the next step for real
+// 		// nid := workflow.GetStateMap()[currentWorkflowStateId].GetNextStateId()
+// 		// uiud.CurrentUIPrompt = workflow.GetStateMap()[nid]
+// 		// uiud.User.CurrentWorkflowStateId = nid
+// 		// This should be get next prompt based on current response instead
+// 		ud.CurrentPrompt = workflow.MakePrompt(uiud.User.CurrentPromptId, uiud.User.CurrentPhaseId)
+// 		uiud.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt()
+// 		// uiud.User.CurrentWorkflowStateId = uiud.CurrentUIPrompt.GetId()
+// 	}
 
-    return
-}
+//     return
+// }
 
 func stringify(v interface{}) (s string, err error) {
 	b, err := json.Marshal(v)

@@ -1,6 +1,8 @@
 package workflow
 
-
+import (
+	"strings"
+)
 
 type Prompt interface {
 	// TODO add these bigger structure
@@ -9,10 +11,34 @@ type Prompt interface {
 	// GetDisplayText() string
 	// GetUIActionModeId() string
 	GetPhaseId() string
-	// GetResponseText() string
-	// GetNextPrompt() Prompt
+	GetResponse() Response
+	GetNextPrompt() Prompt
 	// SetResponse(Response)
+	GetPromptId() string
 	GetUIPrompt() UIPrompt
+	ProcessResponse(string)
+}
+
+type Response struct {
+	Text string
+	Id string
+}
+
+type ExpectedResponseHandler struct {
+	expectedResponseMap map[string]Prompt
+}
+
+func MakeExpectedResponseHandler(ecs[]ExpectedResponseConfig, phaseId string) *ExpectedResponseHandler {
+	erh := new(ExpectedResponseHandler)
+	erh.expectedResponseMap = make(map[string]Prompt)
+	for _, v := range ecs {
+		erh.expectedResponseMap[strings.ToLower(v.Id)] = MakePromptFromConfig(v.NextPrompt, phaseId)
+	}
+	return erh
+}
+
+func (erh *ExpectedResponseHandler) GetNextPrompt(rid string) Prompt {
+	return erh.expectedResponseMap[strings.ToLower(rid)]
 }
 
 
@@ -20,35 +46,18 @@ type Prompt interface {
 // 	// TODO
 // }
 
-type PromptGenerator interface {
-	// GetPromptText() string // actual text ready to be displayed as a prompt
-	// GetUIActionModeId() string  // the mode of rendering for Action UI
-	GenerateUIPrompt() UIPrompt
-}
+// type PromptGenerator interface {
+// 	// GetPromptText() string // actual text ready to be displayed as a prompt
+// 	// GetUIActionModeId() string  // the mode of rendering for Action UI
+// 	GenerateUIPrompt() UIPrompt
+// }
 
 
-
-type ExpectedResponseHandler struct {
-	expectedResponseMap map[string]Prompt
-}
-
-func MakeExpectedResponseHandler(ecs[]ExpectedResponseConfig) *ExpectedResponseHandler {
-	erh := new(ExpectedResponseHandler)
-	erh.expectedResponseMap = make(map[string]Prompt)
-	for _, v := range ecs {
-		erh.expectedResponseMap[v.Id] = MakeCovPrompt(v.NextPrompt)
-	}
-	return erh
-}
 
 // func (erh *ExpectedResponseHandler) GetNextPrompt(r Response) Prompt {
 // 	return erh.expectedResponseMap[r.GetId()]
 // }
 
-// type Response interface {
-// 	GetText() string
-// 	GetId() string
-// }
 
 // func NewTextResponse(t string, id string) *TextResponse {
 // 	return &TextResponse{t, id}

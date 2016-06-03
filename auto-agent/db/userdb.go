@@ -15,7 +15,7 @@ const (
 type User struct {
 	Username string
 	Screenname string
-    Date time.Time
+    Date time.Time // Time when user is created
     // CurrentWorkflowStateId string
     CurrentPhaseId string
     CurrentPromptId string
@@ -27,7 +27,7 @@ type User struct {
 
 type Message struct {
 	// Username string // Does not really need to store this everytime
-	Value string
+	Id string
 	Text string
 	Mtype string // ROBOT | HUMAN
 	// WorkflowStateID string

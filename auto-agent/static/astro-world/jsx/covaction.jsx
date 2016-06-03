@@ -68,11 +68,34 @@ var ActionInput = React.createClass({
     var promptId = e ? e.value : "";
     var e = document.getElementById("phaseId");
     var phaseId = e ? e.value : "";
-    var f = document.getElementById("inputForm");
-    e = f.elements['input'];
-    var i = e ? e.value : "";
+    var f = document.getElementById("covactionForm");
+    e = f.elements['covactioninput'];
+    var value = e ? e.value : "";
     e.value = "";
-    user.submitResponse(promptId, phaseId, i, onComplete);
+    var text, id;
+
+    switch (user.CurrentUIPrompt.Type) {
+    case UI_PROMPT_MC:
+      var options = user.CurrentUIPrompt.Options;
+      for (i = 0; i < options.length; i++) {
+        if (options[i].ResponseId == value) {
+          text = options[i].Text;
+          id = value;
+          break;
+        }
+      }
+      break;
+    case UI_PROMPT_TEXT:
+      text = value;
+      id = user.CurrentUIPrompt.ResponseId
+      break;
+    }
+
+    var response = {};
+    response.text = text;
+    response.id = id;
+    jsonResponse = JSON.stringify(response);
+    user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
     this.setState({mode: 0, enabled:false});
   },
 
@@ -94,8 +117,8 @@ var ActionInput = React.createClass({
                 <div className="human">
                   <div className="name">{human}</div>
                   <div className="form">
-                    <form id="inputForm" onSubmit={this.handleSubmit} onChange={this.handleChange} className="request">
-                      <textarea name="input"></textarea>
+                    <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange} className="request">
+                      <textarea name="covactioninput"></textarea>
                       <br/>
                       <input type="hidden" id="promptId" value={promptId}/>
                       <input type="hidden" id="phaseId" value={phaseId}/>
@@ -114,14 +137,14 @@ var ActionInput = React.createClass({
                 <div className="human">
                   <div className="name">{human}</div>
                   <div className="form">
-                    <form id="inputForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
+                    <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
                     className="request">
                       <label>
-                        <input type="radio" name="input" value="Yes"/>
+                        <input type="radio" name="covactioninput" value="Yes"/>
                         Yes
                       </label>
                       <label>
-                        <input type="radio" name="input" value="No"/>
+                        <input type="radio" name="covactioninput" value="No"/>
                         No
                       </label>
                       <br/>
@@ -151,7 +174,7 @@ var ActionInput = React.createClass({
                 <div className="human">
                   <div className="name">{human}</div>
                   <div className="form">
-                    <form id="inputForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
+                    <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
                     className="request">
                       {options}
                       <br/>
@@ -181,8 +204,8 @@ var ActionPromptOption = React.createClass({
   render: function() {
     var option = this.props.option;
       return  <label>
-                <input type="radio" name="input" value={option.Value}/>
-                {option.Label}
+                <input type="radio" name="covactioninput" value={option.ResponseId}/>
+                {option.Text}
               </label>
   },
 });

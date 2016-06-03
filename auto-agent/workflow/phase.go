@@ -1,16 +1,16 @@
 package workflow
 
-type Phase interface {
-	GetName() string
-}
+// type Phase interface {
+// 	GetName() string
+// }
 
-type Strategy interface {
-	GetName() string
-}
+// type Strategy interface {
+// 	GetName() string
+// }
 
-type Action interface {
-	GetModeId() string
-}
+// type Action interface {
+// 	GetModeId() string
+// }
 
 // type CovPhase struct {
 // 	// Type string

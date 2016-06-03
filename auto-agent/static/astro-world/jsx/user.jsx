@@ -85,31 +85,23 @@ User.prototype = {
 
   //After submitting the response
   //Update user with new history etc.
-  submitResponse: function(promptId, phaseId, value, renderCallback) {
+  submitResponse: function(promptId, phaseId, jsonResponse, renderCallback) {
     var self = this;
-    var text = value;
+    // var text = value;
     var question = self.CurrentUIPrompt.Text;
     var phaseId = self.CurrentPhaseId;
     var promptId = self.CurrentUIPrompt.PromptId;
-
-    if (self.CurrentUIPrompt.Type == UI_PROMPT_MC) {
-      var options = self.CurrentUIPrompt.Options;
-      for (i = 0; i < options.length; i++) {
-        if (options[i].Value == value) {
-          text = options[i].Label;
-        }
-      }
-    }
 
     var formData = new FormData();
 
     formData.append("user", self.Username);
     formData.append("questionText", question);
-    formData.append("responseValue", value);
-    formData.append("responseText", text);
+    // formData.append("responseValue", value);
+    // formData.append("responseText", text);
     // formData.append("workflowStateID", workflowStateID);
     formData.append("promptId", promptId);
     formData.append("phaseId", phaseId);
+    formData.append("jsonResponse", jsonResponse);
 
     var responsePromise = new Promise(function(resolve, reject) {
       var xhr = new XMLHttpRequest();
