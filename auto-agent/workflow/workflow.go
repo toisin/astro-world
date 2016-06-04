@@ -10,12 +10,6 @@ import (
 )
 
 const (
-	// // TODO for now use these as respolnse id
-	// P1 = `How many records would you like to see? One or Two?`
-	// R1_P1 = `one`
-	// R2 = `two`
-	// P_2 = `Which one would you like to see?`
-	// P_3 = `Can you tell me what you would be able to figure out by looking at this record?`
 	PHASE_COV = "Cov"
 	PHASE_CHART = "Chart"
 	PHASE_PREDICTION = "Prediction"
@@ -26,6 +20,7 @@ const (
 	UI_PROMPT_TEXT = "TEXT"
 	UI_PROMPT_YES_NO = "YES_NO"
 	UI_PROMPT_MC = "MC"
+	UI_PROMPT_RECORD = "RECORD"
 	UI_PROMPT_END = "COMPLETE"
 
 	UIACTION_INACTIVE = "NO_UIACTION"
@@ -33,72 +28,209 @@ const (
 	// PhaseConfig->PromptConfig->ExpectedReponseConfig
 
 	// Configuration Rules:
-	// 1. id must be unique and are treated as case insensitive
-	// 2. if there is only one expected response, ExpectedResponses. Text might be omitted because it 
+	// 1. id must be unique and are treated as case insensitive.
+	// 2. reference to an already defined prompt by specifying the id only, otherwise, the last definition is used
+	// 3. if there is only one expected response, ExpectedResponses. Text might be omitted because it 
 	//    is likely to be open-ended
-	// 3. "TEXT" type prompt should only have one ExpectedResponses
 	promptTreeJsonStream = `
 	{
-		"Id": "Cov",
-		"PreviousPhaseId": "START",
-		"NextPhaseId": "Chart",
-		"FirstPrompt":
+		"Content":
 		{
-			"Id": "p1",
-			"Text": "How many records would you like to see? One or Two?",
-			"Type": "MC",
-			"UIActionModeId": "NO_UIACTION",
-			"ExpectedResponses": 
+			"CausalFactors":
 			[
 				{
-					"Id": "p1r1",
-					"Text": "One",
-					"NextPrompt":
-					{
-						"Id": "p1r1p1",
-						"Text": "Which one would you like to see?",
-						"Type": "TEXT",
-						"UIActionModeId": "RECORD_SELECT_ONE",
-						"ExpectedResponses": 
-						[
-							{
-								"Id": "p1r1p1r1",
-								"NextPrompt":
-								{
-									"Id": "p1r1p1r1p1",
-									"Text": "Thank you",
-									"Type": "COMPLETE",
-									"UIActionModeId": "CONCLUDE"
-								}
-							}
-						]
-					}
+					"Name": "Fitness",
+					"Id": "fitness",
+					"Levels":
+					[
+						{
+							"Name": "Excellent",
+							"Id": "ex",
+							"ImgPath": "excellent fitness.jpg"
+						},
+						{
+							"Name": "Average",
+							"Id": "avg",
+							"ImgPath": "average fitness.jpg"
+						}
+					]
 				},
 				{
-					"Id": "p1r2",
-					"Text": "Two",
-					"NextPrompt":
-					{
-						"Id": "p1r2p1",
-						"Text": "Which records would you like to see?",
-						"Type": "TEXT",
-						"UIActionModeId": "RECORD_SELECT_TWO",
-						"ExpectedResponses": 
-						[
-							{
-								"Id": "p1r2p1r1",
-								"NextPrompt":
-								{
-									"Id": "p1r2p1r1p1",
-									"Text": "Thank you too",
-									"Type": "COMPLETE",
-									"UIActionModeId": "CONCLUDE"
-								}
-							}
-						]
-					}
+					"Name": "Parents' Health",
+					"Id": "parentshealth",
+					"Levels":
+					[
+						{
+							"Name": "Excellent",
+							"Id": "ex",
+							"ImgPath": "excellent parents.jpg"
+						},
+						{
+							"Name": "Fair",
+							"Id": "fair",
+							"ImgPath": "fair parents.jpg"
+						}
+					]
+				},
+				{
+					"Name": "Education",
+					"Id": "education",
+					"Levels":
+					[
+						{
+							"Name": "No College",
+							"Id": "nocol",
+							"ImgPath": "no college.jpg"
+						},
+						{
+							"Name": "Some College",
+							"Id": "somecol",
+							"ImgPath": "some college.jpg"
+						},
+						{
+							"Name": "College",
+							"Id": "col",
+							"ImgPath": "college.jpg"
+						}
+					]
 				}
-			]
+			],
+			"NonCausalFactors":
+			[
+				{
+					"Name": "Family Size",
+					"Id": "familysize",
+					"Levels":
+					[
+						{
+							"Name": "Large",
+							"Id": "large"
+						},
+						{
+							"Name": "Small",
+							"Id": "small"
+						}
+					]
+				},
+				{
+					"Name": "Home Climate",
+					"Id": "homeclimate",
+					"Levels":
+					[
+						{
+							"Name": "Hot",
+							"Id": "hot"
+						},
+						{
+							"Name": "Cold",
+							"Id": "cold"
+						}
+					]
+				}
+			],
+			"OutcomeVariable":
+			{
+				"Name": "Performance",
+				"Id": "performance",
+				"Levels":
+				[
+					{
+						"Name": "A",
+						"Id": "A"
+					},
+					{
+						"Name": "B",
+						"Id": "B"
+					},
+					{
+						"Name": "C",
+						"Id": "C"
+					},
+					{
+						"Name": "D",
+						"Id": "D"
+					},
+					{
+						"Name": "E",
+						"Id": "E"
+					}
+				]
+			}
+		},
+		"Phase":
+		{
+			"Id": "Cov",
+			"PreviousPhaseId": "START",
+			"NextPhaseId": "Chart",
+			"FirstPrompt":
+			{
+				"Id": "p1",
+				"Text": "How many records would you like to see? One or Two?",
+				"Type": "MC",
+				"UIActionModeId": "NO_UIACTION",
+				"ExpectedResponses": 
+				[
+					{
+						"Id": "p1r1",
+						"Text": "One",
+						"NextPrompt":
+						{
+							"Id": "p1r1p1",
+							"Text": "Which one would you like to see?",
+							"Type": "RECORD",
+							"UIActionModeId": "RECORD_SELECT_ONE",
+							"ExpectedResponses": 
+							[
+								{
+									"Id": "p1r1p1r1",
+									"NextPrompt":
+									{
+										"Id": "p1r1p1r1p1",
+										"Text": "Thank you",
+										"Type": "COMPLETE",
+										"UIActionModeId": "ONE_RECORD_PERFORMANCE"
+									}
+								}
+							]
+						}
+					},
+					{
+						"Id": "p1r2",
+						"Text": "Two",
+						"NextPrompt":
+						{
+							"Id": "p1r2p1",
+							"Text": "Which records would you like to see?",
+							"Type": "TEXT",
+							"UIActionModeId": "RECORD_SELECT_TWO",
+							"ExpectedResponses": 
+							[
+								{
+									"Id": "p1r2p1nonvarying",
+									"NextPrompt":
+									{
+										"Id": "p1r1p1r1p1"
+									}
+								},
+								{
+									"Id": "p1r2p1uncontrolled",
+									"NextPrompt":
+									{
+										"Id": "p1r2p1r1p1"
+									}
+								},
+								{
+									"Id": "p1r2p1controlled",
+									"NextPrompt":
+									{
+										"Id": "p1r2p1r1p1"
+									}
+								}
+							]
+						}
+					}
+				]
+			}
 		}
 	}`
 )
@@ -124,24 +256,52 @@ type PhaseConfig struct {
 	NextPhaseId string
 }
 
+type Level struct {
+	Name string
+	Id string
+	ImgPath string
+}
+
+type Factor struct {
+	Name string
+	Id string
+	ImgPath string
+	Levels []Level
+}
+
+type ContentConfig struct {
+	CausalFactors []Factor
+	NonCausalFactors []Factor
+	OutcomeVariable Factor
+}
+
+type AppConfig struct {
+	Phase PhaseConfig
+	Content ContentConfig
+}
+
 var phaseConfigMap = make(map[string]PhaseConfig)
 var promptConfigMap = make(map[string]*PromptConfig) //key:PhaseConfig.Id+PromptConfig.Id
+var contentConfig ContentConfig
 
 func InitWorkflow() {
 	dec := json.NewDecoder(strings.NewReader(promptTreeJsonStream))
 	for {
-		var phaseConfig PhaseConfig
-		if err := dec.Decode(&phaseConfig); err == io.EOF {
+		var appConfig AppConfig
+		if err := dec.Decode(&appConfig); err == io.EOF {
 			break
 		} else if err != nil {
 			fmt.Fprintf(os.Stderr, "%s", err)
 			log.Fatal(err)
 			return
 		}
+		phaseConfig := appConfig.Phase
 		//TODO cleanup
 		//fmt.Fprintf(os.Stderr, " %s: %s\n", promptTree.Id, (promptTree.ExpectedResponses[0]).Id)
-		phaseConfigMap[phaseConfig.Id]=phaseConfig
+		phaseConfigMap[phaseConfig.Id] = phaseConfig
 		populatePromptConfigMap(&phaseConfig.FirstPrompt, phaseConfig.Id)		
+
+		contentConfig = appConfig.Content
 	}
 	//TODO cleanup
 	// for k,_ := range promptConfigMap {
@@ -150,9 +310,11 @@ func InitWorkflow() {
 }
 
 func populatePromptConfigMap(pc *PromptConfig, phaseId string) {
-	promptConfigMap[phaseId+pc.Id] = pc
-	for i := range pc.ExpectedResponses {
-		populatePromptConfigMap(pc.ExpectedResponses[i].NextPrompt, phaseId)
+	if (promptConfigMap[phaseId+pc.Id] == nil){
+		promptConfigMap[phaseId+pc.Id] = pc
+		for i := range pc.ExpectedResponses {
+			populatePromptConfigMap(pc.ExpectedResponses[i].NextPrompt, phaseId)
+		}
 	}
 }
 
@@ -181,78 +343,13 @@ func GetPromptConfig(promptId string, phaseId string) *PromptConfig {
 	return promptConfigMap[phaseId+promptId]
 }
 
-// type State struct {
-// 	xxx []string
-// 	// GetActivePhase() Phase
-// 	// GetCompletedPhases() []Phase
-// 	// GetFuturePhases() []Phase
-// 	// GetHistory() []Prompt
-// }
-
-
-
-
-
-
-// var stateMap = make(map[string]UIPrompt)
-// var variableMap = make(map[string]Variable)
-
-// func InitWorkflow() {
-// 	InitCovPromptLogic() // TODO only do cov for now
-	// variableMap["Y"] = Variable{ Text: "Performance"}
-	// variableMap["X1"] = Variable{"Health Index", true, false}
-	// variableMap["X2"] = Variable{"Height", false, false}
-	// variableMap["X3"] = Variable{"Weight", true, false}
-	// variableMap["X4"] = Variable{"Laughters", true, false}
-
-	// stateMap["1"] = &UIMCPrompt{UI_PROMPT_NO_RESPONSE, "1", "Let's get started!", ""}
-	// stateMap["1"] = &UIMCPrompt{
-	// 					UI_PROMPT_MC,
-	// 					"1",
-	// 					"Let's get started! What feature have you investigated?",
-	// 					"",
-	// 				 	[]UIOption{
-	// 				 		UIOption{variableMap["X1"].Text,"X1"},
-	// 				 		UIOption{variableMap["X2"].Text,"X2"},
-	// 				 		UIOption{variableMap["X3"].Text,"X3"},
-	// 				 		UIOption{variableMap["X4"].Text,"X4"}},
-	// 				 	"p1"}
-	// stateMap["2"] = &UITextPrompt{UI_PROMPT_YES_NO, "2", "Do you think it makes a difference?", "1", "3", "p1"}
-	// //stateMap["2"] = &LogicPromptState{UI_PROMPT_YES_NO, "2", "Do you think it makes a difference?", "1"}
-	// stateMap["3"] = &UITextPrompt{
-	// 					UI_PROMPT_TEXT,
-	// 					"3",
-	// 					"When %X1 goes up, what happens to %Y?",
-	// 					"2",
-	// 					"4", "p1"}
-	// stateMap["4"] = &UITextPrompt{UI_PROMPT_TEXT, "4", "What did you find out about %X1?", "3", "5", "p1"}
-	// stateMap["5"] = &UITextPrompt{UI_PROMPT_TEXT, "5", "How do you know?", "4", "6", "p1"}
-	// stateMap["6"] = &UITextPrompt{UI_PROMPT_TEXT, "6", "Which records show you are right?", "5", UI_PROMPT_END,"p1"}
-	// stateMap[UI_PROMPT_END] = &UITextPrompt{UI_PROMPT_END, UI_PROMPT_END, "You have done!", "6", UI_PROMPT_END,"p1"}
-	// stateMap["8"] = &UIMCPrompt{"8", "What level is your?", ""}
-	// stateMap["9"] = &UIMCPrompt{"9", "How do you know?", ""}
-	// stateMap["10"] = &UIMCPrompt{"10", "How do you know?", ""}
-	// stateMap["11"] = &UIMCPrompt{"11", "How do you know?", ""}
-// }
-
-// func GetVariableMap() map[string]Variable{
-// 	return variableMap
-// }
-
-// func GetStateMap() map[string]UIPrompt{
-// 	return stateMap
-// }
-
-// type Variable struct {
-// 	Text string
-// 	IsCausal bool
-// 	IsPostiveCorr bool
-// }
+func GetContentConfig() ContentConfig {
+	return contentConfig
+}
 
 
 type UIPrompt interface {
 	Display() string
-	// GetNextStateId() string
 	GetId() string
 }
 
@@ -261,6 +358,7 @@ type UITextPrompt struct {
 	Text string
 	PromptId string
 	ResponseId string
+	UIActionModeId string
 }
 
 func NewUITextPrompt() *UITextPrompt {
@@ -281,17 +379,13 @@ func NewUIEndPrompt() *UITextPrompt {
 
 
 
-// func (ps *UITextPrompt) GetNextStateId() string {
-// 	return ps.NextStateId
-// }
-
 type UIMCPrompt struct {
 	Type string
 	// WorkflowStateID string
 	Text string
-	LastStateId string
 	Options []UIOption
 	PromptId string
+	UIActionModeId string
 }
 
 func NewUIMCPrompt() *UIMCPrompt {
@@ -311,14 +405,6 @@ func (ps *UIMCPrompt) GetId() string {
 func (ps *UIMCPrompt) Display() string {
 	return ps.Text
 }
-
-// func (ps *UIMCPrompt) GetNextStateId() string {
-// 	//TODO Totally just hardcoding
-// 	if ps.WorkflowStateID == "1" {
-// 		return "2"
-// 	}
-// 	return ""
-// }
 
 
 

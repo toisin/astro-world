@@ -1,9 +1,9 @@
 package db
 
 import (
-    "appengine"
+  "appengine"
 	"appengine/datastore"
-    "time"
+  "time"
 )
 
 const (
@@ -15,26 +15,28 @@ const (
 type User struct {
 	Username string
 	Screenname string
-    Date time.Time // Time when user is created
-    // CurrentWorkflowStateId string
-    CurrentPhaseId string
-    CurrentPromptId string
-	// CurrentX string
-	// Case1 string
-	// Case2 string
-	// CompletedX []string // What is that?
+  Date time.Time // Time when user is created
+  CurrentPhaseId string
+  CurrentPromptId string
+  CurrentFactorId string
 }
 
+// Generic message with no additional phase specific details
 type Message struct {
 	// Username string // Does not really need to store this everytime
 	Id string
 	Text string
 	Mtype string // ROBOT | HUMAN
-	// WorkflowStateID string
-    Date time.Time
-    RecordNo int
+  Date time.Time
+  MessageNo int // in the order of the message
 }
 
+type CovMessage struct {
+  MessageId string // The message this cov message is linked to
+  FactorId string // not empty if message is related to an investigating factor
+  RecordNoOne string
+  RecordNoTwo string
+}
 
 // userlistKey returns the key used for all user entries.
 func UserHistoryKey(c appengine.Context, username string) *datastore.Key {

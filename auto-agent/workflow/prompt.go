@@ -2,6 +2,8 @@ package workflow
 
 import (
 	"strings"
+  // "fmt"
+  // "os"
 )
 
 type Prompt interface {
@@ -32,50 +34,15 @@ func MakeExpectedResponseHandler(ecs[]ExpectedResponseConfig, phaseId string) *E
 	erh := new(ExpectedResponseHandler)
 	erh.expectedResponseMap = make(map[string]Prompt)
 	for _, v := range ecs {
-		erh.expectedResponseMap[strings.ToLower(v.Id)] = MakePromptFromConfig(v.NextPrompt, phaseId)
+    // In case if the prompt is already defined
+		// erh.expectedResponseMap[strings.ToLower(v.Id)] = MakePromptFromConfig(v.NextPrompt, phaseId)
+    erh.expectedResponseMap[strings.ToLower(v.Id)] = MakePrompt(v.NextPrompt.Id, phaseId)
 	}
 	return erh
 }
 
 func (erh *ExpectedResponseHandler) GetNextPrompt(rid string) Prompt {
-	return erh.expectedResponseMap[strings.ToLower(rid)]
+  // TODO cleanup
+  // fmt.Fprintf(os.Stderr, "expectedResponseMap: %s", erh.expectedResponseMap, "\n\n")
+  return erh.expectedResponseMap[strings.ToLower(rid)]
 }
-
-
-// type Factor struct {
-// 	// TODO
-// }
-
-// type PromptGenerator interface {
-// 	// GetPromptText() string // actual text ready to be displayed as a prompt
-// 	// GetUIActionModeId() string  // the mode of rendering for Action UI
-// 	GenerateUIPrompt() UIPrompt
-// }
-
-
-
-// func (erh *ExpectedResponseHandler) GetNextPrompt(r Response) Prompt {
-// 	return erh.expectedResponseMap[r.GetId()]
-// }
-
-
-// func NewTextResponse(t string, id string) *TextResponse {
-// 	return &TextResponse{t, id}
-// 	// n := new(TextResponse)
-// 	// n.text = t
-// 	// n.id = id
-// 	// return n
-// }
-
-// type TextResponse struct {
-// 	text string
-// 	id string
-// }
-
-// func (tr *TextResponse) GetText() string {
-// 	return tr.text
-// }
-
-// func (tr *TextResponse) GetId() string {
-// 	return tr.id
-// }

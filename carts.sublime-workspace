@@ -1,0 +1,1029 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"str",
+				"string"
+			],
+			[
+				"Process",
+				"ProcessResponse"
+			],
+			[
+				"Cont",
+				"ContentConfig"
+			],
+			[
+				"N",
+				"Name"
+			],
+			[
+				"Pha",
+				"Phase"
+			],
+			[
+				"A",
+				"AppConfig"
+			],
+			[
+				"re",
+				"render"
+			],
+			[
+				"get",
+				"getInitialState"
+			],
+			[
+				"prom",
+				"prompt"
+			],
+			[
+				"UI_",
+				"UI_PROMPT_TEXT"
+			],
+			[
+				"Next",
+				"NextPrompt"
+			],
+			[
+				"Prom",
+				"Prompt"
+			],
+			[
+				"Promt",
+				"PromptConfig"
+			],
+			[
+				"Cur",
+				"CurrentPromptId"
+			],
+			[
+				"Cu",
+				"CurrentPrompt"
+			],
+			[
+				"Curre",
+				"CurrentPhaseId"
+			],
+			[
+				"Cov",
+				"CovPrompt"
+			],
+			[
+				"pr",
+				"promptId"
+			],
+			[
+				"fo",
+				"formData"
+			],
+			[
+				"pro",
+				"promptTreeConfigMap"
+			],
+			[
+				"Pro",
+				"PromptConfig"
+			],
+			[
+				"Phase",
+				"PhaseConfig"
+			],
+			[
+				"UIU",
+				"UIUserData"
+			],
+			[
+				"UI",
+				"UIUserData"
+			],
+			[
+				"gen",
+				"generateUIPrompt"
+			],
+			[
+				"CovP",
+				"CovPromptGenerator"
+			],
+			[
+				"resp",
+				"response"
+			],
+			[
+				"expe",
+				"ExpectedResponse"
+			],
+			[
+				"Promp",
+				"PromptHandler"
+			],
+			[
+				"st",
+				"string"
+			],
+			[
+				"s",
+				"stateMap"
+			],
+			[
+				"var",
+				"variableMap"
+			],
+			[
+				"S",
+				"StateMap"
+			],
+			[
+				"St",
+				"State"
+			],
+			[
+				"Stat",
+				"StateMap"
+			],
+			[
+				"f",
+				"func	Function"
+			],
+			[
+				"me",
+				"messages"
+			],
+			[
+				"up",
+				"updateUser"
+			],
+			[
+				"work",
+				"workflowID"
+			],
+			[
+				"USR",
+				"user"
+			],
+			[
+				"on",
+				"onComplete"
+			],
+			[
+				"Pr",
+				"PromptState"
+			],
+			[
+				"rend",
+				"renderCallback"
+			],
+			[
+				"proto",
+				"prototype"
+			],
+			[
+				"pa",
+				"path"
+			],
+			[
+				"han",
+				"handleResponse"
+			],
+			[
+				"cha",
+				"challenge"
+			],
+			[
+				"p",
+				"params"
+			],
+			[
+				"ren",
+				"render"
+			],
+			[
+				"res",
+				"resolve"
+			],
+			[
+				"user",
+				"username"
+			],
+			[
+				"buc",
+				"bucketPlacement"
+			],
+			[
+				"updat",
+				"updateResult"
+			],
+			[
+				"new",
+				"newDisplay"
+			],
+			[
+				"co",
+				"console"
+			],
+			[
+				"r",
+				"required"
+			],
+			[
+				"is",
+				"isNew"
+			],
+			[
+				"old",
+				"oldCart"
+			],
+			[
+				"iv",
+				"ivnames"
+			],
+			[
+				"vari",
+				"variables"
+			],
+			[
+				"va",
+				"variableModels"
+			],
+			[
+				"v",
+				"variableModels"
+			],
+			[
+				"UserRes",
+				"UserResultData"
+			],
+			[
+				"User",
+				"UserCart"
+			],
+			[
+				"resul",
+				"results"
+			],
+			[
+				"rest",
+				"resultNames"
+			],
+			[
+				"result",
+				"resultNames"
+			],
+			[
+				"varab",
+				"variableModels"
+			],
+			[
+				"hand",
+				"handleError"
+			],
+			[
+				"fin",
+				"findUserById"
+			],
+			[
+				"ac",
+				"action	Attr"
+			],
+			[
+				"err",
+				"error"
+			],
+			[
+				"ba",
+				"background-position"
+			],
+			[
+				"back",
+				"background-repeat"
+			],
+			[
+				"paddin",
+				"padding-left"
+			],
+			[
+				"marg",
+				"margin"
+			],
+			[
+				"in",
+				"IndependentVariable"
+			],
+			[
+				"ne",
+				"newResult"
+			],
+			[
+				"curr",
+				"currentRequest"
+			],
+			[
+				"complee",
+				"completeShowResult"
+			],
+			[
+				"cr",
+				"createElement"
+			],
+			[
+				"par",
+				"parentNode"
+			],
+			[
+				"curre",
+				"currentView"
+			],
+			[
+				"create",
+				"createRequestView"
+			],
+			[
+				"ti",
+				"this"
+			],
+			[
+				"app",
+				"appendChild"
+			],
+			[
+				"b",
+				"body"
+			],
+			[
+				"ap",
+				"appendChild"
+			],
+			[
+				"te",
+				"textContent"
+			],
+			[
+				"butt",
+				"buttonElement"
+			],
+			[
+				"butto",
+				"buttonElement"
+			],
+			[
+				"l",
+				"log"
+			],
+			[
+				"prot",
+				"prototype"
+			],
+			[
+				"resu",
+				"resultText"
+			],
+			[
+				"for",
+				"for	for (…) {…}"
+			],
+			[
+				"fun",
+				"function"
+			],
+			[
+				"t",
+				"type"
+			],
+			[
+				"val",
+				"values"
+			],
+			[
+				"option",
+				"optionLabels"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "exploration/server.js",
+			"settings":
+			{
+				"buffer_size": 1402,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "exploration/models.js",
+			"settings":
+			{
+				"buffer_size": 10671,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "exploration/setup-readme.txt",
+			"settings":
+			{
+				"buffer_size": 737,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "exploration/curl readme.txt",
+			"settings":
+			{
+				"buffer_size": 692,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 47.0,
+		"last_filter": "pack",
+		"selected_items":
+		[
+			[
+				"pack",
+				"Preferences: Browse Packages"
+			],
+			[
+				"inde",
+				"Indentation: Reindent Lines"
+			]
+		],
+		"width": 392.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/css/astro-world.css",
+		"/Users/toisin/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/Users/toisin/Library/Application Support/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/astro-world/jsx/app.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/astro-world/jsx/cov.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/index.yaml",
+		"/Users/toisin/GitHub/astro-world/auto-agent/app.yaml",
+		"/Users/toisin/GitHub/astro-world/auto-agent/server/server.go",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/astro-world/jsx/action.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/astro-world/jsx/user.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/astro-world/jsx/main.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/astro-world/jsx/dialog.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/astro-world/jsx/challenge.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/astro-world/jsx/cart.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/newuser.html",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/index.html",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/cov/index.html",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/cov/jsx/user.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/cov/jsx/main.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/cov/jsx/dialog.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/cov/jsx/challenge.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/cov/jsx/cart.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/cov/jsx/app.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/cov/jsx/action.jsx",
+		"/Users/toisin/GitHub/astro-world/auto-agent/static/css/cov.css",
+		"/Users/toisin/GitHub/Bazaar_v1/COV_Agent/runtime/dialogues/scenario-dialog.xml",
+		"/Users/toisin/GitHub/Bazaar_v1/COV_Agent/src/basilica2/myagent/operation/NewAgentRunner.java",
+		"/Users/toisin/GitHub/Bazaar_v1/cov_client/lobby/index.html",
+		"/Users/toisin/GitHub/Bazaar_v1/COV_Agent/src/basilica2/myagent/listeners/Register.java",
+		"/Users/toisin/GitHub/Bazaar_v1/COV_Agent/src/basilica2/myagent/listeners/PromptActor.java",
+		"/Users/toisin/GitHub/Bazaar_v1/COV_Agent/src/basilica2/myagent/User.java",
+		"/Users/toisin/GitHub/Bazaar_v1/COV_Agent/src/basilica2/myagent/Topic.java",
+		"/Users/toisin/GitHub/Bazaar_v1/cov_client/bazaar/index.html",
+		"/Users/toisin/GitHub/Bazaar_v1/BasilicaCore/build.xml",
+		"/Users/toisin/Dropbox/BazaarAgent/dialogues/dialogues-example.xml",
+		"/Users/toisin/Dropbox/School/Reasoning/Project - Tech/BazaarAgent/dialogues/dialogues-example.xml",
+		"/Users/toisin/Dropbox/School/Reasoning/Project - Tech/BazaarAgent/properties/SayMoreActor.properties",
+		"/Users/toisin/Mplus/MplusDemo/startMplus",
+		"/Users/toisin/Dropbox/School/Annenberg for School Reform/Project3/data/network 2010 & 2011 calls.R",
+		"/Users/toisin/Dropbox/School/Annenberg for School Reform/Project3/data/network 2010 calls.R",
+		"/Users/toisin/Dropbox/go_src/cov/workflow/user.go",
+		"/Users/toisin/Dropbox/go_src/cov/server/user.go",
+		"/Users/toisin/Dropbox/go_src/cov/static/cov/js/app.js",
+		"/Users/toisin/Dropbox/go_src/cov/static/newuser.html",
+		"/Users/toisin/Dropbox/go_src/cov/static/login.html",
+		"/Users/toisin/Dropbox/go_src/cov/static/index.html",
+		"/Users/toisin/Dropbox/go_src/cov/static/Chat Layout.html",
+		"/Users/toisin/Dropbox/go_src/cov/static/cov/newuser.html",
+		"/Users/toisin/Dropbox/go_src/cov/static/cov/login.html",
+		"/Users/toisin/Dropbox/go_src/cov/static/cov/index.html",
+		"/Users/toisin/Dropbox/go_src/cov/server/x.go",
+		"/Users/toisin/Dropbox/go_src/cov/static/cov/js/cart.jsx",
+		"/Users/toisin/Dropbox/go_src/cov/static/cov/js/user.js",
+		"/Users/toisin/Dropbox/go_src/cov/static/cov/js/challenge.jsx",
+		"/Users/toisin/Dropbox/go_src/cov/static/cov/js/user.jsx",
+		"/Users/toisin/Dropbox/go_src/cov/static/cov/js/main.js",
+		"/Users/toisin/Dropbox/go_src/cov/html/login.html",
+		"/Users/toisin/Dropbox/go_src/cov/html/index.html",
+		"/Users/toisin/Dropbox/go_src/cov/static/cov/carts.html",
+		"/Users/toisin/Dropbox/go_src/cov/static/cov/js/carts.html",
+		"/Users/toisin/Dropbox/go_src/cov/client/client.go",
+		"/Users/toisin/Dropbox/go_src/cov/html/newuser.html",
+		"/Users/toisin/Dropbox/go_src/cov/main/server.go",
+		"/Users/toisin/Dropbox/go_src/cov/client/index.html",
+		"/Users/toisin/Dropbox/go_src/cov/client/login.html",
+		"/Users/toisin/Dropbox/go_src/cov/test/test.go",
+		"/Users/toisin/Dropbox/go_src/cov/workflow/test.go",
+		"/Users/toisin/Dropbox/go_src/appengine-try-go/app.yaml",
+		"/Users/toisin/Dropbox/go_src/appengine-try-go/test/test.go",
+		"/Users/toisin/Dropbox/go_src/appengine-try-go/src/test.go",
+		"/Users/toisin/Dropbox/go_src/appengine-try-go/src/test1.go",
+		"/Users/toisin/Dropbox/go_src/appengine-try-go/hello/hxxx.go",
+		"/Users/toisin/Dropbox/go_src/appengine-try-go/hello/hxxx1.go",
+		"/Users/toisin/Dropbox/go_src/appengine-try-go/hello/hello.go",
+		"/Users/toisin/Dropbox/TSWebSite/public/carts-old.html",
+		"/Users/toisin/Dropbox/TSWebSite/public/js/user.js",
+		"/Users/toisin/Dropbox/TSWebSite/public/js/cart.jsx",
+		"/Users/toisin/Dropbox/School/Reasoning/Empirical/cartmaterial/casescart.csv",
+		"/Users/toisin/Dropbox/TSWebSite/casescart.csv",
+		"/Users/toisin/Dropbox/TSWebSite/curl readme.txt",
+		"/Users/toisin/Dropbox/TSWebSite/public/client.js",
+		"/Users/toisin/Dropbox/TSWebSite/public/carts.html",
+		"/Users/toisin/Dropbox/TSWebSite/public/test-react.html",
+		"/Users/toisin/Dropbox/TSWebSite/users.js",
+		"/Users/toisin/Dropbox/TSWebSite/kitten_server.js",
+		"/Users/toisin/Dropbox/TSWebSite/docs/Mongoose API v3.8.3.html",
+		"/Users/toisin/Dropbox/TSWebSite/kitten_models.js",
+		"/Users/toisin/Dropbox/TSWebSite/client.js"
+	],
+	"find":
+	{
+		"height": 27.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"RecordNo",
+			"User{",
+			"UI_PROMPT_TEXT",
+			"UITextPrompt",
+			"UI_PROMPT_TEXT",
+			"RECORD",
+			"Type",
+			"nextPrompt",
+			"MakePrompt",
+			"&nbsp;",
+			"</label>",
+			"&nbsp;",
+			"</label>",
+			"<br>",
+			".jpg\">",
+			"class",
+			"wokflo",
+			"img/",
+			"colspan",
+			"class",
+			"graphics",
+			"PromptId",
+			"CurrentUIPrompt",
+			"class",
+			"classname",
+			"nextstate",
+			"laststate",
+			"State",
+			"dialog",
+			"chat",
+			"cleanup",
+			"Clean up",
+			"Text",
+			"Value",
+			"submitResponse",
+			"response",
+			"Response",
+			"responseValue",
+			"Value",
+			"Label",
+			"MakeUIUserData",
+			"loadAllUserData",
+			"loadHistory",
+			"history",
+			"dialogop",
+			"cleanup",
+			"UI_PROMPT_END",
+			"MakeUserData",
+			"UI_PROMPT_END",
+			"promptTreeJsonStream",
+			"MakeExpectedResponseHandler",
+			"MakeNewPrompt",
+			"InitWorkflow",
+			"UIActionModeId",
+			"actionForm",
+			"inputForm",
+			"dialogoption",
+			"coactioninput",
+			"coaction",
+			"inputForm",
+			"input",
+			"PromptOption",
+			"input",
+			"ActionPromptOption",
+			"input",
+			"MakeExpectedResponseHandler",
+			"PutUser",
+			"submitResponse",
+			"json",
+			"submitResponse",
+			"	}",
+			"GenerateUIPrompt",
+			"PromptGenerator",
+			"json",
+			"uiud",
+			"MakeUIUserData",
+			"previousPrompt",
+			"responseText",
+			"Date",
+			"CurrentPromptId",
+			"GetPhaseId",
+			"switch",
+			"pId",
+			"promptId",
+			"pId",
+			"func New",
+			"func Make",
+			"func New",
+			"New",
+			"Get",
+			"GetUIPrompt",
+			"GetNextStateId",
+			"workflowstateid",
+			"input",
+			"promptId",
+			"submitResponse",
+			"JSON",
+			"workflowstat",
+			"workflow",
+			"workflowstateid",
+			"workflowid",
+			"option",
+			"promptConfig",
+			"UIMCPrompt",
+			"Response",
+			"GetNextPrompt",
+			"GetUIActionModeId",
+			"GetDisplayText",
+			"ptype",
+			"Ptype",
+			"pType",
+			"ptype",
+			"GetActionModeId",
+			"actionmodeid",
+			"generateAction",
+			"UIActionModeId",
+			"ActionModeId",
+			"uiactionModeId",
+			"actionModeId",
+			"ActionModeId",
+			"YES_NO",
+			"PromptId",
+			"GetPrompt",
+			"GetUIPrompt",
+			"MakeUIUserData",
+			"responseText",
+			"UI_PROMPT_YES_NO",
+			"UIPrompt"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"MessageNo",
+			"&nbsp;</td>",
+			"</input></label></td>",
+			"<br/>",
+			".jpg\"/>",
+			"className",
+			"/img/",
+			"colSpan",
+			"className",
+			"img",
+			"ResponseId",
+			"Text",
+			"dialoginput",
+			"covactionForm",
+			"dialogForm",
+			"dialoginput",
+			"covactioninput",
+			"coactioninput",
+			"actionForm",
+			"dialogop",
+			"dialogoption",
+			"coaction",
+			"promptId",
+			"Type",
+			"GetUIActionModeId",
+			"UIActionModeId",
+			"uiActionModeId",
+			"uiactionModeId",
+			"promptConfigMap",
+			"covPromptTreeJsonStream",
+			"MakeUIUserData",
+			"MakeUserData",
+			"UIMCPrompt",
+			"UITextPrompt",
+			"UIPrompt",
+			"GetFirstUIPrompt",
+			"UI_PROMPT_END",
+			"UI_PROMPT_MC",
+			"UI_PROMPT_YES_NO",
+			"UI_PROMPT_TEXT",
+			"UI_PROMPT_NO_RESPONSE",
+			"UIOption",
+			"UIMCPromptState",
+			"UITextPromptState",
+			"UITex\nUITex\n\n\nUITextPromptState",
+			"CurrentUIPrompt",
+			"UIState",
+			"OldCurrentPrompt",
+			"\"",
+			"OldState",
+			"WorkflowStateID",
+			"WorkflowStateId",
+			"CurrentWorkflowStateId",
+			"xxxCurrentWorkflowStateId",
+			"xxxworkflowStateID",
+			"xxxworkflowStateID\nxxxworkflowStateID",
+			"xxxWorkflowStateID",
+			"astro-world",
+			"human",
+			"className",
+			"MCPromptState",
+			"UpdateUserData",
+			"\"\"",
+			"resultsReq",
+			"loadUserResultData",
+			"updateStateCallback",
+			"newCart",
+			"newChallenge",
+			"notebook",
+			"Short",
+			"Near",
+			"Far",
+			"Long"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "exploration/server.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1402,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "exploration/models.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10671,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2107,
+								2107
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1592.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "exploration/setup-readme.txt",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 737,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "exploration/curl readme.txt",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 692,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "/Users/toisin/GitHub/bazaar.sublime-project",
+	"replace":
+	{
+		"height": 50.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"usr",
+				"js/user.jsx"
+			],
+			[
+				"cart",
+				"carts-old.html"
+			],
+			[
+				"log",
+				"~/Dropbox/TSWebSite/public/login.html"
+			],
+			[
+				"mode",
+				"~/Dropbox/TSWebSite/models.js"
+			],
+			[
+				"ser",
+				"~/Dropbox/TSWebSite/server.js"
+			],
+			[
+				"us",
+				"~/Dropbox/TSWebSite/users.js"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": false,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

@@ -19,6 +19,11 @@ indexes:
 - kind: Message
   ancestor: yes
   properties:
+  - name: MessageNo
+
+- kind: Message
+  ancestor: yes
+  properties:
   - name: RecordNo
 
 - kind: Message

@@ -16,8 +16,8 @@ var CovAction = React.createClass({
     var app = this.props.app;
     var prompt = user.getPrompt();
 
-    // switch (state.mode) {
-    //   case "cov":
+    switch (prompt.UIActionModeId) {
+      case "NO_UIACTION":
         return  <div className="action">
               <h3>Investigating Factor: <b>Fitness</b></h3>
 
@@ -34,6 +34,15 @@ var CovAction = React.createClass({
                 </tbody>
               </table>
                 </div>;
+      case "RECORD_SELECT_ONE":
+        return <div></div>;
+      case "RECORD_SELECT_TWO":
+        return <TwoRecordSelection user={user} prompt={prompt} onComplete={app.changeState}/>;
+      case "ONE_RECORD_PERFORMANCE":
+        return <OneRecordPerformance user={user} prompt={prompt} onComplete={app.changeState}/>;
+      default:
+        return <div></div>;
+    }
     //   case "chart":
     //     return <div></div>
     //   case "prediction":
@@ -209,5 +218,7 @@ var ActionPromptOption = React.createClass({
               </label>
   },
 });
+
+
 
 
