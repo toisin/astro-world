@@ -6,11 +6,11 @@ package db
 //     "time"
 // )
 
-
-// type Record struct {
-// 	ID string
-// 	Name string
-// 	NumberOfFactors int
-//     FactorNames []string
-// }
-
+type Record struct {
+	RecordNo     int
+	ID           string
+	Name         string
+	FactorIds    []string
+	FactorLevels []string
+	OutcomeLevel string
+}
