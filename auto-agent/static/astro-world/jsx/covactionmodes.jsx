@@ -75,6 +75,9 @@ var TwoRecordSelection = React.createClass({
     var user = this.props.user;
     var app = this.props.app;
     var prompt = user.getPrompt();
+    var promptId = prompt.PromptId;
+    var phaseId = user.CurrentPhaseId;
+
     var recordOneFactors = prompt.Factors.map(
       function(factor, i) {
         return <FactorSelection factor={factor} key={i} record="1"/>;

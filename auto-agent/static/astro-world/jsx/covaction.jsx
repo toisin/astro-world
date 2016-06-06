@@ -37,9 +37,9 @@ var CovAction = React.createClass({
       case "RECORD_SELECT_ONE":
         return <div></div>;
       case "RECORD_SELECT_TWO":
-        return <TwoRecordSelection user={user} prompt={prompt} onComplete={app.changeState}/>;
+        return <TwoRecordSelection user={user} prompt={prompt} onComplete={app.changeState} app={app}/>;
       case "ONE_RECORD_PERFORMANCE":
-        return <OneRecordPerformance user={user} prompt={prompt} onComplete={app.changeState}/>;
+        return <OneRecordPerformance user={user} prompt={prompt} onComplete={app.changeState} app={app}/>;
       default:
         return <div></div>;
     }
