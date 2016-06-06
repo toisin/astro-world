@@ -4,110 +4,153 @@
 // jsx -w -x jsx public/js public/js
 
 var TwoRecordSelection = React.createClass({
-  // getInitialState: function() {
-  //   return {mode: 0};
-  // },
+  getInitialState: function() {
+    return {enabled: false};
+  },
+
+  isEnabled: function() {
+    return this.state.enabled;
+  },
+
+  // return an array of selected levels for each factor
+  // f.FactorId : the id of a factor
+  // f.SelectedLevelId: the id of the level selected for the factor
+  getSelectedFactors: function(record) {
+    var user = this.props.user;
+    var prompt = user.CurrentUIPrompt;
+    var form = document.getElementById("covactionForm");
+    var selectedFactors = prompt.Factors.map(
+      function(factor, i) {
+        var fid = form.elements[factor.FactorId+record];
+        var f = {};
+        f.FactorId = factor.FactorId;
+        f.SelectedLevelId = fid ? fid.value : "";
+        return f;
+      });
+    return selectedFactors;
+  },
+
+  handleChange: function(event) {
+    var selectedFactors = this.getSelectedFactors("1");
+    for (i=0; i < selectedFactors.length; i++) {
+      if (selectedFactors[i].SelectedLevelId == "") {
+        return;
+      }
+    }    
+    selectedFactors = this.getSelectedFactors("2");
+    for (i=0; i < selectedFactors.length; i++) {
+      if (selectedFactors[i].SelectedLevelId == "") {
+        return;
+      }
+    }    
+    this.setState({enabled:true});
+  },
+
+  handleSubmit: function(event) {
+    event.preventDefault();
+
+    var user = this.props.user;
+    var prompt = user.CurrentUIPrompt;
+    var onComplete = this.props.onComplete;
+    var e = document.getElementById("promptId");
+    var promptId = e ? e.value : "";
+    var e = document.getElementById("phaseId");
+    var phaseId = e ? e.value : "";
+    var f = document.getElementById("covactionForm");
+
+    var r1selectedFactors = this.getSelectedFactors("1");
+    var r2selectedFactors = this.getSelectedFactors("2");
+
+    var response = {};
+    response.RecordNoOne = r1selectedFactors;
+    response.RecordNoTwo = r2selectedFactors;    
+
+    jsonResponse = JSON.stringify(response);
+    user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
+    this.setState({mode: 0, enabled:false});
+  },
 
   render: function() {
-      var state = this.state;
-      var user = this.props.user;
-      var app = this.props.app;
-      var prompt = user.getPrompt();
+    var state = this.state;
+    var user = this.props.user;
+    var app = this.props.app;
+    var prompt = user.getPrompt();
+    var recordOneFactors = prompt.Factors.map(
+      function(factor, i) {
+        return <FactorSelection factor={factor} key={i} record="1"/>;
+      });
+    var recordTwoFactors = prompt.Factors.map(
+      function(factor, i) {
+        return <FactorSelection factor={factor} key={i} record="2"/>;
+      });
 
-      return  <div className ="hbox"><div>
-        <table>
-          <tbody>
-          <tr>
-            <td>&nbsp;</td>
-            <td colspan="3" className="question">First Record</td>
-          </tr>
-          <tr>
-            <td>Fitness</td>
-            <td><label><img src="graphics/excellent fitness.jpg"/><br/>
-            <input type="radio" name="r1">Excellent</input></label></td>
-            <td>&nbsp;</td>
-            <td><label><img src="graphics/average fitness.jpg"/><br/>
-            <input type="radio" name="r1">Average</input></label></td>
-          </tr>
-          <tr>
-            <td>Parents health</td>
-            <td><label><img src="graphics/excellent parents.jpg"/><br/>
-            <input type="radio" name="r2">Excellent</input></label></td>
-            <td>&nbsp;</td>
-            <td><label><img src="graphics/fair parents.jpg"/><br/>
-            <input type="radio" name="r2">Fair</input></label></td>
-          </tr>
-          <tr>
-            <td>Family size</td>
-            <td><label><img src="graphics/large family.jpg"/><br/>
-            <input type="radio" name="r3">Large</input></label></td>
-            <td>&nbsp;</td>
-            <td><label><img src="graphics/small family.jpg"/><br/>
-            <input type="radio" name="r3">Small</input></label></td>
-          </tr>
-          <tr>
-            <td>Education</td>
-            <td><label><img src="graphics/college.jpg"/><br/>
-            <input type="radio" name="r4">College</input></label></td>
-            <td><label><img src="graphics/some college.jpg"/><br/>
-            <input type="radio" name="r4">Some College</input></label></td>
-            <td><label><img src="graphics/no college.jpg"/><br/>
-            <input type="radio" name="r4">No College</input></label></td>
-          </tr>
-          </tbody>
-        </table>
-        <p>
-          <a href="dialog6.html" className="button">OK</a>
-        </p>
+    return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
+      <div className ="hbox">
+        <div className="frame">
+            <table>
+              <tbody>
+              <tr>
+                <td>&nbsp;</td>
+                <td colSpan="3" className="question">First Record</td>
+              </tr>
+              {recordOneFactors}
+              </tbody>
+            </table>
+        </div>
+        <div className="frame">
+          <table>
+            <tbody>
+            <tr>
+              <td>&nbsp;</td>
+              <td colSpan="3" className="question">Second Record</td>
+            </tr>
+            {recordTwoFactors}
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div className="frame">
-        <table>
-          <tbody>
-          <tr>
-            <td>&nbsp;</td>
-            <td colspan="3" className="question">Second Record</td>
-          </tr>
-          <tr>
-            <td>Fitness</td>
-            <td><label><img src="graphics/excellent fitness.jpg"/><br/>
-            <input type="radio" name="r1">Excellent</input></label></td>
-            <td>&nbsp;</td>
-            <td><label><img src="graphics/average fitness.jpg"/><br/>
-            <input type="radio" name="r1">Average</input></label></td>
-          </tr>
-          <tr>
-            <td>Parents health</td>
-            <td><label><img src="graphics/excellent parents.jpg"/><br/>
-            <input type="radio" name="r2">Excellent</input></label></td>
-            <td>&nbsp;</td>
-            <td><label><img src="graphics/fair parents.jpg"/><br/>
-            <input type="radio" name="r2">Fair</input></label></td>
-          </tr>
-          <tr>
-            <td>Family size</td>
-            <td><label><img src="graphics/large family.jpg"/><br/>
-            <input type="radio" name="r3">Large</input></label></td>
-            <td>&nbsp;</td>
-            <td><label><img src="graphics/small family.jpg"/><br/>
-            <input type="radio" name="r3">Small</input></label></td>
-          </tr>
-          <tr>
-            <td>Education</td>
-            <td><label><img src="graphics/college.jpg"/><br/>
-            <input type="radio" name="r4">College</input></label></td>
-            <td><label><img src="graphics/some college.jpg"/><br/>
-            <input type="radio" name="r4">Some College</input></label></td>
-            <td><label><img src="graphics/no college.jpg"/><br/>
-            <input type="radio" name="r4">No College</input></label></td>
-          </tr>
-          </tbody>
-        </table>
-        <p>
-          <a href="dialog6.html" className="button">OK</a>
-        </p>
-      </div></div>;
+      <p>
+        <input type="hidden" id="promptId" value={promptId}/>
+        <input type="hidden" id="phaseId" value={phaseId}/>
+        <button type="submit" disabled={!this.isEnabled()}>Enter</button>
+      </p>
+      </form>;
   }
 });
+
+var FactorSelection = React.createClass({
+  render: function() {
+    var state = this.state;
+    var factor = this.props.factor;
+    var record = this.props.record;
+
+    var levels = factor.Levels.map(
+      function(level, i) {
+        return <FactorLevelSelection factor={factor} level={level} key={i} record={record}/>;
+      });
+
+
+    return <tr>
+            <td>{factor.Text}</td>
+            {levels}
+          </tr>;
+  }
+});
+
+var FactorLevelSelection = React.createClass({
+  render: function() {
+    var state = this.state;
+    var factor = this.props.factor;
+    var record = this.props.record;
+    var level = this.props.level;
+    var imgPath = "/img/"+level.ImgPath;
+    var factorId = factor.FactorId+record;
+
+    return <td><label>
+            <input type="radio" name={factorId} value={level.FactorLevelId}><img src={imgPath}/><br/>{level.Text}</input></label></td>;
+  }
+});
+
 
 var OneRecordPerformance = React.createClass({
 

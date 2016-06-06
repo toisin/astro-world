@@ -20,6 +20,10 @@ import (
 	"appengine/datastore"
 )
 
+const (
+	APP_NAME = "auto-agent"
+)
+
 func init() {
 	http.Handle("/", &StaticHandler{})
 
@@ -259,8 +263,8 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ud := MakeUserData(&u)
 		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"))
 
-		responseId := ud.CurrentPrompt.GetResponse().Id
-		responseText := ud.CurrentPrompt.GetResponse().Text
+		responseId := ud.CurrentPrompt.GetResponseId()
+		responseText := ud.CurrentPrompt.GetResponseText()
 		questionText := ud.CurrentPrompt.GetUIPrompt().Display()
 
 		// Get the count of existing messages
@@ -308,8 +312,6 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			//http.Error(w, err.Error(), http.StatusInternalServerError)
 			//return
 		}
-
-		// u.CurrentWorkflowStateId = workflowStateID
 
 		//TODO cleanup
 		// fmt.Fprint(os.Stderr, "Before UpdateWithNextPrompt, NextPrompt:", ud.CurrentPrompt.GetNextPrompt(), "!\n\n")
@@ -448,88 +450,43 @@ func ImportRecordsDB(c appengine.Context) {
 			}
 		}
 
-		arecord, err := r.Read()
-		if err == io.EOF {
-			fmt.Fprint(os.Stderr, "Record file is empty!\n\n")
-			log.Fatal(err)
-			return
-		} else if err != nil {
-			fmt.Fprint(os.Stderr, "Error reading record file!\n\n")
-			log.Fatal(err)
+		records := make([]db.Record, workflow.GetContentConfig().RecordSize)
+		var keys = make([]*datastore.Key, workflow.GetContentConfig().RecordSize)
+
+		ri := 0
+		for {
+			arecord, err := r.Read()
+			if err == io.EOF {
+				break
+			} else if err != nil {
+				fmt.Fprint(os.Stderr, "Error reading record file!\n\n", err)
+				log.Fatal(err)
+				return
+			}
+			recordNo := arecord[0] // First column is the record number
+			factorIds := make([]string, len(factorColIndex))
+			factorLevels := make([]string, len(factorColIndex))
+			i := 0
+			for k, v := range factorColIndex {
+				factorIds[i] = k
+				factorLevels[i] = arecord[v]
+				i++
+			}
+			outcomeLevel := arecord[outcomeColIndex]
+			records[ri] = db.Record{
+				RecordNo:     recordNo,
+				FactorIds:    factorIds,
+				FactorLevels: factorLevels,
+				OutcomeLevel: outcomeLevel,
+			}
+			keys[ri] = datastore.NewIncompleteKey(c, "Record", db.RecordKey(c, APP_NAME))
+			ri++
+		}
+		_, err = datastore.PutMulti(c, keys, records)
+		if err != nil {
+			fmt.Fprint(os.Stderr, "DB Error Adding Records:"+err.Error()+"!\n\n")
 			return
 		}
 
-		factorIds := make([]string, len(factorColIndex))
-		factorLevels := make([]string, len(factorColIndex))
-		i := 0
-		for k, v := range factorColIndex {
-			factorIds[i] = k
-			factorLevels[i] = arecord[v]
-			i++
-		}
-		outcomeLevel := arecord[outcomeColIndex]
-		//TODO cleanup
-		fmt.Fprint(os.Stderr, "factorIds:", factorLevels, "\n\n")
-		fmt.Fprint(os.Stderr, "outcomeLevel:", outcomeLevel, "\n\n")
-		// recordNo := headers[0] // First column is the record number
-
-		//   record := []db.Record{
-		// db.Record{
-		// 	RecordNo: arecord[0],
-		// },
-		// RecordNo        int
-		// ID              string
-		// Name            string
-		// NumberOfFactors int
-		// FactorIds       []string
-		// FactorLevels    []string
-
-		//TODO cleanup
-		// fmt.Fprint(os.Stderr, "headers:", factorColIndex, "\n\n")
 	}
 }
-
-//     m := []db.Message{
-// 		db.Message{
-// 			Text: questionText,
-// 			Mtype: db.ROBOT,
-//     Date: time.Now(),
-//     MessageNo: rc1,
-// 		},
-// 		db.Message{
-// 			Id: responseId,
-// 			Text: responseText,
-// 			Mtype: db.HUMAN,
-//     Date: time.Now(),
-//     MessageNo: rc2,
-// 		}}
-// 	fmt.Fprintf(os.Stderr, "%s", record)
-// }
-
-// //check if db exists
-// Record.find({}, function (err, count){
-//   if (count<1) {
-//     var stream = fs.readFileSync(filename, 'utf-8');
-//     //console.log(stream);
-//     var lines = stream.split(/\n|\r/);
-
-//     for (var i = 1; i < lines.length; i++) {
-//       var t = lines[i].split(',');
-//       var c = new Cart({
-//         trips: [t[4]],
-//         handleLength: t[0],
-//         wheelSize: t[3],
-//         bucketSize: t[2],
-//         bucketPlacement: t[1],
-//       });
-
-//       c.save(function(err, result) {
-//         if(err)
-//          console.error(err);
-//         else
-//          console.log(result)
-//       });
-//     }
-//   }
-// });
-// };

@@ -69,7 +69,7 @@ var ActionInput = React.createClass({
   },
 
   handleSubmit: function(event) {
-    event.preventDefault();
+    event.preventDefault(); // default might be to follow a link, instead, takes control over the event
 
     var user = this.props.user;
     var onComplete = this.props.onComplete;

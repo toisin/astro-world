@@ -121,6 +121,5 @@ const (
   117,average,fair,small,no college,F,hot,E
   118,average,fair,large,college,M,cold,C
   119,average,fair,large,some college,M,cold,E
-  120,average,fair,large,no college,M,cold,E
-  `
+  120,average,fair,large,no college,M,cold,E`
 )

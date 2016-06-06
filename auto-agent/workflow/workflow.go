@@ -37,6 +37,8 @@ const (
 	{
 		"Content":
 		{
+			"RecordFileName": "cases.csv",
+			"RecordSize": 120,
 			"CausalFactors":
 			[
 				{
@@ -46,12 +48,12 @@ const (
 					[
 						{
 							"Name": "Excellent",
-							"Id": "ex",
+							"Id": "excellent",
 							"ImgPath": "excellent fitness.jpg"
 						},
 						{
 							"Name": "Average",
-							"Id": "avg",
+							"Id": "average",
 							"ImgPath": "average fitness.jpg"
 						}
 					]
@@ -63,7 +65,7 @@ const (
 					[
 						{
 							"Name": "Excellent",
-							"Id": "ex",
+							"Id": "excellent",
 							"ImgPath": "excellent parents.jpg"
 						},
 						{
@@ -80,17 +82,17 @@ const (
 					[
 						{
 							"Name": "No College",
-							"Id": "nocol",
+							"Id": "no college",
 							"ImgPath": "no college.jpg"
 						},
 						{
 							"Name": "Some College",
-							"Id": "somecol",
+							"Id": "some college",
 							"ImgPath": "some college.jpg"
 						},
 						{
 							"Name": "College",
-							"Id": "col",
+							"Id": "college",
 							"ImgPath": "college.jpg"
 						}
 					]
@@ -105,11 +107,13 @@ const (
 					[
 						{
 							"Name": "Large",
-							"Id": "large"
+							"Id": "large",
+							"ImgPath": "large family.jpg"
 						},
 						{
 							"Name": "Small",
-							"Id": "small"
+							"Id": "small",
+							"ImgPath": "small family.jpg"
 						}
 					]
 				},
@@ -202,7 +206,7 @@ const (
 						{
 							"Id": "p1r2p1",
 							"Text": "Which records would you like to see?",
-							"Type": "TEXT",
+							"Type": "RECORD",
 							"UIActionModeId": "RECORD_SELECT_TWO",
 							"ExpectedResponses": 
 							[
@@ -272,6 +276,7 @@ type Factor struct {
 
 type ContentConfig struct {
 	RecordFileName   string
+	RecordSize       int
 	CausalFactors    []Factor
 	NonCausalFactors []Factor
 	OutcomeVariable  Factor
@@ -319,7 +324,6 @@ func populatePromptConfigMap(pc *PromptConfig, phaseId string) {
 func MakeFirstPrompt() Prompt {
 	// TODO Hardcoding the first prompt as CovPrompt
 	p := MakeCovPrompt(phaseConfigMap[PHASE_COV].FirstPrompt)
-	// fmt.Fprintf(os.Stderr, " %s", p.GetDisplayText())
 	return p
 }
 
@@ -333,7 +337,6 @@ func MakePromptFromConfig(pc *PromptConfig, phaseId string) Prompt {
 	case PHASE_COV:
 		return MakeCovPrompt(*pc)
 	}
-	// fmt.Fprintf(os.Stderr, " %s", p.GetDisplayText())
 	return nil
 }
 
@@ -375,8 +378,7 @@ func NewUIEndPrompt() *UITextPrompt {
 }
 
 type UIMCPrompt struct {
-	Type string
-	// WorkflowStateID string
+	Type           string
 	Text           string
 	Options        []UIOption
 	PromptId       string
@@ -398,5 +400,37 @@ func (ps *UIMCPrompt) GetId() string {
 }
 
 func (ps *UIMCPrompt) Display() string {
+	return ps.Text
+}
+
+type UIRecordPrompt struct {
+	Type           string
+	Text           string
+	PromptId       string
+	UIActionModeId string
+	Factors        []UIFactor
+}
+
+func NewUUIRecordPrompt() *UIRecordPrompt {
+	return &UIRecordPrompt{Type: UI_PROMPT_RECORD}
+}
+
+type UIFactor struct {
+	FactorId string
+	Text     string
+	Levels   []UIFactorOption
+}
+
+type UIFactorOption struct {
+	FactorLevelId string
+	Text          string
+	ImgPath       string
+}
+
+func (ps *UIRecordPrompt) GetId() string {
+	return ps.PromptId
+}
+
+func (ps *UIRecordPrompt) Display() string {
 	return ps.Text
 }

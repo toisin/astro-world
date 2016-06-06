@@ -2,8 +2,8 @@ package workflow
 
 import (
 	"strings"
-  // "fmt"
-  // "os"
+	// "fmt"
+	// "os"
 )
 
 type Prompt interface {
@@ -13,7 +13,8 @@ type Prompt interface {
 	// GetDisplayText() string
 	// GetUIActionModeId() string
 	GetPhaseId() string
-	GetResponse() Response
+	GetResponseId() string
+	GetResponseText() string
 	GetNextPrompt() Prompt
 	// SetResponse(Response)
 	GetPromptId() string
@@ -23,26 +24,26 @@ type Prompt interface {
 
 type Response struct {
 	Text string
-	Id string
+	Id   string
 }
 
 type ExpectedResponseHandler struct {
 	expectedResponseMap map[string]Prompt
 }
 
-func MakeExpectedResponseHandler(ecs[]ExpectedResponseConfig, phaseId string) *ExpectedResponseHandler {
+func MakeExpectedResponseHandler(ecs []ExpectedResponseConfig, phaseId string) *ExpectedResponseHandler {
 	erh := new(ExpectedResponseHandler)
 	erh.expectedResponseMap = make(map[string]Prompt)
 	for _, v := range ecs {
-    // In case if the prompt is already defined
+		// In case if the prompt is already defined
 		// erh.expectedResponseMap[strings.ToLower(v.Id)] = MakePromptFromConfig(v.NextPrompt, phaseId)
-    erh.expectedResponseMap[strings.ToLower(v.Id)] = MakePrompt(v.NextPrompt.Id, phaseId)
+		erh.expectedResponseMap[strings.ToLower(v.Id)] = MakePrompt(v.NextPrompt.Id, phaseId)
 	}
 	return erh
 }
 
 func (erh *ExpectedResponseHandler) GetNextPrompt(rid string) Prompt {
-  // TODO cleanup
-  // fmt.Fprintf(os.Stderr, "expectedResponseMap: %s", erh.expectedResponseMap, "\n\n")
-  return erh.expectedResponseMap[strings.ToLower(rid)]
+	// TODO cleanup
+	// fmt.Fprintf(os.Stderr, "expectedResponseMap: %s", erh.expectedResponseMap, "\n\n")
+	return erh.expectedResponseMap[strings.ToLower(rid)]
 }
