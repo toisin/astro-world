@@ -39,11 +39,11 @@
 # Setup google appengine locally
 # 
 # Start goappengine locally
-cd ~/GitHub/astro-world/auto-agent
+cd ~/src/github.com/toisin/astro-world/auto-agent
 goapp serve
 
 # Start React Transformation
-cd ~/GitHub/astro-world/auto-agent/static/astro-world
+cd ~/src/github.com/toisin/astro-world/auto-agent/static/astro-world
 jsx -w -x jsx jsx js
 
 

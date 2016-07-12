@@ -4,16 +4,15 @@
 // jsx -w -x jsx public/js public/js
 
 
-var UI_PROMPT_TEXT = "TEXT";
-var UI_PROMPT_YES_NO = "YES_NO";
-var UI_PROMPT_NO_RESPONSE = "NO_RESPONSE";
+var UI_PROMPT_TEXT = "Text";
 var UI_PROMPT_MC = "MC";
-var UI_PROMPT_END = "COMPLETE"
-var PHASE_COV = "Cov"
-var PHASE_CHART = "Chart"
-var PHASE_PREDICTION = "Prediction"
-var FIRST_PHASE = "START"
-var LAST_PHASE = "END"
+var UI_PROMPT_NO_INPUT = "NO_INPUT";
+
+var PHASE_COV = "Cov";
+var PHASE_CHART = "Chart";
+var PHASE_PREDICTION = "Prediction";
+var FIRST_PHASE = "START";
+var LAST_PHASE = "END";
 
 
 function User(name) {
@@ -22,6 +21,7 @@ function User(name) {
   this.History = [];
   this.CurrentPhaseId = "";
   this.CurrentUIPrompt = {};
+  this.CurrentUIAction = {};
 }
 
 User.prototype = {
@@ -51,6 +51,10 @@ User.prototype = {
     return this.CurrentUIPrompt;
   },
 
+  getAction: function() {
+    return this.CurrentUIAction;
+  },
+
   getScreenname: function() {
     return this.Screenname;
   },
@@ -61,6 +65,7 @@ User.prototype = {
     self.History = j.History;
     self.CurrentPhaseId = j.User.CurrentPhaseId;
     self.CurrentUIPrompt = j["CurrentUIPrompt"];
+    self.CurrentUIAction = j["CurrentUIAction"];
   },
 
   loadHistory: function() {

@@ -19,12 +19,13 @@ type Prompt interface {
 	// SetResponse(Response)
 	GetPromptId() string
 	GetUIPrompt() UIPrompt
-	ProcessResponse(string)
+	GetUIAction() UIAction
+	ProcessResponse(string, *UIUserData)
 }
 
-type Response struct {
-	Text string
-	Id   string
+type Response interface {
+	GetResponseText() string
+	GetResponseId() string
 }
 
 type ExpectedResponseHandler struct {
@@ -42,8 +43,103 @@ func MakeExpectedResponseHandler(ecs []ExpectedResponseConfig, phaseId string) *
 	return erh
 }
 
+// Return the next prompt that maps to the expected response
+// If there is only one expected response, return that one regardless of the response id
 func (erh *ExpectedResponseHandler) GetNextPrompt(rid string) Prompt {
-	// TODO cleanup
-	// fmt.Fprintf(os.Stderr, "expectedResponseMap: %s", erh.expectedResponseMap, "\n\n")
+	if len(erh.expectedResponseMap) == 1 {
+		for _, v := range erh.expectedResponseMap {
+			return v
+		}
+	}
 	return erh.expectedResponseMap[strings.ToLower(rid)]
+}
+
+type UIPrompt interface {
+	SetText(string)
+	SetPromptType(string)
+	SetId(string)
+	SetOptions([]UIOption)
+	Display() string
+	GetId() string
+}
+
+type UIBasicPrompt struct {
+	PromptType string
+	Text       string
+	PromptId   string
+	Options    []UIOption
+}
+
+func NewUIBasicPrompt() *UIBasicPrompt {
+	return &UIBasicPrompt{}
+}
+
+func (ps *UIBasicPrompt) SetText(s string) {
+	ps.Text = s
+}
+
+func (ps *UIBasicPrompt) SetPromptType(s string) {
+	ps.PromptType = s
+}
+
+func (ps *UIBasicPrompt) SetId(s string) {
+	ps.PromptId = s
+}
+
+func (ps *UIBasicPrompt) SetOptions(options []UIOption) {
+	ps.Options = options
+}
+
+func (ps *UIBasicPrompt) GetId() string {
+	return ps.PromptId
+}
+
+func (ps *UIBasicPrompt) Display() string {
+	return ps.Text
+}
+
+type UIOption struct {
+	ResponseId string
+	Text       string
+}
+
+type UIAction interface {
+	SetUIActionModeId(string)
+}
+
+type UIBasicAction struct {
+	UIActionModeId string
+}
+
+func NewUIBasicAction() *UIBasicAction {
+	return &UIBasicAction{}
+}
+
+func (ps *UIBasicAction) SetUIActionModeId(s string) {
+	ps.UIActionModeId = s
+}
+
+type UIRecordAction struct {
+	UIActionModeId string
+	Factors        []UIFactor
+}
+
+func NewUIRecordAction() *UIRecordAction {
+	return &UIRecordAction{}
+}
+
+func (ps *UIRecordAction) SetUIActionModeId(s string) {
+	ps.UIActionModeId = s
+}
+
+type UIFactor struct {
+	FactorId string
+	Text     string
+	Levels   []UIFactorOption
+}
+
+type UIFactorOption struct {
+	FactorLevelId string
+	Text          string
+	ImgPath       string
 }

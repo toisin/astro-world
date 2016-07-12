@@ -2,8 +2,103 @@
 
 // npm install -g react-tools
 // jsx -w -x jsx public/js public/js
+var SelectTargetFactor = React.createClass({
 
-var TwoRecordSelection = React.createClass({
+  getInitialState: function() {
+    return {enabled: false};
+  },
+
+  isEnabled: function() {
+    return this.state.enabled;
+  },
+
+  handleChange: function(event) {
+    this.setState({enabled:true});
+  },
+
+  handleSubmit: function(event) {
+    event.preventDefault(); // default might be to follow a link, instead, takes control over the event
+
+    var user = this.props.user;
+    var onComplete = this.props.onComplete;
+    var e = document.getElementById("promptId");
+    var promptId = e ? e.value : "";
+    var e = document.getElementById("phaseId");
+    var phaseId = e ? e.value : "";
+    var f = document.getElementById("covactionForm");
+    e = f.elements['covactioninput'];
+    var value = e ? e.value : "";
+    e.value = "";
+    var text, id;
+
+    var options = user.getPrompt().Options;
+    for (i = 0; i < options.length; i++) {
+      if (options[i].ResponseId == value) {
+        text = options[i].Text;
+        id = value;
+        break;
+      }
+    }
+
+    var response = {};
+    response.text = text;
+    response.id = id;
+    jsonResponse = JSON.stringify(response);
+    user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
+    this.setState({mode: 0, enabled:false});
+  },
+
+  render: function() {
+    var user = this.props.user;
+    var prompt = user.getPrompt();
+
+    var promptId = prompt.PromptId;
+    var phaseId = user.getCurrentPhaseId();
+    var human = user.getScreenname() ? user.getScreenname() : user.getUsername();
+
+
+    if (!prompt.Options) {
+      console.error("Error: MC Prompt without options!");    
+      return <div></div>;
+    }
+    var options = prompt.Options.map(
+      function(option, i) {
+        return <FactorPromptOption option={option} key={i}/>;
+      });
+
+    return   <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
+              <div className ="hbox">
+                <div className="frame">
+                    <table>
+                      <tbody>
+                      <tr>
+                        <td>{prompt.Text}</td>
+                      </tr>
+                      {options}
+                      </tbody>
+                    </table>
+                </div>
+              </div>
+              <p>
+                <input type="hidden" id="promptId" value={promptId}/>
+                <input type="hidden" id="phaseId" value={phaseId}/>
+                <button type="submit" disabled={!this.isEnabled()}>Enter</button>
+              </p>
+              </form>;
+  },
+});
+
+var FactorPromptOption = React.createClass({
+
+  render: function() {
+    var option = this.props.option;
+      return <tr><td><label>
+              <input type="radio" name="covactioninput" value={option.ResponseId}><br/>{option.Text}</input></label></td></tr>;
+  },
+});
+
+
+var RecordSelection = React.createClass({
   getInitialState: function() {
     return {enabled: false};
   },
@@ -17,9 +112,10 @@ var TwoRecordSelection = React.createClass({
   // f.SelectedLevelId: the id of the level selected for the factor
   getSelectedFactors: function(record) {
     var user = this.props.user;
-    var prompt = user.CurrentUIPrompt;
+    var prompt = user.getPrompt();
+    var action = user.getAction();
     var form = document.getElementById("covactionForm");
-    var selectedFactors = prompt.Factors.map(
+    var selectedFactors = action.Factors.map(
       function(factor, i) {
         var fid = form.elements[factor.FactorId+record];
         var f = {};
@@ -31,18 +127,22 @@ var TwoRecordSelection = React.createClass({
   },
 
   handleChange: function(event) {
+    var singleRecord = this.props.singleRecord;
+
     var selectedFactors = this.getSelectedFactors("1");
     for (i=0; i < selectedFactors.length; i++) {
       if (selectedFactors[i].SelectedLevelId == "") {
         return;
       }
-    }    
-    selectedFactors = this.getSelectedFactors("2");
-    for (i=0; i < selectedFactors.length; i++) {
-      if (selectedFactors[i].SelectedLevelId == "") {
-        return;
-      }
-    }    
+    }
+    if (!singleRecord) {
+      selectedFactors = this.getSelectedFactors("2");
+      for (i=0; i < selectedFactors.length; i++) {
+        if (selectedFactors[i].SelectedLevelId == "") {
+          return;
+        }
+      }    
+    }
     this.setState({enabled:true});
   },
 
@@ -50,8 +150,10 @@ var TwoRecordSelection = React.createClass({
     event.preventDefault();
 
     var user = this.props.user;
-    var prompt = user.CurrentUIPrompt;
+    var prompt = user.getPrompt();
     var onComplete = this.props.onComplete;
+    var singleRecord = this.props.singleRecord;
+
     var e = document.getElementById("promptId");
     var promptId = e ? e.value : "";
     var e = document.getElementById("phaseId");
@@ -59,13 +161,16 @@ var TwoRecordSelection = React.createClass({
     var f = document.getElementById("covactionForm");
 
     var r1selectedFactors = this.getSelectedFactors("1");
-    var r2selectedFactors = this.getSelectedFactors("2");
-
+    var r2selectedFactors
+    if (!singleRecord) {
+      r2selectedFactors = this.getSelectedFactors("2");
+    }
     var response = {};
     response.RecordNoOne = r1selectedFactors;
     response.RecordNoTwo = r2selectedFactors;    
 
     jsonResponse = JSON.stringify(response);
+    debugger;
     user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
     this.setState({mode: 0, enabled:false});
   },
@@ -74,50 +179,76 @@ var TwoRecordSelection = React.createClass({
     var state = this.state;
     var user = this.props.user;
     var app = this.props.app;
+    var singleRecord = this.props.singleRecord;
     var prompt = user.getPrompt();
-    var promptId = prompt.PromptId;
-    var phaseId = user.CurrentPhaseId;
+    var action = user.getAction();
 
-    var recordOneFactors = prompt.Factors.map(
+    var promptId = prompt.PromptId;
+    var phaseId = user.getCurrentPhaseId();
+
+    var recordOneFactors = action.Factors.map(
       function(factor, i) {
         return <FactorSelection factor={factor} key={i} record="1"/>;
       });
-    var recordTwoFactors = prompt.Factors.map(
+    var recordTwoFactors = action.Factors.map(
       function(factor, i) {
         return <FactorSelection factor={factor} key={i} record="2"/>;
       });
 
-    return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
-      <div className ="hbox">
-        <div className="frame">
+    if (singleRecord) {
+      return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
+        <div className ="hbox">
+          <div className="frame">
+              <table>
+                <tbody>
+                <tr>
+                  <td>&nbsp;</td>
+                  <td colSpan="3" className="question">First Record</td>
+                </tr>
+                {recordOneFactors}
+                </tbody>
+              </table>
+          </div>
+        </div>
+        <p>
+          <input type="hidden" id="promptId" value={promptId}/>
+          <input type="hidden" id="phaseId" value={phaseId}/>
+          <button type="submit" disabled={!this.isEnabled()}>Enter</button>
+        </p>
+        </form>;
+    } else {
+      return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
+        <div className ="hbox">
+          <div className="frame">
+              <table>
+                <tbody>
+                <tr>
+                  <td>&nbsp;</td>
+                  <td colSpan="3" className="question">First Record</td>
+                </tr>
+                {recordOneFactors}
+                </tbody>
+              </table>
+          </div>
+          <div className="frame">
             <table>
               <tbody>
               <tr>
                 <td>&nbsp;</td>
-                <td colSpan="3" className="question">First Record</td>
+                <td colSpan="3" className="question">Second Record</td>
               </tr>
-              {recordOneFactors}
+              {recordTwoFactors}
               </tbody>
             </table>
+          </div>
         </div>
-        <div className="frame">
-          <table>
-            <tbody>
-            <tr>
-              <td>&nbsp;</td>
-              <td colSpan="3" className="question">Second Record</td>
-            </tr>
-            {recordTwoFactors}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <p>
-        <input type="hidden" id="promptId" value={promptId}/>
-        <input type="hidden" id="phaseId" value={phaseId}/>
-        <button type="submit" disabled={!this.isEnabled()}>Enter</button>
-      </p>
-      </form>;
+        <p>
+          <input type="hidden" id="promptId" value={promptId}/>
+          <input type="hidden" id="phaseId" value={phaseId}/>
+          <button type="submit" disabled={!this.isEnabled()}>Enter</button>
+        </p>
+        </form>;
+      }
   }
 });
 
@@ -155,7 +286,7 @@ var FactorLevelSelection = React.createClass({
 });
 
 
-var OneRecordPerformance = React.createClass({
+var RecordPerformance = React.createClass({
 
   // getInitialState: function() {
   //   return {mode: 0};

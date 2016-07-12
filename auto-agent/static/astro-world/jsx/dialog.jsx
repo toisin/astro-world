@@ -107,10 +107,10 @@ var Input = React.createClass({
     var value = e ? e.value : "";
     e.value = "";
     var text, id;
+    var options = user.CurrentUIPrompt.Options;
 
-    switch (user.CurrentUIPrompt.Type) {
+    switch (user.CurrentUIPrompt.PromptType) {
     case UI_PROMPT_MC:
-      var options = user.CurrentUIPrompt.Options;
       for (i = 0; i < options.length; i++) {
         if (options[i].ResponseId == value) {
           text = options[i].Text;
@@ -121,7 +121,7 @@ var Input = React.createClass({
       break;
     case UI_PROMPT_TEXT:
       text = value;
-      id = user.CurrentUIPrompt.ResponseId
+      id = options[0].ResponseId
       break;
     }
 
@@ -140,10 +140,10 @@ var Input = React.createClass({
     var promptId = prompt.PromptId;
     var phaseId = user.CurrentPhaseId;
 
-    var type = prompt.Type;
     var human = this.props.user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
 
-    if (type == UI_PROMPT_TEXT) {
+    switch (prompt.PromptType) {
+    case UI_PROMPT_TEXT:
       return  <div  className="chat">
                 <div className="researcher">
                   <div className="name">{DisplayText[MSG_ROBOT]}</div>
@@ -163,7 +163,36 @@ var Input = React.createClass({
                   </div>
                 </div>
               </div>;
-    } else {
+    case UI_PROMPT_MC:
+      if (!prompt.Options) {
+        console.error("Error: MC Prompt without options!");    
+        return <div></div>;
+      }
+      var options = prompt.Options.map(
+        function(option, i) {
+          return <PromptOption option={option} key={i}/>;
+        });
+
+      return  <div>
+                <div className="researcher">
+                  <div className="name">{DisplayText[MSG_ROBOT]}</div>
+                  <div className="message">{prompt.Text}</div>
+                </div>
+                <div className="human">
+                  <div className="name">{human}</div>
+                  <div className="form">
+                    <form id="dialogForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
+                    className="request">
+                      {options}
+                      <br/>
+                      <input type="hidden" id="promptId" value={promptId}/>
+                      <input type="hidden" id="phaseId" value={phaseId}/>
+                      <button type="submit" disabled={!this.isEnabled()}>Enter</button>
+                    </form>
+                  </div>
+                </div>
+              </div>;
+    default:
       return  <div>
                 <div className="researcher">
                   <div className="name">{DisplayText[MSG_ROBOT]}</div>
@@ -171,80 +200,6 @@ var Input = React.createClass({
                 </div>
               </div>;
     }
-    // if (type == UI_PROMPT_YES_NO) {
-    //   return  <div>
-    //             <div className="researcher">
-    //               <div className="name">{DisplayText[MSG_ROBOT]}</div>
-    //               <div className="message">{prompt.Text}</div>
-    //             </div>
-    //             <div className="human">
-    //               <div className="name">{human}</div>
-    //               <div className="form">
-    //                 <form id="dialogForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
-    //                 className="request">
-    //                   <label>
-    //                     <input type="radio" name="dialoginput" value="Yes"/>
-    //                     Yes
-    //                   </label>
-    //                   <label>
-    //                     <input type="radio" name="dialoginput" value="No"/>
-    //                     No
-    //                   </label>
-    //                   <br/>
-    //                   <input type="hidden" id="promptId" value={promptId}/>
-    //                   <input type="hidden" id="phaseId" value={phaseId}/>
-    //                   <button type="submit" disabled={!this.isEnabled()}>Enter</button>
-    //                 </form>
-    //               </div>
-    //             </div>
-    //           </div>;
-    // }
-    // if (type == UI_PROMPT_MC) {
-    //   if (!prompt.Options) {
-    //     console.error("Error: MC Prompt without options!");    
-    //     return <div></div>;
-    //   }
-    //   var options = prompt.Options.map(
-    //     function(option, i) {
-    //       return <PromptOption option={option} key={i}/>;
-    //     });
-
-    //   return  <div>
-    //             <div className="researcher">
-    //               <div className="name">{DisplayText[MSG_ROBOT]}</div>
-    //               <div className="message">{prompt.Text}</div>
-    //             </div>
-    //             <div className="human">
-    //               <div className="name">{human}</div>
-    //               <div className="form">
-    //                 <form id="dialogForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
-    //                 className="request">
-    //                   {options}
-    //                   <br/>
-    //                   <input type="hidden" id="promptId" value={promptId}/>
-    //                   <input type="hidden" id="phaseId" value={phaseId}/>
-    //                   <button type="submit" disabled={!this.isEnabled()}>Enter</button>
-    //                 </form>
-    //               </div>
-    //             </div>
-    //           </div>;
-    // }
-    // if (type == UI_PROMPT_NO_RESPONSE) {
-    //   return  <div>
-    //             <div className="researcher">
-    //               <div className="name">{DisplayText[MSG_ROBOT]}</div>
-    //               <div className="message">{prompt.Text}</div>
-    //             </div>
-    //           </div>;
-    // }
-    // if (type == UI_PROMPT_END) {
-    //   return  <div>
-    //             <div className="researcher">
-    //               <div className="name">{DisplayText[MSG_ROBOT]}</div>
-    //               <div className="message">{prompt.Text}</div>
-    //             </div>
-    //           </div>;
-    // }
   },
 });
 

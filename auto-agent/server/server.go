@@ -261,7 +261,7 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// Process submitted answers
 		ud := MakeUserData(&u)
-		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"))
+		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"), ud.GetUIUserData())
 
 		responseId := ud.CurrentPrompt.GetResponseId()
 		responseText := ud.CurrentPrompt.GetResponseText()
@@ -404,20 +404,20 @@ func ImportRecordsDB(c appengine.Context) {
 	}
 
 	if rc < 1 {
-		// TODO some strange error reading from file
+		// TODO problem with recognizing new line in csv file
 		// Temporarily use the const instead
 		// f, err := os.Open("cases.csv")
 		// if err != nil {
+		// 	fmt.Fprintf(os.Stderr, "%s", err)
 		// 	log.Fatal(err)
 		// }
 		// r := csv.NewReader(f)
 
 		r := csv.NewReader(strings.NewReader(workflow.CasesStream))
-		fmt.Fprintf(os.Stderr, "%s")
 
 		headers, err := r.Read()
 		//TODO cleanup
-		// fmt.Fprint(os.Stderr, "headers:", headers, "\n\n")
+		// fmt.Fprint(os.Stderr, "headers:", len(headers), "\n\n")
 
 		if err == io.EOF {
 			fmt.Fprint(os.Stderr, "Record file is empty!\n\n")
