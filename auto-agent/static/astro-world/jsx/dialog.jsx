@@ -9,6 +9,21 @@ var DisplayText = {};
 DisplayText[MSG_ROBOT] = 'Researcher';
 
 var Dialog = React.createClass({
+  changeState: function() {
+    this.setState({mode: 0});
+    action = user.getAction()
+    if (action) {
+      // In cases when the dialog is ongoing and no UI action is needed
+      // No need to re-render the action frame. This allows the last 
+      // action UI to be present
+      if (action.UIActionModeId != UIACTION_INACTIVE) {
+        var app = this.props.app;
+        app.changeState()
+      }
+    }
+  },
+
+
   render: function() {
     var state = this.state;
     var user = this.props.user;
@@ -30,7 +45,7 @@ var Dialog = React.createClass({
         return  <div className="chat">
                   <Title user={user}/>
                   {messages}
-                  <Input user={user} prompt={prompt} onComplete={app.changeState}/>
+                  <Input user={user} prompt={prompt} onComplete={this.changeState}/>
                 </div>;
     }
 

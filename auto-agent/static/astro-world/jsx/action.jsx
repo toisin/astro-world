@@ -10,6 +10,12 @@ var Action = React.createClass({
     return {mode: 0};
   },
 
+  changeState: function() {
+    this.setState({mode: 0});
+    var app = this.props.app;
+    app.changeState()
+  },
+
   render: function() {
     var state = this.state;
     var user = this.props.user;
@@ -18,7 +24,7 @@ var Action = React.createClass({
     // debugger;
     switch (user.getCurrentPhaseId()) {
       case PHASE_COV:
-        return  <div className="action"><CovAction user={user} onComplete={app.changeState} app={app}/></div>;
+        return  <div className="action"><CovAction user={user} onComplete={this.changeState} app={app}/></div>;
       // case "chart":
       //   return <div></div>
       // case "prediction":

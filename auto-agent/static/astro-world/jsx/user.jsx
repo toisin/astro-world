@@ -14,6 +14,8 @@ var PHASE_PREDICTION = "Prediction";
 var FIRST_PHASE = "START";
 var LAST_PHASE = "END";
 
+var UIACTION_INACTIVE = "NO_UIACTION";
+
 
 function User(name) {
   this.Username = name;

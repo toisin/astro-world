@@ -176,7 +176,7 @@
                         "Text": "What happens if one is higher?",
                         "PromptType": "Text",
                         "ResponseType": "Basic",
-                        "UIActionModeId": "NO_UIACTION",
+                        "UIActionModeId": "RECORD_PERFORMANCE",
                         "ExpectedResponses": [
                           {
                             "Id": "anything",
