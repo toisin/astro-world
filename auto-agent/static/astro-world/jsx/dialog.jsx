@@ -75,21 +75,24 @@ var Message = React.createClass({
     var message = this.props.message;
     var human = this.props.user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
 
-    if (message.Mtype == MSG_ROBOT) {
+    if (message.Text) {
+      if (message.Mtype == MSG_ROBOT) {
+        return  <div className="researcher">
+                  <div className="name">{DisplayText[MSG_ROBOT]}</div>
+                  <div className="message">{message.Text}</div>
+                </div>;
+      } else if (message.Mtype == MSG_HUMAN) {
+        return  <div className="human">
+                  <div className="name">{human}</div>
+                  <div className="message">{message.Text}</div>
+                </div>;
+      }
+      console.error("Unknown sender!", error);
       return  <div className="researcher">
-                <div className="name">{DisplayText[MSG_ROBOT]}</div>
-                <div className="message">{message.Text}</div>
-              </div>;
-    } else if (message.Mtype == MSG_HUMAN) {
-      return  <div className="human">
-                <div className="name">{human}</div>
-                <div className="message">{message.Text}</div>
+                <div className="message">{this.props.message.Text}</div>
               </div>;
     }
-    console.error("Unknown sender!", error);
-    return  <div className="researcher">
-              <div className="message">{this.props.message.Text}</div>
-            </div>;
+    return <div></div>;
   }
 });
 

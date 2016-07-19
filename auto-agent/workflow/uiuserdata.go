@@ -10,4 +10,9 @@ type UIUserData struct {
 	History         []db.Message
 	CurrentUIPrompt UIPrompt
 	CurrentUIAction UIAction
+	State           StateEntities
+}
+
+type StateEntities interface {
+	GetPhaseId() string
 }

@@ -37,7 +37,8 @@ func init() {
 
 	//TODO should not rely on a separate http request but it only needs to happen once
 	// needs to find a better place
-	http.Handle(INIT_REQUEST, &ImportDBHandler{})
+	http.Handle(IMPORTDB_REQUEST, &ImportRecordDBHandler{})
+	http.Handle(CLEARDB_REQUEST, &ClearRecordDBHandler{})
 
 	workflow.InitWorkflow()
 }
@@ -64,18 +65,26 @@ const COV_HISTORY = "/astro-world/history"
 const COV_NEWUSER = "/astro-world/newuser"
 const COV_GETUSER = "/astro-world/getuser"
 const COV_SENDRESPONSE = "/astro-world/sendresponse"
-const INIT_REQUEST = "/astro-world/importDB"
+const IMPORTDB_REQUEST = "/astro-world/importDB"
+const CLEARDB_REQUEST = "/astro-world/clearDB"
 
 type GetHandler StaticHandler
 type HistoryHandler StaticHandler
 type ResponseHandler StaticHandler
 type NewUserHandler StaticHandler
 type GetUserHandler StaticHandler
-type ImportDBHandler StaticHandler
+type ImportRecordDBHandler StaticHandler
+type ClearRecordDBHandler StaticHandler
 
-func (covH *ImportDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (covH *ImportRecordDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	ImportRecordsDB(c)
+	http.ServeFile(w, r, "static/index.html")
+}
+
+func (covH *ClearRecordDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	ClearAllRecordsDB(c)
 	http.ServeFile(w, r, "static/index.html")
 }
 
@@ -237,6 +246,7 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// workflowStateID := r.FormValue("workflowStateID")
 		promptId := r.FormValue("promptId")
 		phaseId := r.FormValue("phaseId")
+		questionText := r.FormValue("questionText")
 
 		// Query to see if user exists
 		u, k, err := GetUser(c, username)
@@ -261,11 +271,10 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// Process submitted answers
 		ud := MakeUserData(&u)
-		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"), ud.GetUIUserData())
+		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"), ud.GetUIUserData(), c)
 
 		responseId := ud.CurrentPrompt.GetResponseId()
 		responseText := ud.CurrentPrompt.GetResponseText()
-		questionText := ud.CurrentPrompt.GetUIPrompt().Display()
 
 		// Get the count of existing messages
 		rc, err := GetHistoryCount(c, username)
@@ -313,8 +322,6 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			//return
 		}
 
-		//TODO cleanup
-		// fmt.Fprint(os.Stderr, "Before UpdateWithNextPrompt, NextPrompt:", ud.CurrentPrompt.GetNextPrompt(), "!\n\n")
 		// Move to the next prompt
 		ud.UpdateWithNextPrompt()
 
@@ -466,17 +473,25 @@ func ImportRecordsDB(c appengine.Context) {
 			recordNo := arecord[0] // First column is the record number
 			factorIds := make([]string, len(factorColIndex))
 			factorLevels := make([]string, len(factorColIndex))
-			i := 0
 			for k, v := range factorColIndex {
+				f := workflow.GetFactorConfig(k)
+				i := f.DBIndex
 				factorIds[i] = k
 				factorLevels[i] = arecord[v]
-				i++
 			}
 			outcomeLevel := arecord[outcomeColIndex]
 			records[ri] = db.Record{
 				RecordNo:     recordNo,
-				FactorIds:    factorIds,
-				FactorLevels: factorLevels,
+				FactorId0:    factorIds[0],
+				FactorId1:    factorIds[1],
+				FactorId2:    factorIds[2],
+				FactorId3:    factorIds[3],
+				FactorId4:    factorIds[4],
+				FactorLevel0: factorLevels[0],
+				FactorLevel1: factorLevels[1],
+				FactorLevel2: factorLevels[2],
+				FactorLevel3: factorLevels[3],
+				FactorLevel4: factorLevels[4],
 				OutcomeLevel: outcomeLevel,
 			}
 			keys[ri] = datastore.NewIncompleteKey(c, "Record", db.RecordKey(c, APP_NAME))
@@ -485,8 +500,28 @@ func ImportRecordsDB(c appengine.Context) {
 		_, err = datastore.PutMulti(c, keys, records)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Adding Records:"+err.Error()+"!\n\n")
+			log.Fatal(err)
 			return
 		}
+	}
+}
+func ClearAllRecordsDB(c appengine.Context) {
+	q := datastore.NewQuery("Record")
 
+	var records []db.Record
+	// To retrieve the results,
+	// you must execute the Query using its GetAll or Run methods.
+	ks, err := q.GetAll(c, &records)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Getting Record:"+err.Error()+"!\n\n")
+		log.Fatal(err)
+		return
+	}
+
+	err = datastore.DeleteMulti(c, ks)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Deleting Records:"+err.Error()+"!\n\n")
+		log.Fatal(err)
+		return
 	}
 }

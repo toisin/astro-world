@@ -65,6 +65,7 @@ type PhaseConfig struct {
 	FirstPrompt     PromptConfig
 	PreviousPhaseId string
 	NextPhaseId     string
+	FactorsOrder    []string // ordered factor ids
 }
 
 type Level struct {
@@ -78,6 +79,7 @@ type Factor struct {
 	Id      string
 	ImgPath string
 	Levels  []Level
+	DBIndex int
 }
 
 type ContentConfig struct {
@@ -89,13 +91,49 @@ type ContentConfig struct {
 }
 
 type AppConfig struct {
-	Phase   PhaseConfig
-	Content ContentConfig
+	CovPhase        PhaseConfig
+	ChartPhase      PhaseConfig `json:"omitempty"`
+	PredictionPhase PhaseConfig `json:"omitempty"`
+	Content         ContentConfig
 }
 
-var phaseConfigMap = make(map[string]PhaseConfig)
+type CovPhaseState struct {
+	Username     string
+	Screenname   string
+	RecordNoOne  *RecordState
+	RecordNoTwo  *RecordState
+	TargetFactor *CovFactorState
+}
+
+func (c *CovPhaseState) GetPhaseId() string {
+	return appConfig.CovPhase.Id
+}
+
+type RecordState struct {
+	RecordName   string
+	RecordNo     string
+	FactorLevels map[string]*CovFactorState
+	// Factor id as keys:
+	// "fitness",
+	// "parentshealth",
+	// "education",
+	// "familysize"
+}
+
+// This type is used in multiple contexts.
+// Not all members may be relevant.
+type CovFactorState struct {
+	FactorName    string
+	FactorId      string
+	SelectedLevel string
+	OppositeLevel string
+}
+
+// var phaseConfigMap = make(map[string]PhaseConfig)
 var promptConfigMap = make(map[string]*PromptConfig) //key:PhaseConfig.Id+PromptConfig.Id
+var factorConfigMap = make(map[string]*Factor)       //key:PhaseConfig.Id+PromptConfig.Id
 var contentConfig ContentConfig
+var appConfig AppConfig
 
 func InitWorkflow() {
 	f, err := os.Open(promptTreeJsonFile)
@@ -106,7 +144,6 @@ func InitWorkflow() {
 	dec := json.NewDecoder(bufio.NewReader(f))
 
 	for {
-		var appConfig AppConfig
 		if err := dec.Decode(&appConfig); err == io.EOF {
 			break
 		} else if err != nil {
@@ -114,14 +151,13 @@ func InitWorkflow() {
 			log.Fatal(err)
 			return
 		}
-		phaseConfig := appConfig.Phase
-		//TODO cleanup
-		//fmt.Fprintf(os.Stderr, " %s: %s\n", promptTree.Id, (promptTree.ExpectedResponses[0]).Id)
-		phaseConfigMap[phaseConfig.Id] = phaseConfig
-		populatePromptConfigMap(&phaseConfig.FirstPrompt, phaseConfig.Id)
+		covPhaseConfig := appConfig.CovPhase
+		// phaseConfigMap[phaseConfig.Id] = phaseConfig
+		populatePromptConfigMap(&covPhaseConfig.FirstPrompt, covPhaseConfig.Id)
 
 		contentConfig = appConfig.Content
 	}
+	populateFactorConfigMap(&contentConfig)
 }
 
 func populatePromptConfigMap(pc *PromptConfig, phaseId string) {
@@ -133,9 +169,18 @@ func populatePromptConfigMap(pc *PromptConfig, phaseId string) {
 	}
 }
 
+func populateFactorConfigMap(cf *ContentConfig) {
+	for i := range cf.CausalFactors {
+		factorConfigMap[cf.CausalFactors[i].Id] = &cf.CausalFactors[i]
+	}
+	for i := range cf.NonCausalFactors {
+		factorConfigMap[cf.NonCausalFactors[i].Id] = &cf.NonCausalFactors[i]
+	}
+}
+
 func MakeFirstPrompt() Prompt {
 	// TODO Hardcoding the first prompt as CovPrompt
-	p := MakeCovPrompt(phaseConfigMap[PHASE_COV].FirstPrompt)
+	p := MakeCovPrompt(appConfig.CovPhase.FirstPrompt)
 	return p
 }
 
@@ -156,6 +201,25 @@ func GetPromptConfig(promptId string, phaseId string) *PromptConfig {
 	return promptConfigMap[phaseId+promptId]
 }
 
-func GetContentConfig() ContentConfig {
-	return contentConfig
+func GetContentConfig() *ContentConfig {
+	return &contentConfig
+}
+
+func GetFactorConfig(factorId string) *Factor {
+	return factorConfigMap[factorId]
+}
+
+// Return the opposite level of the given level
+//  - If the given level is at index 0, return the level id of the highest index
+//  - Otherwise, return the level id of index 0
+func GetFactorOppositeLevel(factorId string, levelId string) string {
+	allLevels := factorConfigMap[factorId].Levels
+	for i, v := range allLevels {
+		if v.Id == levelId {
+			if i == 0 {
+				return allLevels[len(allLevels)-1].Id
+			}
+		}
+	}
+	return allLevels[0].Id
 }

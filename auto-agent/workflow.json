@@ -6,6 +6,7 @@
       {
         "Name": "Fitness",
         "Id": "fitness",
+        "DBIndex": 0,
         "Levels": [
           {
             "Name": "Excellent",
@@ -22,6 +23,7 @@
       {
         "Name": "Parents' Health",
         "Id": "parentshealth",
+        "DBIndex": 1,
         "Levels": [
           {
             "Name": "Excellent",
@@ -38,6 +40,7 @@
       {
         "Name": "Education",
         "Id": "education",
+        "DBIndex": 3,
         "Levels": [
           {
             "Name": "No College",
@@ -61,6 +64,7 @@
       {
         "Name": "Family Size",
         "Id": "familysize",
+        "DBIndex": 2,
         "Levels": [
           {
             "Name": "Large",
@@ -77,6 +81,7 @@
       {
         "Name": "Home Climate",
         "Id": "homeclimate",
+        "DBIndex": 4,
         "Levels": [
           {
             "Name": "Hot",
@@ -116,10 +121,16 @@
       ]
     }
   },
-  "Phase": {
+  "CovPhase": {
     "Id": "Cov",
     "PreviousPhaseId": "START",
     "NextPhaseId": "Chart",
+    "FactorsOrder": [
+      "fitness",
+      "parentshealth",
+      "familysize",
+      "education"
+    ],
     "FirstPrompt": {
       "Id": "Which factor",
       "Text": "Which factor do you want to look at?",
@@ -151,9 +162,22 @@
                       "Id": "p1r1p1r1",
                       "NextPrompt": {
                         "Id": "p1r1p1r1p1",
-                        "Text": "Thank you",
-                        "ResponseType": "COMPLETE",
-                        "UIActionModeId": "RECORD_PERFORMANCE"
+                        "Text": "So, you want to look at record {{.RecordNoOne.RecordName}}, {{.RecordNoOne.RecordNo}}. Now, before I show you the performance. Can you tell me what you would be able to figure out by looking at this record?",
+                        "PromptType": "Text",
+                        "ResponseType": "Basic",
+                        "UIActionModeId": "RECORD_PERFORMANCE",
+                        "ExpectedResponses": [
+                          {
+                            "Id": "anything",
+                            "NextPrompt": {
+                              "Id": "The End",
+                              "Text": "Thank you",
+                              "PromptType": "NO_INPUT",
+                              "ResponseType": "COMPLETE",
+                              "UIActionModeId": "NO_UIACTION"
+                            }
+                          }
+                        ]
                       }
                     }
                   ]

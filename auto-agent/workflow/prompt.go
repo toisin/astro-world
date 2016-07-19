@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"appengine"
 	"strings"
 	// "fmt"
 	// "os"
@@ -18,9 +19,10 @@ type Prompt interface {
 	GetNextPrompt() Prompt
 	// SetResponse(Response)
 	GetPromptId() string
-	GetUIPrompt() UIPrompt
+	GetUIPrompt(*UIUserData) UIPrompt
 	GetUIAction() UIAction
-	ProcessResponse(string, *UIUserData)
+	ProcessResponse(string, *UIUserData, appengine.Context)
+	initUIPromptDynamicText(*UIUserData, *Response)
 }
 
 type Response interface {
@@ -45,7 +47,7 @@ func MakeExpectedResponseHandler(ecs []ExpectedResponseConfig, phaseId string) *
 
 // Return the next prompt that maps to the expected response
 // If there is only one expected response, return that one regardless of the response id
-func (erh *ExpectedResponseHandler) GetNextPrompt(rid string) Prompt {
+func (erh *ExpectedResponseHandler) getNextPrompt(rid string) Prompt {
 	if len(erh.expectedResponseMap) == 1 {
 		for _, v := range erh.expectedResponseMap {
 			return v
@@ -54,11 +56,15 @@ func (erh *ExpectedResponseHandler) GetNextPrompt(rid string) Prompt {
 	return erh.expectedResponseMap[strings.ToLower(rid)]
 }
 
+type UIPromptDynamicText interface {
+	String() string
+}
+
 type UIPrompt interface {
-	SetText(string)
-	SetPromptType(string)
-	SetId(string)
-	SetOptions([]UIOption)
+	setText(string)
+	setPromptType(string)
+	setId(string)
+	setOptions([]UIOption)
 	Display() string
 	GetId() string
 }
@@ -74,19 +80,19 @@ func NewUIBasicPrompt() *UIBasicPrompt {
 	return &UIBasicPrompt{}
 }
 
-func (ps *UIBasicPrompt) SetText(s string) {
+func (ps *UIBasicPrompt) setText(s string) {
 	ps.Text = s
 }
 
-func (ps *UIBasicPrompt) SetPromptType(s string) {
+func (ps *UIBasicPrompt) setPromptType(s string) {
 	ps.PromptType = s
 }
 
-func (ps *UIBasicPrompt) SetId(s string) {
+func (ps *UIBasicPrompt) setId(s string) {
 	ps.PromptId = s
 }
 
-func (ps *UIBasicPrompt) SetOptions(options []UIOption) {
+func (ps *UIBasicPrompt) setOptions(options []UIOption) {
 	ps.Options = options
 }
 
@@ -104,7 +110,7 @@ type UIOption struct {
 }
 
 type UIAction interface {
-	SetUIActionModeId(string)
+	setUIActionModeId(string)
 }
 
 type UIBasicAction struct {
@@ -115,7 +121,7 @@ func NewUIBasicAction() *UIBasicAction {
 	return &UIBasicAction{}
 }
 
-func (ps *UIBasicAction) SetUIActionModeId(s string) {
+func (ps *UIBasicAction) setUIActionModeId(s string) {
 	ps.UIActionModeId = s
 }
 
@@ -128,7 +134,7 @@ func NewUIRecordAction() *UIRecordAction {
 	return &UIRecordAction{}
 }
 
-func (ps *UIRecordAction) SetUIActionModeId(s string) {
+func (ps *UIRecordAction) setUIActionModeId(s string) {
 	ps.UIActionModeId = s
 }
 
