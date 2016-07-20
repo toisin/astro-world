@@ -209,17 +209,44 @@ func GetFactorConfig(factorId string) *Factor {
 	return factorConfigMap[factorId]
 }
 
-// Return the opposite level of the given level
-//  - If the given level is at index 0, return the level id of the highest index
-//  - Otherwise, return the level id of index 0
-func GetFactorOppositeLevel(factorId string, levelId string) string {
-	allLevels := factorConfigMap[factorId].Levels
+func CreateCovFactorState(factorId string, levelId string) *CovFactorState {
+	f := GetFactorConfig(factorId)
+	allLevels := f.Levels
+	var selectedLevel string
+	var oppositeLevel string
+	// The opposite level of the given level:
+	//  - If the given level is at index 0, return the level id of the highest index
+	//  - Otherwise, return the level id of index 0
 	for i, v := range allLevels {
 		if v.Id == levelId {
+			selectedLevel = v.Name
 			if i == 0 {
-				return allLevels[len(allLevels)-1].Id
+				oppositeLevel = allLevels[len(allLevels)-1].Name
+			} else {
+				oppositeLevel = allLevels[0].Name
 			}
 		}
 	}
-	return allLevels[0].Id
+	return &CovFactorState{
+		FactorName:    f.Name,
+		FactorId:      f.Id,
+		SelectedLevel: selectedLevel,
+		OppositeLevel: oppositeLevel}
+}
+
+func UnstringifyState(b []byte, phaseId string) (se StateEntities, err error) {
+	if (b != nil) && (len(b)) > 0 {
+		switch phaseId {
+		case appConfig.CovPhase.Id:
+			var cps CovPhaseState
+			err = unstringify(b, &cps)
+			se = &cps
+		}
+	}
+	return
+}
+
+func unstringify(b []byte, v interface{}) (err error) {
+	err = json.Unmarshal(b, v)
+	return
 }

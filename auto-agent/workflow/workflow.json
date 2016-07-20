@@ -162,7 +162,7 @@
                       "Id": "p1r1p1r1",
                       "NextPrompt": {
                         "Id": "p1r1p1r1p1",
-                        "Text": "So, you want to look at record {{.RecordNoOne.RecordName}}, {{.RecordNoOne.RecordNo}}. Now, before I show you the performance. Can you tell me what you would be able to figure out by looking at this record? What would happen if {{.TargetFactor.FactorName}} was {{$x:=index .RecordNoOne.FactorLevels .TargetFactor.FactorId}}{{$x.OppositeLevel}}",
+                        "Text": "So, you want to look at record {{.RecordNoOne.RecordName}}, {{.RecordNoOne.RecordNo}}. Now, before I show you the performance. Can you tell me what you would be able to figure out by looking at this record? What would happen if {{.TargetFactor.FactorName}} was {{.OppositeLevel | index .RecordNoOne.FactorLevels .TargetFactor.FactorId}}",
                         "PromptType": "Text",
                         "ResponseType": "Basic",
                         "UIActionModeId": "RECORD_PERFORMANCE",

@@ -60,7 +60,9 @@ func (cp *CovPrompt) ProcessResponse(r string, uiUserData *UIUserData, c appengi
 					log.Fatal(err)
 					return
 				}
-				uiUserData.User.CurrentFactorId = response.Id
+				// TODO - cleanup double check that db.User.CurrentFactorId does not need
+				// to be updated now. When does that get updated?
+				uiUserData.CurrentFactorId = response.Id
 				cp.response = &response
 			}
 			break
@@ -206,7 +208,7 @@ type RecordsSelectResponse struct {
 func (rsr *RecordsSelectResponse) CheckRecords(uiUserData *UIUserData, c appengine.Context) {
 	rsr.VaryingFactorIds = make([]string, len(appConfig.CovPhase.FactorsOrder))
 	rsr.CountVaryingFactors = 0
-	var CurrentFactorId = uiUserData.User.CurrentFactorId
+	var CurrentFactorId = uiUserData.CurrentFactorId
 	var isTargetVarying = false
 
 	// Retrieve DB records
@@ -330,9 +332,9 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 	}
 	if cp.state == nil {
 		cp.state = &CovPhaseState{}
-		cp.state.Username = uiUserData.User.Username
-		cp.state.Screenname = uiUserData.User.Screenname
-		fid := uiUserData.User.CurrentFactorId
+		cp.state.Username = uiUserData.Username
+		cp.state.Screenname = uiUserData.Screenname
+		fid := uiUserData.CurrentFactorId
 		if factorConfigMap[fid] != nil {
 			cp.state.TargetFactor = &CovFactorState{FactorName: factorConfigMap[fid].Name, FactorId: fid}
 		}
@@ -347,13 +349,7 @@ func createRecordStateFromDB(r *db.Record, sf []SelectedFactor) *RecordState {
 		rs.RecordNo = r.RecordNo
 		rs.FactorLevels = make(map[string]*CovFactorState)
 		for _, v := range sf {
-			f := GetFactorConfig(v.FactorId)
-			cfs := &CovFactorState{
-				FactorName:    f.Name,
-				FactorId:      f.Id,
-				SelectedLevel: v.SelectedLevelId,
-				OppositeLevel: GetFactorOppositeLevel(f.Id, v.SelectedLevelId)}
-			rs.FactorLevels[v.FactorId] = cfs
+			rs.FactorLevels[v.FactorId] = CreateCovFactorState(v.FactorId, v.SelectedLevelId)
 		}
 	} else {
 		rs.RecordName = ""

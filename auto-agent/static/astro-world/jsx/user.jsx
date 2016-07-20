@@ -63,11 +63,11 @@ User.prototype = {
 
   updateUser: function(j) {
     var self = this;
-    self.Screenname = j.User.Screenname;
+    self.Screenname = j.Screenname;
     self.History = j.History;
-    self.CurrentPhaseId = j.User.CurrentPhaseId;
     self.CurrentUIPrompt = j["CurrentUIPrompt"];
     self.CurrentUIAction = j["CurrentUIAction"];
+    self.CurrentPhaseId = j.CurrentPhaseId;
   },
 
   loadHistory: function() {
@@ -103,9 +103,6 @@ User.prototype = {
 
     formData.append("user", self.Username);
     formData.append("questionText", question);
-    // formData.append("responseValue", value);
-    // formData.append("responseText", text);
-    // formData.append("workflowStateID", workflowStateID);
     formData.append("promptId", promptId);
     formData.append("phaseId", phaseId);
     formData.append("jsonResponse", jsonResponse);

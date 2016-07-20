@@ -6,7 +6,10 @@ import (
 
 // Includes only the variables that are needed on the client side
 type UIUserData struct {
-	User            *db.User
+	Username        string
+	Screenname      string
+	CurrentPhaseId  string
+	CurrentFactorId string
 	History         []db.Message
 	CurrentUIPrompt UIPrompt
 	CurrentUIAction UIAction

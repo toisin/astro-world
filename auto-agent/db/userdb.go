@@ -19,6 +19,7 @@ type User struct {
 	CurrentPhaseId  string
 	CurrentPromptId string
 	CurrentFactorId string
+	UIState         []byte // Do not store as string because string type has a limit of 500 characters
 }
 
 // Generic message with no additional phase specific details
@@ -29,13 +30,6 @@ type Message struct {
 	Mtype     string // ROBOT | HUMAN
 	Date      time.Time
 	MessageNo int // in the order of the message
-}
-
-type CovMessage struct {
-	MessageId   string // The message this cov message is linked to
-	FactorId    string // not empty if message is related to an investigating factor
-	RecordNoOne string
-	RecordNoTwo string
 }
 
 // userlistKey returns the key used for all user entries.

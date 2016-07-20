@@ -27,9 +27,9 @@ function handleSubmit(e) {
 			handleResponse(username);
 		}
 	};
-    var formData = new FormData();
+  var formData = new FormData();
 
-    formData.append("user", username);
+  formData.append("user", username);
 	xhr.open('POST', '/astro-world/getuser');
 	xhr.send(formData);
 	return false;

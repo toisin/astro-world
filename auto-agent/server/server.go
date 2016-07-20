@@ -39,6 +39,7 @@ func init() {
 	// needs to find a better place
 	http.Handle(IMPORTDB_REQUEST, &ImportRecordDBHandler{})
 	http.Handle(CLEARDB_REQUEST, &ClearRecordDBHandler{})
+	http.Handle(CLEARALLUSERS_REQUEST, &ClearAllUsersDBHandler{})
 
 	workflow.InitWorkflow()
 }
@@ -67,6 +68,7 @@ const COV_GETUSER = "/astro-world/getuser"
 const COV_SENDRESPONSE = "/astro-world/sendresponse"
 const IMPORTDB_REQUEST = "/astro-world/importDB"
 const CLEARDB_REQUEST = "/astro-world/clearDB"
+const CLEARALLUSERS_REQUEST = "/astro-world/clearAllUsersDB"
 
 type GetHandler StaticHandler
 type HistoryHandler StaticHandler
@@ -75,6 +77,7 @@ type NewUserHandler StaticHandler
 type GetUserHandler StaticHandler
 type ImportRecordDBHandler StaticHandler
 type ClearRecordDBHandler StaticHandler
+type ClearAllUsersDBHandler StaticHandler
 
 func (covH *ImportRecordDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
@@ -85,6 +88,12 @@ func (covH *ImportRecordDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 func (covH *ClearRecordDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	ClearAllRecordsDB(c)
+	http.ServeFile(w, r, "static/index.html")
+}
+
+func (covH *ClearAllUsersDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	ClearAllUsersDB(c)
 	http.ServeFile(w, r, "static/index.html")
 }
 
@@ -109,7 +118,7 @@ func (covH *GetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if u.Username == "" {
-			fmt.Fprint(os.Stderr, "Why was I here?!\n\n")
+			fmt.Fprint(os.Stderr, "Username not provided!\n\n")
 
 			http.ServeFile(w, r, "static/index.html")
 			return
@@ -133,7 +142,6 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query()["user"] != nil {
 		// Always handle username in lowercase
 		username := strings.ToLower(r.URL.Query()["user"][0])
-		// ud, err := MakeUIUserData(c, username)
 		// Query to see if user exists
 		u, _, err := GetUser(c, username)
 
@@ -154,9 +162,8 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("Error converting messages to json", err)
 		}
-		fmt.Fprint(w, s)
+		fmt.Fprint(w, string(s[:]))
 
-		// fmt.Fprint(w, "{	\"prompt\": {\"type\": \""+workflow.UI_PROMPT_MC+"\", \"text\": \"First Question\", \"workflowStateID\": \"2\", \"options\": [{\"label\": \"health\", \"value\": \"X1\"},{\"label\": \"height\", \"value\": \"X2\"}]}, \"messages\": [{	\"text\": \"" + t + "\",\"type\": \"robot\"},{ \"text\": \"hello22\",\"type\": \"student\"}]}")
 	} else {
 		fmt.Fprint(os.Stderr, "Error: username not provided for getting history!\n\n")
 	}
@@ -201,7 +208,7 @@ func (newuserH *NewUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		if err != nil {
 			fmt.Println("Error converting user object to json", err)
 		}
-		fmt.Fprint(w, s)
+		fmt.Fprint(w, string(s[:]))
 
 	}
 
@@ -243,7 +250,6 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("user") != "" {
 		// Always handle username in lowercase
 		username := strings.ToLower(r.FormValue("user"))
-		// workflowStateID := r.FormValue("workflowStateID")
 		promptId := r.FormValue("promptId")
 		phaseId := r.FormValue("phaseId")
 		questionText := r.FormValue("questionText")
@@ -343,16 +349,13 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Error converting messages to json", err)
 			return
 		}
-		fmt.Fprint(w, s)
+		fmt.Fprint(w, string(s[:]))
 	}
 
 }
 
 func PutUser(c appengine.Context, u db.User, key *datastore.Key) (err error) {
 	_, err = datastore.Put(c, key, &u)
-
-	//    //TODO cleanup
-	// fmt.Fprint(os.Stderr, "User", u, "!\n\n")
 	return
 }
 
@@ -390,11 +393,8 @@ func GetHistoryCount(c appengine.Context, username string) (rc int, err error) {
 	return
 }
 
-func stringify(v interface{}) (s string, err error) {
-	b, err := json.Marshal(v)
-	if err == nil {
-		s = string(b[:])
-	}
+func stringify(v interface{}) (b []byte, err error) {
+	b, err = json.Marshal(v)
 	return
 }
 
@@ -423,8 +423,6 @@ func ImportRecordsDB(c appengine.Context) {
 		r := csv.NewReader(strings.NewReader(workflow.CasesStream))
 
 		headers, err := r.Read()
-		//TODO cleanup
-		// fmt.Fprint(os.Stderr, "headers:", len(headers), "\n\n")
 
 		if err == io.EOF {
 			fmt.Fprint(os.Stderr, "Record file is empty!\n\n")
@@ -505,6 +503,7 @@ func ImportRecordsDB(c appengine.Context) {
 		}
 	}
 }
+
 func ClearAllRecordsDB(c appengine.Context) {
 	q := datastore.NewQuery("Record")
 
@@ -521,6 +520,46 @@ func ClearAllRecordsDB(c appengine.Context) {
 	err = datastore.DeleteMulti(c, ks)
 	if err != nil {
 		fmt.Fprint(os.Stderr, "DB Error Deleting Records:"+err.Error()+"!\n\n")
+		log.Fatal(err)
+		return
+	}
+}
+
+func ClearAllUsersDB(c appengine.Context) {
+	q := datastore.NewQuery("User")
+
+	var us []db.User
+	// To retrieve the results,
+	// you must execute the Query using its GetAll or Run methods.
+	ks, err := q.GetAll(c, &us)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Getting All Users:"+err.Error()+"!\n\n")
+		log.Fatal(err)
+		return
+	}
+
+	err = datastore.DeleteMulti(c, ks)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Deleting All Users:"+err.Error()+"!\n\n")
+		log.Fatal(err)
+		return
+	}
+
+	q = datastore.NewQuery("Message")
+
+	var ms []db.Message
+	// To retrieve the results,
+	// you must execute the Query using its GetAll or Run methods.
+	ks, err = q.GetAll(c, &ms)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Getting All Messages:"+err.Error()+"!\n\n")
+		log.Fatal(err)
+		return
+	}
+
+	err = datastore.DeleteMulti(c, ks)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Deleting All Messages:"+err.Error()+"!\n\n")
 		log.Fatal(err)
 		return
 	}
