@@ -1,7 +1,6 @@
 package workflow
 
 import (
-	"bytes"
 	"db"
 	"encoding/json"
 	"fmt"
@@ -9,7 +8,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"text/template"
 
 	"appengine"
 )
@@ -45,7 +43,7 @@ func (cp *CovPrompt) GetPromptId() string {
 	return cp.promptConfig.Id
 }
 
-func (cp *CovPrompt) ProcessResponse(r string, uiUserData *UIUserData, c appengine.Context) {
+func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
 	if r != "" {
 		dec := json.NewDecoder(strings.NewReader(r))
 		pc := cp.promptConfig
@@ -60,9 +58,9 @@ func (cp *CovPrompt) ProcessResponse(r string, uiUserData *UIUserData, c appengi
 					log.Fatal(err)
 					return
 				}
-				// TODO - cleanup double check that db.User.CurrentFactorId does not need
-				// to be updated now. When does that get updated?
 				uiUserData.CurrentFactorId = response.Id
+				u.CurrentFactorId = uiUserData.CurrentFactorId
+				cp.updateStateCurrentFactor(uiUserData, uiUserData.CurrentFactorId)
 				cp.response = &response
 			}
 			break
@@ -300,15 +298,15 @@ type UICovPromptDynamicText struct {
 }
 
 func (ps *UICovPromptDynamicText) String() string {
-	t := template.Must(template.New("display").Parse(ps.promptConfig.Text))
-	var doc bytes.Buffer
-	err := t.Execute(&doc, ps.state)
-	if err != nil {
-		log.Println("executing template:", err)
-	}
-	display := doc.String()
+	return generateDynamicText(ps.promptConfig.Text, ps.state)
+}
 
-	return display
+func (cp *CovPrompt) updateStateCurrentFactor(uiUserData *UIUserData, fid string) {
+	cp.updateState(uiUserData)
+	if factorConfigMap[fid] != nil {
+		cp.state.TargetFactor = &CovFactorState{FactorName: factorConfigMap[fid].Name, FactorId: fid}
+	}
+	uiUserData.State = cp.state
 }
 
 // This method should only update records select
@@ -319,8 +317,8 @@ func (cp *CovPrompt) updateStateRecords(uiUserData *UIUserData, r *RecordsSelect
 	if cp.state != nil {
 		cp.state.RecordNoOne = createRecordStateFromDB(r.dbRecordNoOne, r.RecordNoOne)
 		cp.state.RecordNoTwo = createRecordStateFromDB(r.dbRecordNoTwo, r.RecordNoTwo)
-		uiUserData.State = cp.state
 	}
+	uiUserData.State = cp.state
 }
 
 func (cp *CovPrompt) updateState(uiUserData *UIUserData) {

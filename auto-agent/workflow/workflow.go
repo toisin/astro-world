@@ -45,10 +45,41 @@ const (
 	promptTreeJsonFile = "workflow.json"
 )
 
-type ExpectedResponseConfig struct {
-	Id         string
-	Text       string
-	NextPrompt *PromptConfig
+type AppConfig struct {
+	CovPhase        PhaseConfig
+	ChartPhase      PhaseConfig `json:"omitempty"`
+	PredictionPhase PhaseConfig `json:"omitempty"`
+	Content         ContentConfig
+}
+
+type ContentConfig struct {
+	RecordFileName   string
+	RecordSize       int
+	CausalFactors    []Factor
+	NonCausalFactors []Factor
+	OutcomeVariable  Factor
+}
+
+type Factor struct {
+	Name    string
+	Id      string
+	ImgPath string
+	Levels  []Level
+	DBIndex int
+}
+
+type Level struct {
+	Name    string
+	Id      string
+	ImgPath string
+}
+
+type PhaseConfig struct {
+	Id              string
+	FirstPrompt     PromptConfig
+	PreviousPhaseId string
+	NextPhaseId     string
+	FactorsOrder    []string // ordered factor ids
 }
 
 type PromptConfig struct {
@@ -60,43 +91,13 @@ type PromptConfig struct {
 	ExpectedResponses []ExpectedResponseConfig
 }
 
-type PhaseConfig struct {
-	Id              string
-	FirstPrompt     PromptConfig
-	PreviousPhaseId string
-	NextPhaseId     string
-	FactorsOrder    []string // ordered factor ids
+type ExpectedResponseConfig struct {
+	Id         string
+	Text       string
+	NextPrompt *PromptConfig
 }
 
-type Level struct {
-	Name    string
-	Id      string
-	ImgPath string
-}
-
-type Factor struct {
-	Name    string
-	Id      string
-	ImgPath string
-	Levels  []Level
-	DBIndex int
-}
-
-type ContentConfig struct {
-	RecordFileName   string
-	RecordSize       int
-	CausalFactors    []Factor
-	NonCausalFactors []Factor
-	OutcomeVariable  Factor
-}
-
-type AppConfig struct {
-	CovPhase        PhaseConfig
-	ChartPhase      PhaseConfig `json:"omitempty"`
-	PredictionPhase PhaseConfig `json:"omitempty"`
-	Content         ContentConfig
-}
-
+// Implements workflow.StateEntities
 type CovPhaseState struct {
 	Username     string
 	Screenname   string
@@ -113,7 +114,7 @@ type RecordState struct {
 	RecordName   string
 	RecordNo     string
 	FactorLevels map[string]*CovFactorState
-	// Factor id as keys:
+	// Factor id as keys, such as:
 	// "fitness",
 	// "parentshealth",
 	// "education",
@@ -152,7 +153,6 @@ func InitWorkflow() {
 			return
 		}
 		covPhaseConfig := appConfig.CovPhase
-		// phaseConfigMap[phaseConfig.Id] = phaseConfig
 		populatePromptConfigMap(&covPhaseConfig.FirstPrompt, covPhaseConfig.Id)
 
 		contentConfig = appConfig.Content

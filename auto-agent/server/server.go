@@ -118,7 +118,7 @@ func (covH *GetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if u.Username == "" {
-			fmt.Fprint(os.Stderr, "Username not provided!\n\n")
+			fmt.Fprint(os.Stderr, "User does not exist.\n\n")
 
 			http.ServeFile(w, r, "static/index.html")
 			return
@@ -277,7 +277,7 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// Process submitted answers
 		ud := MakeUserData(&u)
-		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"), ud.GetUIUserData(), c)
+		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"), &u, ud.GetUIUserData(), c)
 
 		responseId := ud.CurrentPrompt.GetResponseId()
 		responseText := ud.CurrentPrompt.GetResponseText()

@@ -1,10 +1,16 @@
 package workflow
 
 import (
-	"appengine"
+	"bytes"
+	"fmt"
+	"log"
+	"os"
 	"strings"
-	// "fmt"
-	// "os"
+	"text/template"
+
+	"db"
+
+	"appengine"
 )
 
 type Prompt interface {
@@ -21,7 +27,7 @@ type Prompt interface {
 	GetPromptId() string
 	GetUIPrompt(*UIUserData) UIPrompt
 	GetUIAction() UIAction
-	ProcessResponse(string, *UIUserData, appengine.Context)
+	ProcessResponse(string, *db.User, *UIUserData, appengine.Context)
 	initUIPromptDynamicText(*UIUserData, *Response)
 }
 
@@ -58,6 +64,19 @@ func (erh *ExpectedResponseHandler) getNextPrompt(rid string) Prompt {
 
 type UIPromptDynamicText interface {
 	String() string
+}
+
+func generateDynamicText(ttext string, state StateEntities) string {
+	t := template.Must(template.New("display").Parse(ttext))
+	var doc bytes.Buffer
+	err := t.Execute(&doc, state)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error executing template: %s\n\n", err)
+		log.Println("executing template:", err)
+	}
+	display := doc.String()
+
+	return display
 }
 
 type UIPrompt interface {
