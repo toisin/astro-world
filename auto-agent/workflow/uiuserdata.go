@@ -17,5 +17,8 @@ type UIUserData struct {
 }
 
 type StateEntities interface {
+	setUsername(string)
+	setScreenname(string)
+	setTargetFactor(*FactorState)
 	GetPhaseId() string
 }

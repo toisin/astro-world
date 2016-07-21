@@ -97,13 +97,29 @@ type ExpectedResponseConfig struct {
 	NextPrompt *PromptConfig
 }
 
-// Implements workflow.StateEntities
-type CovPhaseState struct {
+type GenericState struct {
 	Username     string
 	Screenname   string
-	RecordNoOne  *RecordState
-	RecordNoTwo  *RecordState
-	TargetFactor *CovFactorState
+	TargetFactor *FactorState
+}
+
+func (c *GenericState) setUsername(s string) {
+	c.Username = s
+}
+
+func (c *GenericState) setScreenname(s string) {
+	c.Screenname = s
+}
+
+func (c *GenericState) setTargetFactor(t *FactorState) {
+	c.TargetFactor = t
+}
+
+// Implements workflow.StateEntities
+type CovPhaseState struct {
+	GenericState
+	RecordNoOne *RecordState
+	RecordNoTwo *RecordState
 }
 
 func (c *CovPhaseState) GetPhaseId() string {
@@ -113,7 +129,7 @@ func (c *CovPhaseState) GetPhaseId() string {
 type RecordState struct {
 	RecordName   string
 	RecordNo     string
-	FactorLevels map[string]*CovFactorState
+	FactorLevels map[string]*FactorState
 	// Factor id as keys, such as:
 	// "fitness",
 	// "parentshealth",
@@ -123,11 +139,20 @@ type RecordState struct {
 
 // This type is used in multiple contexts.
 // Not all members may be relevant.
-type CovFactorState struct {
+type FactorState struct {
 	FactorName    string
 	FactorId      string
 	SelectedLevel string
 	OppositeLevel string
+}
+
+// Implements workflow.StateEntities
+type ChartPhaseState struct {
+	GenericState
+}
+
+func (c *ChartPhaseState) GetPhaseId() string {
+	return appConfig.ChartPhase.Id
 }
 
 // var phaseConfigMap = make(map[string]PhaseConfig)
@@ -209,7 +234,7 @@ func GetFactorConfig(factorId string) *Factor {
 	return factorConfigMap[factorId]
 }
 
-func CreateCovFactorState(factorId string, levelId string) *CovFactorState {
+func CreateCovFactorState(factorId string, levelId string) *FactorState {
 	f := GetFactorConfig(factorId)
 	allLevels := f.Levels
 	var selectedLevel string
@@ -227,7 +252,7 @@ func CreateCovFactorState(factorId string, levelId string) *CovFactorState {
 			}
 		}
 	}
-	return &CovFactorState{
+	return &FactorState{
 		FactorName:    f.Name,
 		FactorId:      f.Id,
 		SelectedLevel: selectedLevel,

@@ -15,21 +15,15 @@ import (
 // Prompt logics specific to Cov phase
 
 type CovPrompt struct {
-	// previousPrompt Prompt
-	response                Response
-	expectedResponseHandler *ExpectedResponseHandler
-	currentUIPrompt         UIPrompt
-	currentUIAction         UIAction
-	promptConfig            PromptConfig
-	nextPrompt              Prompt
-	promptDynamicText       *UICovPromptDynamicText
-	state                   *CovPhaseState
+	*GenericPrompt
 }
 
 func MakeCovPrompt(p PromptConfig) *CovPrompt {
 	erh := MakeExpectedResponseHandler(p.ExpectedResponses, PHASE_COV)
 
 	n := &CovPrompt{}
+	n.GenericPrompt = &GenericPrompt{}
+	n.GenericPrompt.currentPrompt = n
 	n.promptConfig = p
 	n.expectedResponseHandler = erh
 	return n
@@ -37,10 +31,6 @@ func MakeCovPrompt(p PromptConfig) *CovPrompt {
 
 func (cp *CovPrompt) GetPhaseId() string {
 	return PHASE_COV
-}
-
-func (cp *CovPrompt) GetPromptId() string {
-	return cp.promptConfig.Id
 }
 
 func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
@@ -101,44 +91,13 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 
 func (cp *CovPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r *Response) {
 	if cp.promptDynamicText == nil {
-		p := &UICovPromptDynamicText{}
+		p := &UIPromptDynamicText{}
 		p.previousResponse = r
 		p.promptConfig = cp.promptConfig
 		cp.updateState(uiUserData)
 		p.state = cp.state
 		cp.promptDynamicText = p
 	}
-}
-
-func (cp *CovPrompt) GetNextPrompt() Prompt {
-	return cp.nextPrompt
-}
-
-func (cp *CovPrompt) GetResponseText() string {
-	return cp.response.GetResponseText()
-}
-
-func (cp *CovPrompt) GetResponseId() string {
-	return cp.response.GetResponseId()
-}
-
-func (cp *CovPrompt) GetUIPrompt(uiUserData *UIUserData) UIPrompt {
-	if cp.currentUIPrompt == nil {
-		pc := cp.promptConfig
-		cp.currentUIPrompt = NewUIBasicPrompt()
-		cp.currentUIPrompt.setPromptType(pc.PromptType)
-		cp.initUIPromptDynamicText(uiUserData, nil)
-		if cp.promptDynamicText != nil {
-			cp.currentUIPrompt.setText(cp.promptDynamicText.String())
-		}
-		cp.currentUIPrompt.setId(pc.Id)
-		options := make([]UIOption, len(pc.ExpectedResponses))
-		for i := range pc.ExpectedResponses {
-			options[i] = UIOption{pc.ExpectedResponses[i].Id, pc.ExpectedResponses[i].Text}
-		}
-		cp.currentUIPrompt.setOptions(options)
-	}
-	return cp.currentUIPrompt
 }
 
 // Returned UIAction may be nil if not action UI is needed
@@ -178,19 +137,6 @@ func (cp *CovPrompt) GetUIAction() UIAction {
 		}
 	}
 	return cp.currentUIAction
-}
-
-type SimpleResponse struct {
-	Text string
-	Id   string
-}
-
-func (sr *SimpleResponse) GetResponseText() string {
-	return sr.Text
-}
-
-func (sr *SimpleResponse) GetResponseId() string {
-	return sr.Id
 }
 
 type RecordsSelectResponse struct {
@@ -286,25 +232,10 @@ func (rsr *RecordsSelectResponse) GetResponseId() string {
 	return rsr.Id
 }
 
-type SelectedFactor struct {
-	FactorId        string
-	SelectedLevelId string
-}
-
-type UICovPromptDynamicText struct {
-	previousResponse *Response
-	promptConfig     PromptConfig
-	state            *CovPhaseState
-}
-
-func (ps *UICovPromptDynamicText) String() string {
-	return generateDynamicText(ps.promptConfig.Text, ps.state)
-}
-
 func (cp *CovPrompt) updateStateCurrentFactor(uiUserData *UIUserData, fid string) {
 	cp.updateState(uiUserData)
 	if factorConfigMap[fid] != nil {
-		cp.state.TargetFactor = &CovFactorState{FactorName: factorConfigMap[fid].Name, FactorId: fid}
+		cp.state.setTargetFactor(&FactorState{FactorName: factorConfigMap[fid].Name, FactorId: fid})
 	}
 	uiUserData.State = cp.state
 }
@@ -315,8 +246,10 @@ func (cp *CovPrompt) updateStateCurrentFactor(uiUserData *UIUserData, fid string
 func (cp *CovPrompt) updateStateRecords(uiUserData *UIUserData, r *RecordsSelectResponse) {
 	cp.updateState(uiUserData)
 	if cp.state != nil {
-		cp.state.RecordNoOne = createRecordStateFromDB(r.dbRecordNoOne, r.RecordNoOne)
-		cp.state.RecordNoTwo = createRecordStateFromDB(r.dbRecordNoTwo, r.RecordNoTwo)
+		s := cp.state.(*CovPhaseState)
+		s.RecordNoOne = cp.createRecordStateFromDB(r.dbRecordNoOne, r.RecordNoOne)
+		s.RecordNoTwo = cp.createRecordStateFromDB(r.dbRecordNoTwo, r.RecordNoTwo)
+		cp.state = s
 	}
 	uiUserData.State = cp.state
 }
@@ -330,29 +263,34 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 	}
 	if cp.state == nil {
 		cp.state = &CovPhaseState{}
-		cp.state.Username = uiUserData.Username
-		cp.state.Screenname = uiUserData.Screenname
+		cp.state.setUsername(uiUserData.Username)
+		cp.state.setScreenname(uiUserData.Screenname)
 		fid := uiUserData.CurrentFactorId
 		if factorConfigMap[fid] != nil {
-			cp.state.TargetFactor = &CovFactorState{FactorName: factorConfigMap[fid].Name, FactorId: fid}
+			cp.state.setTargetFactor(&FactorState{FactorName: factorConfigMap[fid].Name, FactorId: fid})
 		}
 	}
 	uiUserData.State = cp.state
 }
 
-func createRecordStateFromDB(r *db.Record, sf []SelectedFactor) *RecordState {
+func (cp *CovPrompt) createRecordStateFromDB(r *db.Record, sf []SelectedFactor) *RecordState {
 	rs := &RecordState{}
 	if r != nil {
 		rs.RecordName = r.Name
 		rs.RecordNo = r.RecordNo
-		rs.FactorLevels = make(map[string]*CovFactorState)
+		rs.FactorLevels = make(map[string]*FactorState)
 		for _, v := range sf {
 			rs.FactorLevels[v.FactorId] = CreateCovFactorState(v.FactorId, v.SelectedLevelId)
 		}
 	} else {
 		rs.RecordName = ""
 		rs.RecordNo = ""
-		rs.FactorLevels = make(map[string]*CovFactorState)
+		rs.FactorLevels = make(map[string]*FactorState)
 	}
 	return rs
+}
+
+type SelectedFactor struct {
+	FactorId        string
+	SelectedLevelId string
 }

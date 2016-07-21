@@ -2,7 +2,9 @@ package workflow
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -14,21 +16,82 @@ import (
 )
 
 type Prompt interface {
-	// TODO add these bigger structure
-	// GetParentPhase() Phase
-	// GetParentStrategy() Strategy
-	// GetDisplayText() string
-	// GetUIActionModeId() string
 	GetPhaseId() string
 	GetResponseId() string
 	GetResponseText() string
 	GetNextPrompt() Prompt
-	// SetResponse(Response)
 	GetPromptId() string
 	GetUIPrompt(*UIUserData) UIPrompt
 	GetUIAction() UIAction
 	ProcessResponse(string, *db.User, *UIUserData, appengine.Context)
 	initUIPromptDynamicText(*UIUserData, *Response)
+}
+
+type GenericPrompt struct {
+	response                Response
+	expectedResponseHandler *ExpectedResponseHandler
+	currentUIPrompt         UIPrompt
+	currentUIAction         UIAction
+	promptConfig            PromptConfig
+	nextPrompt              Prompt
+	currentPrompt           Prompt
+	promptDynamicText       *UIPromptDynamicText
+	state                   StateEntities
+}
+
+func (cp *GenericPrompt) GetResponseId() string {
+	return cp.response.GetResponseId()
+}
+
+func (cp *GenericPrompt) GetResponseText() string {
+	return cp.response.GetResponseText()
+}
+
+func (cp *GenericPrompt) GetNextPrompt() Prompt {
+	return cp.nextPrompt
+}
+func (cp *GenericPrompt) GetPromptId() string {
+	return cp.promptConfig.Id
+}
+
+func (cp *GenericPrompt) GetUIPrompt(uiUserData *UIUserData) UIPrompt {
+	if cp.currentUIPrompt == nil {
+		pc := cp.promptConfig
+		cp.currentUIPrompt = NewUIBasicPrompt()
+		cp.currentUIPrompt.setPromptType(pc.PromptType)
+		cp.currentPrompt.initUIPromptDynamicText(uiUserData, nil)
+		if cp.promptDynamicText != nil {
+			cp.currentUIPrompt.setText(cp.promptDynamicText.String())
+		}
+		cp.currentUIPrompt.setId(pc.Id)
+		options := make([]UIOption, len(pc.ExpectedResponses))
+		for i := range pc.ExpectedResponses {
+			options[i] = UIOption{pc.ExpectedResponses[i].Id, pc.ExpectedResponses[i].Text}
+		}
+		cp.currentUIPrompt.setOptions(options)
+	}
+	return cp.currentUIPrompt
+}
+
+func (cp *GenericPrompt) processSimpleResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
+	if r != "" {
+		dec := json.NewDecoder(strings.NewReader(r))
+		for {
+			var response SimpleResponse
+			if err := dec.Decode(&response); err == io.EOF {
+				break
+			} else if err != nil {
+				fmt.Fprintf(os.Stderr, "%s", err)
+				log.Fatal(err)
+				return
+			}
+			cp.response = &response
+		}
+		if cp.response != nil {
+			cp.nextPrompt = cp.expectedResponseHandler.getNextPrompt(cp.response.GetResponseId())
+			cp.nextPrompt.initUIPromptDynamicText(uiUserData, &cp.response)
+		}
+	}
 }
 
 type Response interface {
@@ -62,14 +125,29 @@ func (erh *ExpectedResponseHandler) getNextPrompt(rid string) Prompt {
 	return erh.expectedResponseMap[strings.ToLower(rid)]
 }
 
-type UIPromptDynamicText interface {
-	String() string
+type SimpleResponse struct {
+	Text string
+	Id   string
 }
 
-func generateDynamicText(ttext string, state StateEntities) string {
-	t := template.Must(template.New("display").Parse(ttext))
+func (sr *SimpleResponse) GetResponseText() string {
+	return sr.Text
+}
+
+func (sr *SimpleResponse) GetResponseId() string {
+	return sr.Id
+}
+
+type UIPromptDynamicText struct {
+	previousResponse *Response
+	promptConfig     PromptConfig
+	state            StateEntities
+}
+
+func (ps *UIPromptDynamicText) String() string {
+	t := template.Must(template.New("display").Parse(ps.promptConfig.Text))
 	var doc bytes.Buffer
-	err := t.Execute(&doc, state)
+	err := t.Execute(&doc, ps.state)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error executing template: %s\n\n", err)
 		log.Println("executing template:", err)

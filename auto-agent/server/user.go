@@ -15,7 +15,7 @@ type UserData struct {
 
 func MakeUserData(u *db.User) *UserData {
 	// Process submitted answer
-	ud := UserData{}
+	ud := &UserData{}
 	ud.user = u
 	if (u.CurrentPromptId == "") || (u.CurrentPhaseId == "") {
 		ud.CurrentPrompt = workflow.MakeFirstPrompt()
@@ -41,7 +41,7 @@ func MakeUserData(u *db.User) *UserData {
 	}
 	ud.uiUserData.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt(&ud.uiUserData)
 
-	return &ud
+	return ud
 }
 
 func (ud *UserData) GetUIUserData() *workflow.UIUserData {
