@@ -169,12 +169,9 @@
                         "ExpectedResponses": [
                           {
                             "Id": "anything",
-                            "NextPrompt": {
-                              "Id": "The End",
-                              "Text": "Thank you",
-                              "PromptType": "NO_INPUT",
-                              "ResponseType": "COMPLETE",
-                              "UIActionModeId": "NO_UIACTION"
+                            "NextPromptRef": {
+                              "Id": "Which factor",
+                              "PhaseId": "Chart"
                             }
                           }
                         ]
@@ -254,21 +251,81 @@
         {
           "Id": "parentshealth",
           "Text": "Parents' Health",
+          "NextPromptRef": {
+            "Id":"p1"
+          }
+        },
+        {
+          "Id": "familysize",
+          "Text": "Family Size",
+          "NextPromptRef": {
+            "Id":"p1"
+          }
+        },
+        {
+          "Id": "education",
+          "Text": "Education",
+          "NextPromptRef": {
+            "Id":"p1"
+          }
+        }
+      ]
+    }
+  },
+  "ChartPhase": {
+    "Id": "Chart",
+    "PreviousPhaseId": "Cov",
+    "NextPhaseId": "Prediction",
+    "FactorsOrder": [
+      "fitness",
+      "parentshealth",
+      "familysize",
+      "education",
+      "homeclimate"
+    ],
+    "FirstPrompt": {
+      "Id": "Which factor",
+      "Text": "Which chart factor do you want to look at?",
+      "PromptType": "NO_INPUT",
+      "ResponseType": "SELECT_TARGET_FACTOR",
+      "UIActionModeId": "NEW_TARGET_FACTOR",
+      "ExpectedResponses": [
+        {
+          "Id": "fitness",
+          "Text": "Fitness",
           "NextPrompt": {
+            "Id": "p1",
+            "Text": "Thank you",
+            "PromptType": "NO_INPUT",
+            "ResponseType": "COMPLETE",
+            "UIActionModeId": "NO_UIACTION"
+          }
+        },
+        {
+          "Id": "parentshealth",
+          "Text": "Parents' Health",
+          "NextPromptRef": {
             "Id": "p1"
           }
         },
         {
           "Id": "familysize",
           "Text": "Family Size",
-          "NextPrompt": {
+          "NextPromptRef": {
             "Id": "p1"
           }
         },
         {
           "Id": "education",
           "Text": "Education",
-          "NextPrompt": {
+          "NextPromptRef": {
+            "Id": "p1"
+          }
+        },
+        {
+          "Id": "homeclimate",
+          "Text": "Home Climate",
+          "NextPromptRef": {
             "Id": "p1"
           }
         }

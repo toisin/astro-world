@@ -14,7 +14,8 @@ import (
 type Record struct {
 	RecordNo     string
 	ID           string
-	Name         string
+	Firstname    string
+	Lastname     string
 	FactorId0    string
 	FactorId1    string
 	FactorId2    string

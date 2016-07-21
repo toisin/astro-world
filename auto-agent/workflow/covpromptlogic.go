@@ -18,14 +18,17 @@ type CovPrompt struct {
 	*GenericPrompt
 }
 
-func MakeCovPrompt(p PromptConfig) *CovPrompt {
-	erh := MakeExpectedResponseHandler(p.ExpectedResponses, PHASE_COV)
+func MakeCovPrompt(p *PromptConfig) *CovPrompt {
+	var n *CovPrompt
+	if p != nil {
+		erh := MakeExpectedResponseHandler(p.ExpectedResponses, PHASE_COV)
 
-	n := &CovPrompt{}
-	n.GenericPrompt = &GenericPrompt{}
-	n.GenericPrompt.currentPrompt = n
-	n.promptConfig = p
-	n.expectedResponseHandler = erh
+		n = &CovPrompt{}
+		n.GenericPrompt = &GenericPrompt{}
+		n.GenericPrompt.currentPrompt = n
+		n.promptConfig = p
+		n.expectedResponseHandler = erh
+	}
 	return n
 }
 
@@ -276,7 +279,7 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 func (cp *CovPrompt) createRecordStateFromDB(r *db.Record, sf []SelectedFactor) *RecordState {
 	rs := &RecordState{}
 	if r != nil {
-		rs.RecordName = r.Name
+		rs.RecordName = r.Firstname + " " + r.Lastname
 		rs.RecordNo = r.RecordNo
 		rs.FactorLevels = make(map[string]*FactorState)
 		for _, v := range sf {

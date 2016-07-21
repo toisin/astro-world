@@ -32,7 +32,7 @@ type GenericPrompt struct {
 	expectedResponseHandler *ExpectedResponseHandler
 	currentUIPrompt         UIPrompt
 	currentUIAction         UIAction
-	promptConfig            PromptConfig
+	promptConfig            *PromptConfig
 	nextPrompt              Prompt
 	currentPrompt           Prompt
 	promptDynamicText       *UIPromptDynamicText
@@ -100,16 +100,26 @@ type Response interface {
 }
 
 type ExpectedResponseHandler struct {
-	expectedResponseMap map[string]Prompt
+	expectedResponseMap map[string]PromptConfigRef
 }
 
 func MakeExpectedResponseHandler(ecs []ExpectedResponseConfig, phaseId string) *ExpectedResponseHandler {
 	erh := new(ExpectedResponseHandler)
-	erh.expectedResponseMap = make(map[string]Prompt)
+	erh.expectedResponseMap = make(map[string]PromptConfigRef)
 	for _, v := range ecs {
-		// In case if the prompt is already defined
-		// erh.expectedResponseMap[strings.ToLower(v.Id)] = MakePromptFromConfig(v.NextPrompt, phaseId)
-		erh.expectedResponseMap[strings.ToLower(v.Id)] = MakePrompt(v.NextPrompt.Id, phaseId)
+		if v.NextPromptRef != nil {
+			if v.NextPromptRef.PhaseId != "" {
+				phaseId = v.NextPromptRef.PhaseId
+			}
+			promptId := v.NextPromptRef.Id
+			erh.expectedResponseMap[strings.ToLower(v.Id)] = PromptConfigRef{Id: promptId, PhaseId: phaseId}
+		} else {
+			promptId := v.NextPrompt.Id
+			if v.NextPrompt.PhaseId != "" {
+				phaseId = v.NextPrompt.PhaseId
+			}
+			erh.expectedResponseMap[strings.ToLower(v.Id)] = PromptConfigRef{Id: promptId, PhaseId: phaseId}
+		}
 	}
 	return erh
 }
@@ -117,12 +127,15 @@ func MakeExpectedResponseHandler(ecs []ExpectedResponseConfig, phaseId string) *
 // Return the next prompt that maps to the expected response
 // If there is only one expected response, return that one regardless of the response id
 func (erh *ExpectedResponseHandler) getNextPrompt(rid string) Prompt {
+	var p PromptConfigRef
 	if len(erh.expectedResponseMap) == 1 {
 		for _, v := range erh.expectedResponseMap {
-			return v
+			p = v
 		}
+	} else {
+		p = erh.expectedResponseMap[strings.ToLower(rid)]
 	}
-	return erh.expectedResponseMap[strings.ToLower(rid)]
+	return MakePrompt(p.Id, p.PhaseId)
 }
 
 type SimpleResponse struct {
@@ -140,7 +153,7 @@ func (sr *SimpleResponse) GetResponseId() string {
 
 type UIPromptDynamicText struct {
 	previousResponse *Response
-	promptConfig     PromptConfig
+	promptConfig     *PromptConfig
 	state            StateEntities
 }
 

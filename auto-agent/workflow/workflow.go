@@ -47,8 +47,8 @@ const (
 
 type AppConfig struct {
 	CovPhase        PhaseConfig
-	ChartPhase      PhaseConfig `json:"omitempty"`
-	PredictionPhase PhaseConfig `json:"omitempty"`
+	ChartPhase      PhaseConfig
+	PredictionPhase PhaseConfig
 	Content         ContentConfig
 }
 
@@ -84,6 +84,7 @@ type PhaseConfig struct {
 
 type PromptConfig struct {
 	Id                string
+	PhaseId           string
 	Text              string
 	UIActionModeId    string
 	PromptType        string
@@ -92,9 +93,15 @@ type PromptConfig struct {
 }
 
 type ExpectedResponseConfig struct {
-	Id         string
-	Text       string
-	NextPrompt *PromptConfig
+	Id            string
+	Text          string
+	NextPrompt    *PromptConfig
+	NextPromptRef *PromptConfigRef
+}
+
+type PromptConfigRef struct {
+	Id      string
+	PhaseId string
 }
 
 type GenericState struct {
@@ -178,7 +185,9 @@ func InitWorkflow() {
 			return
 		}
 		covPhaseConfig := appConfig.CovPhase
+		chartPhaseConfig := appConfig.ChartPhase
 		populatePromptConfigMap(&covPhaseConfig.FirstPrompt, covPhaseConfig.Id)
+		populatePromptConfigMap(&chartPhaseConfig.FirstPrompt, chartPhaseConfig.Id)
 
 		contentConfig = appConfig.Content
 	}
@@ -186,9 +195,12 @@ func InitWorkflow() {
 }
 
 func populatePromptConfigMap(pc *PromptConfig, phaseId string) {
-	if promptConfigMap[phaseId+pc.Id] == nil {
-		promptConfigMap[phaseId+pc.Id] = pc
-		for i := range pc.ExpectedResponses {
+	if pc.PhaseId != "" {
+		phaseId = pc.PhaseId
+	}
+	promptConfigMap[phaseId+pc.Id] = pc
+	for i := range pc.ExpectedResponses {
+		if pc.ExpectedResponses[i].NextPrompt != nil {
 			populatePromptConfigMap(pc.ExpectedResponses[i].NextPrompt, phaseId)
 		}
 	}
@@ -205,7 +217,7 @@ func populateFactorConfigMap(cf *ContentConfig) {
 
 func MakeFirstPrompt() Prompt {
 	// TODO Hardcoding the first prompt as CovPrompt
-	p := MakeCovPrompt(appConfig.CovPhase.FirstPrompt)
+	p := MakeCovPrompt(&appConfig.CovPhase.FirstPrompt)
 	return p
 }
 
@@ -217,7 +229,9 @@ func MakePrompt(promptId string, phaseId string) Prompt {
 func MakePromptFromConfig(pc *PromptConfig, phaseId string) Prompt {
 	switch phaseId {
 	case PHASE_COV:
-		return MakeCovPrompt(*pc)
+		return MakeCovPrompt(pc)
+	case PHASE_CHART:
+		return MakeChartPrompt(pc)
 	}
 	return nil
 }

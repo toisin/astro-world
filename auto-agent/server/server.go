@@ -411,16 +411,13 @@ func ImportRecordsDB(c appengine.Context) {
 	}
 
 	if rc < 1 {
-		// TODO problem with recognizing new line in csv file
-		// Temporarily use the const instead
-		// f, err := os.Open("cases.csv")
-		// if err != nil {
-		// 	fmt.Fprintf(os.Stderr, "%s", err)
-		// 	log.Fatal(err)
-		// }
-		// r := csv.NewReader(f)
-
-		r := csv.NewReader(strings.NewReader(workflow.CasesStream))
+		f, err := os.Open("cases.csv")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s", err)
+			log.Fatal(err)
+		}
+		// Note: Do not use mac version of csv has problems with the end of line symbols
+		r := csv.NewReader(f)
 
 		headers, err := r.Read()
 
@@ -468,7 +465,9 @@ func ImportRecordsDB(c appengine.Context) {
 				log.Fatal(err)
 				return
 			}
-			recordNo := arecord[0] // First column is the record number
+			recordNo := arecord[0]  // First column is the record number
+			firstname := arecord[1] // Second column is the first name
+			lastname := arecord[2]  // Third column is the last name
 			factorIds := make([]string, len(factorColIndex))
 			factorLevels := make([]string, len(factorColIndex))
 			for k, v := range factorColIndex {
@@ -480,6 +479,8 @@ func ImportRecordsDB(c appengine.Context) {
 			outcomeLevel := arecord[outcomeColIndex]
 			records[ri] = db.Record{
 				RecordNo:     recordNo,
+				Firstname:    firstname,
+				Lastname:     lastname,
 				FactorId0:    factorIds[0],
 				FactorId1:    factorIds[1],
 				FactorId2:    factorIds[2],
