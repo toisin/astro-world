@@ -9,8 +9,19 @@ var DisplayText = {};
 DisplayText[MSG_ROBOT] = 'Researcher';
 
 var Dialog = React.createClass({
+  getInitialState: function() {
+    state = {mode: 0}
+    var user = this.props.user;
+    var history = user.getHistory() ? user.getHistory() : {};
+    state.isNewUser = history.length == 0;
+    state.welcomeText = state.isNewUser ? "Welcome to the Mission!" : "Welcome back!";
+    state.oldHistory = history;
+    return state;
+  },
+
   changeState: function() {
     this.setState({mode: 0});
+    var user = this.props.user;
     action = user.getAction()
     if (action) {
       // In cases when the dialog is ongoing and no UI action is needed
@@ -23,27 +34,30 @@ var Dialog = React.createClass({
     }
   },
 
-
   render: function() {
     var state = this.state;
     var user = this.props.user;
     var app = this.props.app;
-    var messages = user.getHistory() ? user.getHistory().map(
+    var newHistory = user.getHistory() ? user.getHistory().slice(state.oldHistory.length) : {};
+    var messages = newHistory.map(
         function(message, i) {
           return  <div className="chat" key={i}>
                     <Message message={message} user={user}/>
                   </div>;
-        }) : {};
+        })
     var prompt = user.getPrompt();
+    var welcomeText = this.state.welcomeText;
 
     if ((!prompt) || (Object.keys(prompt).length == 0)) {
         return  <div className="chat">
-                  <Title user={user}/>
+                  <Title user={user} welcomeText={welcomeText}/>
+                  <OldHistory user={user} oldHistory={state.oldHistory}/>
                   {messages}
                 </div>;
     } else {
         return  <div className="chat">
-                  <Title user={user}/>
+                  <Title user={user} welcomeText={welcomeText}/>
+                  <OldHistory user={user} oldHistory={state.oldHistory}/>
                   {messages}
                   <Input user={user} prompt={prompt} onComplete={this.changeState}/>
                 </div>;
@@ -54,15 +68,55 @@ var Dialog = React.createClass({
 
 
 // Render the title of the chat window
-var Title = React.createClass({
-  render: function() {
-    var human = this.props.user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
+var OldHistory = React.createClass({
+  getInitialState: function() {
+    return {showMessages: false};
+  },
 
+  changeState: function() {
+    this.state.showMessages = !this.state.showMessages;
+    this.setState(this.state); // This call triggers re-rendering
+  },
+
+  render: function() {
+    var state = this.state;
+    var user = this.props.user;
+    var oldHistory = this.props.oldHistory ? this.props.oldHistory : {};
+    var messages = oldHistory.map(
+        function(message, i) {
+          return  <div className="chat" key={i}>
+                    <Message message={message} user={user}/>
+                  </div>;
+        })
+    if (messages.length > 0) {
+      if (state.showMessages) {
+        return <div>
+                  <button type="submit" onClick={this.changeState}>Click to Hide old chat history</button>
+                  {messages}
+               </div>;
+      } else {
+        return <div>
+                  <button type="submit" onClick={this.changeState}>Click to show old chat history</button>
+               </div>;
+      }
+    }
+    return <div></div>;
+  }
+});
+
+
+// Render the title of the chat window
+var Title = React.createClass({
+
+  render: function() {
+    var user = this.props.user;
+    var human = user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
+    var welcomeText = this.props.welcomeText;
     return  <div className="researcher">
               <div className="name">Researcher</div>
               <div className="message">
-                Hello {human}<br/>
-                Welcome to the Challenge
+                Hello {human}.<br/>
+                {welcomeText}<br/>
               </div>
             </div>;
   }
@@ -100,7 +154,7 @@ var Message = React.createClass({
 var Input = React.createClass({
 
   getInitialState: function() {
-    return {enabled: false};
+    return {enabled: false, delay: false};
   },
 
   isEnabled: function() {
@@ -111,8 +165,32 @@ var Input = React.createClass({
     this.setState({enabled:true});
   },
 
+  handleEnter: function(event) {
+    if (!event.shiftKey) {
+      if (event.which == 13) { 
+        this.handleSubmit(event);
+      }
+    }
+  },
+
+  triggerDelay: function() {
+    this.state.delay = true;
+    var delay = DELAY_PROMPT_TIME_SHORT;
+    if (this.props.prompt.Text.length > 100) {
+      delay = DELAY_PROMPT_TIME_LONG;
+    }
+    this.state.interval = window.setInterval(this.handleSubmit, delay);
+  },
+
+  unTriggerDelay: function() {
+    this.state.delay = false;
+    window.clearInterval(this.state.interval);
+  },
+
   handleSubmit: function(event) {
-    event.preventDefault();
+    if (event) {
+      event.preventDefault();
+    }
 
     var user = this.props.user;
     var onComplete = this.props.onComplete;
@@ -140,6 +218,10 @@ var Input = React.createClass({
     case UI_PROMPT_TEXT:
       text = value;
       id = options[0].ResponseId
+      break;
+    case UI_PROMPT_STRAIGHT_THROUGH:
+      text = RESPONSE_SYSTEM_GENERATED;
+      id = RESPONSE_SYSTEM_GENERATED;
       break;
     }
 
@@ -172,7 +254,7 @@ var Input = React.createClass({
                   <div className="form">
                     <form id="dialogForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
                     className="request">
-                      <textarea name="dialoginput"></textarea>
+                      <textarea name="dialoginput" onKeyDown={this.handleEnter}></textarea>
                       <br/>
                       <input type="hidden" id="promptId" value={promptId}/>
                       <input type="hidden" id="phaseId" value={phaseId}/>
@@ -210,6 +292,32 @@ var Input = React.createClass({
                   </div>
                 </div>
               </div>;
+    case UI_PROMPT_STRAIGHT_THROUGH:
+      if (prompt) {
+        if (this.state.delay) {
+          this.unTriggerDelay(); // if it was turned on, turn it off.
+        } else {
+          this.triggerDelay();
+        }
+      }
+      return  <div>
+                <div className="researcher">
+                  <div className="name">{DisplayText[MSG_ROBOT]}</div>
+                  <div className="message">{prompt.Text}</div>
+                </div>
+                <div className="human">
+                  <div className="name">{human}</div>
+                  <div className="form">
+                    <form id="dialogForm" onSubmit={this.handleSubmit} className="request">
+                      <input type="text" name="dialoginput" disabled="true"/>
+                      <br/>
+                      <input type="hidden" id="promptId" value={promptId}/>
+                      <input type="hidden" id="phaseId" value={phaseId}/>
+                      <button type="submit" id="submitButton" disabled={!this.isEnabled()}>Enter</button>
+                    </form>
+                  </div>
+                </div>
+              </div>;    
     default:
       return  <div>
                 <div className="researcher">

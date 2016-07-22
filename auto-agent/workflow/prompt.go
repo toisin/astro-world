@@ -144,7 +144,10 @@ type SimpleResponse struct {
 }
 
 func (sr *SimpleResponse) GetResponseText() string {
-	return sr.Text
+	if sr.Text != RESPONSE_SYSTEM_GENERATED {
+		return sr.Text
+	}
+	return ""
 }
 
 func (sr *SimpleResponse) GetResponseId() string {

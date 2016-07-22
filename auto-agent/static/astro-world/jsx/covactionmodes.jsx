@@ -170,7 +170,6 @@ var RecordSelection = React.createClass({
     response.RecordNoTwo = r2selectedFactors;    
 
     jsonResponse = JSON.stringify(response);
-    debugger;
     user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
     this.setState({mode: 0, enabled:false});
   },

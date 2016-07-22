@@ -3,10 +3,15 @@
 // npm install -g react-tools
 // jsx -w -x jsx public/js public/js
 
+var DELAY_PROMPT_TIME_SHORT = 1000;
+var DELAY_PROMPT_TIME_LONG = 3000;
 
 var UI_PROMPT_TEXT = "Text";
 var UI_PROMPT_MC = "MC";
 var UI_PROMPT_NO_INPUT = "NO_INPUT";
+var UI_PROMPT_STRAIGHT_THROUGH = "STRAIGHT_THROUGH";
+
+var RESPONSE_SYSTEM_GENERATED = "SYSTEM_GENERATED";
 
 var PHASE_COV = "Cov";
 var PHASE_CHART = "Chart";
