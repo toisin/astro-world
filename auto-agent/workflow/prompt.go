@@ -39,6 +39,10 @@ type GenericPrompt struct {
 	state                   StateEntities
 }
 
+func (cp *GenericPrompt) GetPhaseId() string {
+	return cp.promptConfig.PhaseId
+}
+
 func (cp *GenericPrompt) GetResponseId() string {
 	return cp.response.GetResponseId()
 }
@@ -104,27 +108,28 @@ type ExpectedResponseHandler struct {
 	currentPromptConfig *PromptConfig
 }
 
-func MakeExpectedResponseHandler(p *PromptConfig, phaseId string) *ExpectedResponseHandler {
+func MakeExpectedResponseHandler(p *PromptConfig) *ExpectedResponseHandler {
 	erh := new(ExpectedResponseHandler)
 	erh.expectedResponseMap = make(map[string]*PromptConfigRef)
 	erh.currentPromptConfig = p
 
 	ecs := p.ExpectedResponses
+	phaseId := p.PhaseId
+	var promptId string
 
 	for _, v := range ecs {
 		if v.NextPromptRef != nil {
+			promptId = v.NextPromptRef.Id
 			if v.NextPromptRef.PhaseId != "" {
 				phaseId = v.NextPromptRef.PhaseId
 			}
-			promptId := v.NextPromptRef.Id
-			erh.expectedResponseMap[strings.ToLower(v.Id)] = &PromptConfigRef{Id: promptId, PhaseId: phaseId}
 		} else {
-			promptId := v.NextPrompt.Id
+			promptId = v.NextPrompt.Id
 			if v.NextPrompt.PhaseId != "" {
 				phaseId = v.NextPrompt.PhaseId
 			}
-			erh.expectedResponseMap[strings.ToLower(v.Id)] = &PromptConfigRef{Id: promptId, PhaseId: phaseId}
 		}
+		erh.expectedResponseMap[strings.ToLower(v.Id)] = &PromptConfigRef{Id: promptId, PhaseId: phaseId}
 	}
 	return erh
 }
@@ -134,7 +139,7 @@ func MakeExpectedResponseHandler(p *PromptConfig, phaseId string) *ExpectedRespo
 func (erh *ExpectedResponseHandler) getNextPrompt(rid string) Prompt {
 	var p *PromptConfigRef
 	if erh.currentPromptConfig.ResponseType == RESPONSE_END {
-		p = GetFirstPromptIdCurrentSequence(erh.currentPromptConfig)
+		p = GetFirstPromptInNextSequence(erh.currentPromptConfig)
 	} else {
 		if len(erh.expectedResponseMap) == 1 {
 			for _, v := range erh.expectedResponseMap {

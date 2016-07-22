@@ -434,21 +434,10 @@ func ImportRecordsDB(c appengine.Context) {
 		factorColIndex := make(map[string]int)
 		var outcomeColIndex int
 		for i := range headers {
-			for j := range workflow.GetContentConfig().CausalFactors {
-				if headers[i] == workflow.GetContentConfig().CausalFactors[j].Id {
-					factorColIndex[headers[i]] = i
-					break
-				}
-			}
-			for j := range workflow.GetContentConfig().NonCausalFactors {
-				if headers[i] == workflow.GetContentConfig().NonCausalFactors[j].Id {
-					factorColIndex[headers[i]] = i
-					break
-				}
-			}
-			if headers[i] == workflow.GetContentConfig().OutcomeVariable.Id {
+			if workflow.GetFactorConfig(headers[i]) != nil {
+				factorColIndex[headers[i]] = i
+			} else if headers[i] == workflow.GetContentConfig().OutcomeVariable.Id {
 				outcomeColIndex = i
-				break
 			}
 		}
 

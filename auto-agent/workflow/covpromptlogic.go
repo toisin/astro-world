@@ -21,7 +21,7 @@ type CovPrompt struct {
 func MakeCovPrompt(p *PromptConfig) *CovPrompt {
 	var n *CovPrompt
 	if p != nil {
-		erh := MakeExpectedResponseHandler(p, PHASE_COV)
+		erh := MakeExpectedResponseHandler(p)
 
 		n = &CovPrompt{}
 		n.GenericPrompt = &GenericPrompt{}
@@ -30,10 +30,6 @@ func MakeCovPrompt(p *PromptConfig) *CovPrompt {
 		n.expectedResponseHandler = erh
 	}
 	return n
-}
-
-func (cp *CovPrompt) GetPhaseId() string {
-	return PHASE_COV
 }
 
 func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
@@ -112,9 +108,9 @@ func (cp *CovPrompt) GetUIAction() UIAction {
 			p := NewUIRecordAction()
 			// TODO in progress
 			// p.SetPromptType(???)
-			p.Factors = make([]UIFactor, len(appConfig.CovPhase.FactorsOrder))
-			for i, v := range appConfig.CovPhase.FactorsOrder {
-				f := GetFactorConfig(v)
+			p.Factors = make([]UIFactor, len(appConfig.CovPhase.ContentRef.Factors))
+			for i, v := range appConfig.CovPhase.ContentRef.Factors {
+				f := GetFactorConfig(v.Id)
 				p.Factors[i] = UIFactor{
 					FactorId: f.Id,
 					Text:     f.Name,
@@ -147,14 +143,14 @@ type RecordsSelectResponse struct {
 	RecordNoTwo         []SelectedFactor
 	Id                  string
 	VaryingFactorIds    []string
-	CountVaryingFactors int
+	VaryingFactorsCount int
 	dbRecordNoOne       *db.Record
 	dbRecordNoTwo       *db.Record
 }
 
 func (rsr *RecordsSelectResponse) CheckRecords(uiUserData *UIUserData, c appengine.Context) {
-	rsr.VaryingFactorIds = make([]string, len(appConfig.CovPhase.FactorsOrder))
-	rsr.CountVaryingFactors = 0
+	rsr.VaryingFactorIds = make([]string, len(appConfig.CovPhase.ContentRef.Factors))
+	rsr.VaryingFactorsCount = 0
 	var CurrentFactorId = uiUserData.CurrentFactorId
 	var isTargetVarying = false
 
@@ -202,18 +198,18 @@ func (rsr *RecordsSelectResponse) CheckRecords(uiUserData *UIUserData, c appengi
 						if rsr.RecordNoOne[i].FactorId == CurrentFactorId {
 							isTargetVarying = true
 						}
-						rsr.VaryingFactorIds[rsr.CountVaryingFactors] = rsr.RecordNoOne[i].FactorId
-						rsr.CountVaryingFactors++
+						rsr.VaryingFactorIds[rsr.VaryingFactorsCount] = rsr.RecordNoOne[i].FactorId
+						rsr.VaryingFactorsCount++
 					}
 				}
 			}
 		}
 
-		if rsr.CountVaryingFactors == 0 {
+		if rsr.VaryingFactorsCount == 0 {
 			rsr.Id = COV_RESPONSE_ID_NON_VARYING
 		} else if !isTargetVarying {
 			rsr.Id = COV_RESPONSE_ID_TARGET_NON_VARYING
-		} else if rsr.CountVaryingFactors == 1 {
+		} else if rsr.VaryingFactorsCount == 1 {
 			if rsr.VaryingFactorIds[0] == CurrentFactorId {
 				rsr.Id = COV_RESPONSE_ID_CONTROLLED
 			} else {
@@ -238,7 +234,11 @@ func (rsr *RecordsSelectResponse) GetResponseId() string {
 func (cp *CovPrompt) updateStateCurrentFactor(uiUserData *UIUserData, fid string) {
 	cp.updateState(uiUserData)
 	if factorConfigMap[fid] != nil {
-		cp.state.setTargetFactor(&FactorState{FactorName: factorConfigMap[fid].Name, FactorId: fid})
+		cp.state.setTargetFactor(
+			&FactorState{
+				FactorName: factorConfigMap[fid].Name,
+				FactorId:   fid,
+				IsCausal:   factorConfigMap[fid].IsCausal})
 	}
 	uiUserData.State = cp.state
 }
@@ -270,7 +270,11 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 		cp.state.setScreenname(uiUserData.Screenname)
 		fid := uiUserData.CurrentFactorId
 		if factorConfigMap[fid] != nil {
-			cp.state.setTargetFactor(&FactorState{FactorName: factorConfigMap[fid].Name, FactorId: fid})
+			cp.state.setTargetFactor(
+				&FactorState{
+					FactorName: factorConfigMap[fid].Name,
+					FactorId:   fid,
+					IsCausal:   factorConfigMap[fid].IsCausal})
 		}
 	}
 	uiUserData.State = cp.state

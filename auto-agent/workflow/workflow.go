@@ -55,19 +55,19 @@ type AppConfig struct {
 }
 
 type ContentConfig struct {
-	RecordFileName   string
-	RecordSize       int
-	CausalFactors    []Factor
-	NonCausalFactors []Factor
-	OutcomeVariable  Factor
+	RecordFileName  string
+	RecordSize      int
+	Factors         []Factor
+	OutcomeVariable Factor
 }
 
 type Factor struct {
-	Name    string
-	Id      string
-	ImgPath string
-	Levels  []Level
-	DBIndex int
+	Name     string
+	Id       string
+	ImgPath  string
+	Levels   []Level
+	DBIndex  int
+	IsCausal bool
 }
 
 type Level struct {
@@ -80,7 +80,7 @@ type PhaseConfig struct {
 	Id               string
 	PreviousPhaseId  string
 	NextPhaseId      string
-	FactorsOrder     []string // ordered factor ids
+	ContentRef       ContentConfig
 	OrderedSequences []Sequence
 }
 
@@ -159,6 +159,7 @@ type FactorState struct {
 	FactorId      string
 	SelectedLevel string
 	OppositeLevel string
+	IsCausal      bool
 }
 
 // Implements workflow.StateEntities
@@ -205,6 +206,8 @@ func InitWorkflow() {
 func populatePromptConfigMap(pc *PromptConfig, phaseId string) {
 	if pc.PhaseId != "" {
 		phaseId = pc.PhaseId
+	} else {
+		pc.PhaseId = phaseId
 	}
 	promptConfigMap[phaseId+pc.Id] = pc
 	for i := range pc.ExpectedResponses {
@@ -215,20 +218,17 @@ func populatePromptConfigMap(pc *PromptConfig, phaseId string) {
 }
 
 func populateFactorConfigMap(cf *ContentConfig) {
-	for i := range cf.CausalFactors {
-		factorConfigMap[cf.CausalFactors[i].Id] = &cf.CausalFactors[i]
-	}
-	for i := range cf.NonCausalFactors {
-		factorConfigMap[cf.NonCausalFactors[i].Id] = &cf.NonCausalFactors[i]
+	for i := range cf.Factors {
+		factorConfigMap[cf.Factors[i].Id] = &cf.Factors[i]
 	}
 }
 
 // return PromptConfigRef
-func GetFirstPromptIdCurrentSequence(p *PromptConfig) *PromptConfigRef {
+func GetFirstPromptInNextSequence(p *PromptConfig) *PromptConfigRef {
 
 	// TODO Need to dynamically check if sequence should be repeated for the rest of the factors
 	// of if should go to the next sequence or phase
-	phaseId := PHASE_COV
+	phaseId := p.PhaseId
 	var promptId string
 	switch phaseId {
 	case PHASE_COV:
@@ -251,10 +251,11 @@ func MakeFirstPrompt() Prompt {
 
 func MakePrompt(promptId string, phaseId string) Prompt {
 	pc := GetPromptConfig(promptId, phaseId)
-	return MakePromptFromConfig(pc, phaseId)
+	return MakePromptFromConfig(pc)
 }
 
-func MakePromptFromConfig(pc *PromptConfig, phaseId string) Prompt {
+func MakePromptFromConfig(pc *PromptConfig) Prompt {
+	phaseId := pc.PhaseId
 	switch phaseId {
 	case PHASE_COV:
 		return MakeCovPrompt(pc)
@@ -298,7 +299,8 @@ func CreateCovFactorState(factorId string, levelId string) *FactorState {
 		FactorName:    f.Name,
 		FactorId:      f.Id,
 		SelectedLevel: selectedLevel,
-		OppositeLevel: oppositeLevel}
+		OppositeLevel: oppositeLevel,
+		IsCausal:      f.IsCausal}
 }
 
 func UnstringifyState(b []byte, phaseId string) (se StateEntities, err error) {

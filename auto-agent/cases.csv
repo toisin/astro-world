@@ -1,121 +1,121 @@
 no,firstname,lastname,fitness,parentshealth,familysize,education,gender,homeclimate,performance
+1,John,Blake,excellent,excellent,small,college,M,cold,A
+2,Max,Hernandez,excellent,excellent,small,some college,M,cold,C
+3,Paul,Roy,excellent,excellent,small,no college,M,cold,C
 4,Jane,Lopez,excellent,excellent,large,college,F,hot,A
 5,Carolyn,Lewis,excellent,excellent,large,some college,F,hot,C
 6,Natasha,O'Connor,excellent,excellent,large,no college,F,hot,C
 7,Yolanda,Fisher,excellent,fair,small,college,F,cold,B
 8,Carol,Kelly,excellent,fair,small,some college,F,cold,D
 9,Dana,Murphy,excellent,fair,small,no college,F,cold,D
-16,Alice,Hughes,average,excellent,large,college,F,hot,B
-17,Theodora,Rodríguez,average,excellent,large,some college,F,hot,D
-18,Daisy,Smith,average,excellent,large,no college,F,hot,D
-19,Teresa,Moore,average,fair,small,college,F,cold,C
-20,Kathy,Nguyen,average,fair,small,some college,F,cold,E
-21,Jennifer,Young,average,fair,small,no college,F,cold,E
-25,Viola,Hernandez,excellent,excellent,small,college,F,cold,A
-26,Lisa,Ellis,excellent,excellent,small,some college,F,cold,C
-27,Francis,Logan,excellent,excellent,small,no college,F,cold,C
-34,Gwen,Hart,excellent,fair,large,college,F,hot,B
-35,Kelley,Snyder,excellent,fair,large,some college,F,hot,D
-36,Kerry,Potter,excellent,fair,large,no college,F,hot,D
-37,Florence,Ruiz,average,excellent,small,college,F,cold,B
-38,Dorothy,Pierce,average,excellent,small,some college,F,cold,D
-39,Elsie,Goodwin,average,excellent,small,no college,F,cold,D
-46,Josephine,Cunningham,average,fair,large,college,F,hot,C
-47,Dolores,Fowler,average,fair,large,some college,F,hot,E
-48,Johanna,Owen,average,fair,large,no college,F,hot,E
-52,Alexis,Scott,excellent,excellent,large,college,F,hot,A
-53,Annie,Baker,excellent,excellent,large,some college,F,hot,C
-54,Lucille,Mcdonald,excellent,excellent,large,no college,F,hot,C
-55,Cindy,Thomas,excellent,fair,small,college,F,cold,B
-56,Lena,Ryan,excellent,fair,small,some college,F,cold,D
-57,Danielle,Hodges,excellent,fair,small,no college,F,cold,D
-64,Jenna,Bell,average,excellent,large,college,F,hot,B
-65,Marion,Flowers,average,excellent,large,some college,F,hot,D
-66,Anita,Quintero,average,excellent,large,no college,F,hot,D
-67,Katherine,Lim,average,fair,small,college,F,cold,C
-68,Sue,Fisher,average,fair,small,some college,F,cold,E
-69,Whitney,Obrien,average,fair,small,no college,F,cold,E
-73,Lynette,Mcgee,excellent,excellent,small,college,F,cold,A
-74,Margarita,Wright,excellent,excellent,small,some college,F,cold,C
-75,Rochelle,Jenkins,excellent,excellent,small,no college,F,cold,C
-82,Blanche,Walton,excellent,fair,large,college,F,hot,B
-83,Sally,Yang,excellent,fair,large,some college,F,hot,D
-84,Sylvia,Benson,excellent,fair,large,no college,F,hot,D
-85,Jill,Francis,average,excellent,small,college,F,cold,B
-86,Henrietta,Moon,average,excellent,small,some college,F,cold,D
-87,Sophia,Jensen,average,excellent,small,no college,F,cold,D
-94,Bernadette,Adkins,average,fair,large,college,F,hot,C
-95,Candace,Haynes,average,fair,large,some college,F,hot,E
-96,Jan,Bradley,average,fair,large,no college,F,hot,E
-100,Wendy,Olson,excellent,excellent,large,college,F,cold,A
-101,Amy,Webb,excellent,excellent,large,some college,F,cold,C
-102,Shari,Lawrence,excellent,excellent,large,no college,F,cold,C
-103,Myrtle,Powers,excellent,fair,small,college,F,hot,B
-104,Vera,Rodriquez,excellent,fair,small,some college,F,hot,D
-105,Jasmine,Caldwell,excellent,fair,small,no college,F,hot,D
-112,Guadalupe,Cummings,average,excellent,large,college,F,cold,B
-113,Hope,Sanchez,average,excellent,large,some college,F,cold,D
-114,Courtney,Reece,average,excellent,large,no college,F,cold,D
-115,Janis,Lambert,average,fair,small,college,F,hot,C
-116,Tara,Todd,average,fair,small,some college,F,hot,E
-117,Bobbie,Sharp,average,fair,small,no college,F,hot,E
-1,John,Blake,excellent,excellent,small,college,M,cold,A
-2,Max,Hernandez,excellent,excellent,small,some college,M,cold,C
-3,Paul,Roy,excellent,excellent,small,no college,M,cold,C
 10,David,Foster,excellent,fair,large,college,M,hot,B
 11,Alexander,Gómez,excellent,fair,large,some college,M,hot,D
 12,Matthew,Anderson,excellent,fair,large,no college,M,hot,D
 13,Thomas,Cooper,average,excellent,small,college,M,cold,B
 14,Jay,Flores,average,excellent,small,some college,M,cold,D
 15,Dennis,Davis,average,excellent,small,no college,M,cold,D
+16,Alice,Hughes,average,excellent,large,college,F,hot,B
+17,Theodora,Rodríguez,average,excellent,large,some college,F,hot,D
+18,Daisy,Smith,average,excellent,large,no college,F,hot,D
+19,Teresa,Moore,average,fair,small,college,F,cold,C
+20,Kathy,Nguyen,average,fair,small,some college,F,cold,E
+21,Jennifer,Young,average,fair,small,no college,F,cold,E
 22,Rick,García,average,fair,large,college,M,hot,C
 23,Corey,Lee,average,fair,large,some college,M,hot,E
 24,Albert,Campbell,average,fair,large,no college,M,hot,E
+25,Viola,Hernandez,excellent,excellent,small,college,F,cold,A
+26,Lisa,Ellis,excellent,excellent,small,some college,F,cold,C
+27,Francis,Logan,excellent,excellent,small,no college,F,cold,C
 28,Rickey,Larson,excellent,excellent,large,college,M,hot,A
 29,Bennie,Morales,excellent,excellent,large,some college,M,hot,C
 30,Earl,Cunningham,excellent,excellent,large,no college,M,hot,C
 31,Alberto,Ryan,excellent,fair,small,college,M,cold,B
 32,Jackie,Campbell,excellent,fair,small,some college,M,cold,D
 33,Marshall,Clarke,excellent,fair,small,no college,M,cold,D
+34,Gwen,Hart,excellent,fair,large,college,F,hot,B
+35,Kelley,Snyder,excellent,fair,large,some college,F,hot,D
+36,Kerry,Potter,excellent,fair,large,no college,F,hot,D
+37,Florence,Ruiz,average,excellent,small,college,F,cold,B
+38,Dorothy,Pierce,average,excellent,small,some college,F,cold,D
+39,Elsie,Goodwin,average,excellent,small,no college,F,cold,D
 40,Terrence,Taylor,average,excellent,large,college,M,hot,B
 41,Jessie,Beck,average,excellent,large,some college,M,hot,D
 42,Jason,Carter,average,excellent,large,no college,M,hot,D
 43,Jared,Cummings,average,fair,small,college,M,cold,C
 44,Jake,Patterson,average,fair,small,some college,M,cold,E
 45,Blake,Walsh,average,fair,small,no college,M,cold,E
+46,Josephine,Cunningham,average,fair,large,college,F,hot,C
+47,Dolores,Fowler,average,fair,large,some college,F,hot,E
+48,Johanna,Owen,average,fair,large,no college,F,hot,E
 49,Allan,Ramirez,excellent,excellent,small,college,M,cold,A
 50,Stewart,Vega,excellent,excellent,small,some college,M,cold,C
 51,Pablo,Casey,excellent,excellent,small,no college,M,cold,C
+52,Alexis,Scott,excellent,excellent,large,college,F,hot,A
+53,Annie,Baker,excellent,excellent,large,some college,F,hot,C
+54,Lucille,Mcdonald,excellent,excellent,large,no college,F,hot,C
+55,Cindy,Thomas,excellent,fair,small,college,F,cold,B
+56,Lena,Ryan,excellent,fair,small,some college,F,cold,D
+57,Danielle,Hodges,excellent,fair,small,no college,F,cold,D
 58,Randolph,Jensen,excellent,fair,large,college,M,hot,B
 59,Ramiro,Benson,excellent,fair,large,some college,M,hot,D
 60,Colin,Wallace,excellent,fair,large,no college,M,hot,D
 61,Donald,Bates,average,excellent,small,college,M,cold,B
 62,Kirk,Jefferson,average,excellent,small,some college,M,cold,D
 63,Ross,Powers,average,excellent,small,no college,M,cold,D
+64,Jenna,Bell,average,excellent,large,college,F,hot,B
+65,Marion,Flowers,average,excellent,large,some college,F,hot,D
+66,Anita,Quintero,average,excellent,large,no college,F,hot,D
+67,Katherine,Lim,average,fair,small,college,F,cold,C
+68,Sue,Fisher,average,fair,small,some college,F,cold,E
+69,Whitney,Obrien,average,fair,small,no college,F,cold,E
 70,Howard,Adams,average,fair,large,college,M,hot,C
 71,Bert,Thornton,average,fair,large,some college,M,hot,E
 72,Wallace,Robinson,average,fair,large,no college,M,hot,E
+73,Lynette,Mcgee,excellent,excellent,small,college,F,cold,A
+74,Margarita,Wright,excellent,excellent,small,some college,F,cold,C
+75,Rochelle,Jenkins,excellent,excellent,small,no college,F,cold,C
 76,Ken,Torres,excellent,excellent,large,college,M,hot,A
 77,Moses,Maldonado,excellent,excellent,large,some college,M,hot,C
 78,Rolando,Carlson,excellent,excellent,large,no college,M,hot,C
 79,Antonio,Webster,excellent,fair,small,college,M,cold,B
 80,Pedro,Steele,excellent,fair,small,some college,M,cold,D
 81,Greg,Stokes,excellent,fair,small,no college,M,cold,D
+82,Blanche,Walton,excellent,fair,large,college,F,hot,B
+83,Sally,Yang,excellent,fair,large,some college,F,hot,D
+84,Sylvia,Benson,excellent,fair,large,no college,F,hot,D
+85,Jill,Francis,average,excellent,small,college,F,cold,B
+86,Henrietta,Moon,average,excellent,small,some college,F,cold,D
+87,Sophia,Jensen,average,excellent,small,no college,F,cold,D
 88,Samuel,Garrett,average,excellent,large,college,M,hot,B
 89,Loren,Frank,average,excellent,large,some college,M,hot,D
 90,Clarence,Dawson,average,excellent,large,no college,M,hot,D
 91,Clint,Walters,average,fair,small,college,M,cold,C
 92,Orlando,Johnson,average,fair,small,some college,M,cold,E
 93,Winston,Bishop,average,fair,small,no college,M,cold,E
+94,Bernadette,Adkins,average,fair,large,college,F,hot,C
+95,Candace,Haynes,average,fair,large,some college,F,hot,E
+96,Jan,Bradley,average,fair,large,no college,F,hot,E
 97,Marcus,Reed,excellent,excellent,small,college,M,hot,A
 98,Gilbert,Sparks,excellent,excellent,small,some college,M,hot,C
 99,Craig,Perez,excellent,excellent,small,no college,M,hot,C
+100,Wendy,Olson,excellent,excellent,large,college,F,cold,A
+101,Amy,Webb,excellent,excellent,large,some college,F,cold,C
+102,Shari,Lawrence,excellent,excellent,large,no college,F,cold,C
+103,Myrtle,Powers,excellent,fair,small,college,F,hot,B
+104,Vera,Rodriquez,excellent,fair,small,some college,F,hot,D
+105,Jasmine,Caldwell,excellent,fair,small,no college,F,hot,D
 106,Douglas,Mckenzie,excellent,fair,large,college,M,cold,B
 107,Glen,Todd,excellent,fair,large,some college,M,cold,D
 108,Terence,Barnett,excellent,fair,large,no college,M,cold,D
 109,Shaun,Simmons,average,excellent,small,college,M,hot,B
 110,Franklin,Holland,average,excellent,small,some college,M,hot,D
 111,Lyle,Olson,average,excellent,small,no college,M,hot,D
+112,Guadalupe,Cummings,average,excellent,large,college,F,cold,B
+113,Hope,Sanchez,average,excellent,large,some college,F,cold,D
+114,Courtney,Reece,average,excellent,large,no college,F,cold,D
+115,Janis,Lambert,average,fair,small,college,F,hot,C
+116,Tara,Todd,average,fair,small,some college,F,hot,E
+117,Bobbie,Sharp,average,fair,small,no college,F,hot,E
 118,Norman,Delgado,average,fair,large,college,M,cold,C
 119,Randy,Williams,average,fair,large,some college,M,cold,E
 120,Malcolm,Reid,average,fair,large,no college,M,cold,E
