@@ -226,7 +226,7 @@
                                             "NextPrompt": {
                                               "Id": "The End",
                                               "Text": "Thank you",
-                                              "PromptType": "NO_INPUT",
+                                              "PromptType": "STRAIGHT_THROUGH",
                                               "ResponseType": "COMPLETE",
                                               "UIActionModeId": "NO_UIACTION"
                                             }
@@ -239,7 +239,7 @@
                                       "NextPrompt": {
                                         "Id": "p1r2p1r2p1",
                                         "Text": "Thank you",
-                                        "PromptType": "NO_INPUT",
+                                        "PromptType": "STRAIGHT_THROUGH",
                                         "ResponseType": "COMPLETE",
                                         "UIActionModeId": "RECORD_PERFORMANCE"
                                       }
@@ -249,7 +249,7 @@
                                       "NextPrompt": {
                                         "Id": "p1r2p1r3p1",
                                         "Text": "Uncontrolled, Thank you!",
-                                        "PromptType": "NO_INPUT",
+                                        "PromptType": "STRAIGHT_THROUGH",
                                         "ResponseType": "COMPLETE",
                                         "UIActionModeId": "RECORD_PERFORMANCE"
                                       }
@@ -259,8 +259,8 @@
                                       "NextPrompt": {
                                         "Id": "p1r2p1r4p1",
                                         "Text": "Controlled, Thank you!",
-                                        "PromptType": "NO_INPUT",
-                                        "ResponseTypeType": "COMPLETE",
+                                        "PromptType": "STRAIGHT_THROUGH",
+                                        "ResponseType": "COMPLETE",
                                         "UIActionModeId": "RECORD_PERFORMANCE"
                                       }
                                     }

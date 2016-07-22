@@ -223,6 +223,26 @@ func populateFactorConfigMap(cf *ContentConfig) {
 	}
 }
 
+// return PromptConfigRef
+func GetFirstPromptIdCurrentSequence(p *PromptConfig) *PromptConfigRef {
+
+	// TODO Need to dynamically check if sequence should be repeated for the rest of the factors
+	// of if should go to the next sequence or phase
+	phaseId := PHASE_COV
+	var promptId string
+	switch phaseId {
+	case PHASE_COV:
+		phaseId = PHASE_COV
+		promptId = appConfig.CovPhase.OrderedSequences[0].FirstPrompt.Id
+		break
+	case PHASE_CHART:
+		phaseId = PHASE_CHART
+		promptId = appConfig.ChartPhase.OrderedSequences[0].FirstPrompt.Id
+		break
+	}
+	return &PromptConfigRef{Id: promptId, PhaseId: phaseId}
+}
+
 func MakeFirstPrompt() Prompt {
 	// TODO Hardcoding the first prompt as CovPrompt
 	p := MakeCovPrompt(&appConfig.CovPhase.OrderedSequences[0].FirstPrompt)

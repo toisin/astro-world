@@ -21,7 +21,7 @@ type CovPrompt struct {
 func MakeCovPrompt(p *PromptConfig) *CovPrompt {
 	var n *CovPrompt
 	if p != nil {
-		erh := MakeExpectedResponseHandler(p.ExpectedResponses, PHASE_COV)
+		erh := MakeExpectedResponseHandler(p, PHASE_COV)
 
 		n = &CovPrompt{}
 		n.GenericPrompt = &GenericPrompt{}

@@ -21,7 +21,7 @@ type ChartPrompt struct {
 func MakeChartPrompt(p *PromptConfig) *ChartPrompt {
 	var n *ChartPrompt
 	if p != nil {
-		erh := MakeExpectedResponseHandler(p.ExpectedResponses, PHASE_CHART)
+		erh := MakeExpectedResponseHandler(p, PHASE_CHART)
 		n = &ChartPrompt{}
 		n.GenericPrompt = &GenericPrompt{}
 		n.GenericPrompt.currentPrompt = n

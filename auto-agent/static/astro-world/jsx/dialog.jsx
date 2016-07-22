@@ -49,13 +49,13 @@ var Dialog = React.createClass({
     var welcomeText = this.state.welcomeText;
 
     if ((!prompt) || (Object.keys(prompt).length == 0)) {
-        return  <div className="chat">
+        return  <div className="dialog">
                   <Title user={user} welcomeText={welcomeText}/>
                   <OldHistory user={user} oldHistory={state.oldHistory}/>
                   {messages}
                 </div>;
     } else {
-        return  <div className="chat">
+        return  <div className="dialog">
                   <Title user={user} welcomeText={welcomeText}/>
                   <OldHistory user={user} oldHistory={state.oldHistory}/>
                   {messages}
@@ -125,6 +125,16 @@ var Title = React.createClass({
 
 // Render each message
 var Message = React.createClass({
+  componentDidMount: function() {
+    var e = React.findDOMNode(this);
+    e.scrollIntoView();
+  },
+    
+  componentDidUpdate: function(prevProps, prevState) {
+    var e = React.findDOMNode(this);
+    e.scrollIntoView();
+  },
+
   render: function() {
     var message = this.props.message;
     var human = this.props.user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
@@ -167,7 +177,7 @@ var Input = React.createClass({
 
   handleEnter: function(event) {
     if (!event.shiftKey) {
-      if (event.which == 13) { 
+      if (event.which == 13) {  // "Enter" key was pressed.
         this.handleSubmit(event);
       }
     }
@@ -254,7 +264,7 @@ var Input = React.createClass({
                   <div className="form">
                     <form id="dialogForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
                     className="request">
-                      <textarea name="dialoginput" onKeyDown={this.handleEnter}></textarea>
+                      <textarea autoFocus name="dialoginput" onKeyDown={this.handleEnter}></textarea>
                       <br/>
                       <input type="hidden" id="promptId" value={promptId}/>
                       <input type="hidden" id="phaseId" value={phaseId}/>
@@ -309,7 +319,7 @@ var Input = React.createClass({
                   <div className="name">{human}</div>
                   <div className="form">
                     <form id="dialogForm" onSubmit={this.handleSubmit} className="request">
-                      <input type="text" name="dialoginput" disabled="true"/>
+                      <input type="text" name="dialoginput" disabled/>
                       <br/>
                       <input type="hidden" id="promptId" value={promptId}/>
                       <input type="hidden" id="phaseId" value={phaseId}/>

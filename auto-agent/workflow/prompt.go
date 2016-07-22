@@ -100,25 +100,30 @@ type Response interface {
 }
 
 type ExpectedResponseHandler struct {
-	expectedResponseMap map[string]PromptConfigRef
+	expectedResponseMap map[string]*PromptConfigRef
+	currentPromptConfig *PromptConfig
 }
 
-func MakeExpectedResponseHandler(ecs []ExpectedResponseConfig, phaseId string) *ExpectedResponseHandler {
+func MakeExpectedResponseHandler(p *PromptConfig, phaseId string) *ExpectedResponseHandler {
 	erh := new(ExpectedResponseHandler)
-	erh.expectedResponseMap = make(map[string]PromptConfigRef)
+	erh.expectedResponseMap = make(map[string]*PromptConfigRef)
+	erh.currentPromptConfig = p
+
+	ecs := p.ExpectedResponses
+
 	for _, v := range ecs {
 		if v.NextPromptRef != nil {
 			if v.NextPromptRef.PhaseId != "" {
 				phaseId = v.NextPromptRef.PhaseId
 			}
 			promptId := v.NextPromptRef.Id
-			erh.expectedResponseMap[strings.ToLower(v.Id)] = PromptConfigRef{Id: promptId, PhaseId: phaseId}
+			erh.expectedResponseMap[strings.ToLower(v.Id)] = &PromptConfigRef{Id: promptId, PhaseId: phaseId}
 		} else {
 			promptId := v.NextPrompt.Id
 			if v.NextPrompt.PhaseId != "" {
 				phaseId = v.NextPrompt.PhaseId
 			}
-			erh.expectedResponseMap[strings.ToLower(v.Id)] = PromptConfigRef{Id: promptId, PhaseId: phaseId}
+			erh.expectedResponseMap[strings.ToLower(v.Id)] = &PromptConfigRef{Id: promptId, PhaseId: phaseId}
 		}
 	}
 	return erh
@@ -127,13 +132,17 @@ func MakeExpectedResponseHandler(ecs []ExpectedResponseConfig, phaseId string) *
 // Return the next prompt that maps to the expected response
 // If there is only one expected response, return that one regardless of the response id
 func (erh *ExpectedResponseHandler) getNextPrompt(rid string) Prompt {
-	var p PromptConfigRef
-	if len(erh.expectedResponseMap) == 1 {
-		for _, v := range erh.expectedResponseMap {
-			p = v
-		}
+	var p *PromptConfigRef
+	if erh.currentPromptConfig.ResponseType == RESPONSE_END {
+		p = GetFirstPromptIdCurrentSequence(erh.currentPromptConfig)
 	} else {
-		p = erh.expectedResponseMap[strings.ToLower(rid)]
+		if len(erh.expectedResponseMap) == 1 {
+			for _, v := range erh.expectedResponseMap {
+				p = v
+			}
+		} else {
+			p = erh.expectedResponseMap[strings.ToLower(rid)]
+		}
 	}
 	return MakePrompt(p.Id, p.PhaseId)
 }
