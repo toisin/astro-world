@@ -24,7 +24,7 @@ type Prompt interface {
 	GetUIPrompt(*UIUserData) UIPrompt
 	GetUIAction() UIAction
 	ProcessResponse(string, *db.User, *UIUserData, appengine.Context)
-	initUIPromptDynamicText(*UIUserData, *Response)
+	initUIPromptDynamicText(*UIUserData, Response)
 }
 
 type GenericPrompt struct {
@@ -68,9 +68,9 @@ func (cp *GenericPrompt) GetUIPrompt(uiUserData *UIUserData) UIPrompt {
 			cp.currentUIPrompt.setText(cp.promptDynamicText.String())
 		}
 		cp.currentUIPrompt.setId(pc.Id)
-		options := make([]UIOption, len(pc.ExpectedResponses))
+		options := make([]*UIOption, len(pc.ExpectedResponses))
 		for i := range pc.ExpectedResponses {
-			options[i] = UIOption{pc.ExpectedResponses[i].Id, pc.ExpectedResponses[i].Text}
+			options[i] = &UIOption{pc.ExpectedResponses[i].Id, pc.ExpectedResponses[i].Text}
 		}
 		cp.currentUIPrompt.setOptions(options)
 	}
@@ -93,7 +93,7 @@ func (cp *GenericPrompt) processSimpleResponse(r string, u *db.User, uiUserData 
 		}
 		if cp.response != nil {
 			cp.nextPrompt = cp.expectedResponseHandler.getNextPrompt(cp.response.GetResponseId())
-			cp.nextPrompt.initUIPromptDynamicText(uiUserData, &cp.response)
+			cp.nextPrompt.initUIPromptDynamicText(uiUserData, cp.response)
 		}
 	}
 }
@@ -169,7 +169,7 @@ func (sr *SimpleResponse) GetResponseId() string {
 }
 
 type UIPromptDynamicText struct {
-	previousResponse *Response
+	previousResponse Response
 	promptConfig     *PromptConfig
 	state            StateEntities
 }
@@ -191,7 +191,7 @@ type UIPrompt interface {
 	setText(string)
 	setPromptType(string)
 	setId(string)
-	setOptions([]UIOption)
+	setOptions([]*UIOption)
 	Display() string
 	GetId() string
 }
@@ -200,7 +200,7 @@ type UIBasicPrompt struct {
 	PromptType string
 	Text       string
 	PromptId   string
-	Options    []UIOption
+	Options    []*UIOption
 }
 
 func NewUIBasicPrompt() *UIBasicPrompt {
@@ -219,7 +219,7 @@ func (ps *UIBasicPrompt) setId(s string) {
 	ps.PromptId = s
 }
 
-func (ps *UIBasicPrompt) setOptions(options []UIOption) {
+func (ps *UIBasicPrompt) setOptions(options []*UIOption) {
 	ps.Options = options
 }
 
@@ -254,7 +254,7 @@ func (ps *UIBasicAction) setUIActionModeId(s string) {
 
 type UIRecordAction struct {
 	UIActionModeId string
-	Factors        []UIFactor
+	Factors        []*UIFactor
 }
 
 func NewUIRecordAction() *UIRecordAction {
@@ -268,7 +268,7 @@ func (ps *UIRecordAction) setUIActionModeId(s string) {
 type UIFactor struct {
 	FactorId string
 	Text     string
-	Levels   []UIFactorOption
+	Levels   []*UIFactorOption
 }
 
 type UIFactorOption struct {

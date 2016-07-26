@@ -67,12 +67,12 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserD
 		}
 		if cp.response != nil {
 			cp.nextPrompt = cp.expectedResponseHandler.getNextPrompt(cp.response.GetResponseId())
-			cp.nextPrompt.initUIPromptDynamicText(uiUserData, &cp.response)
+			cp.nextPrompt.initUIPromptDynamicText(uiUserData, cp.response)
 		}
 	}
 }
 
-func (cp *ChartPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r *Response) {
+func (cp *ChartPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r Response) {
 	if cp.promptDynamicText == nil {
 		p := &UIPromptDynamicText{}
 		p.previousResponse = r

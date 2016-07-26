@@ -48,24 +48,24 @@ const (
 )
 
 type AppConfig struct {
-	CovPhase        PhaseConfig
-	ChartPhase      PhaseConfig
-	PredictionPhase PhaseConfig
-	Content         ContentConfig
+	CovPhase        *PhaseConfig
+	ChartPhase      *PhaseConfig
+	PredictionPhase *PhaseConfig
+	Content         *ContentConfig
 }
 
 type ContentConfig struct {
 	RecordFileName  string
 	RecordSize      int
-	Factors         []Factor
-	OutcomeVariable Factor
+	Factors         []*Factor
+	OutcomeVariable *Factor
 }
 
 type Factor struct {
 	Name     string
 	Id       string
 	ImgPath  string
-	Levels   []Level
+	Levels   []*Level
 	DBIndex  int
 	IsCausal bool
 }
@@ -77,27 +77,29 @@ type Level struct {
 }
 
 type PhaseConfig struct {
-	Id               string
-	PreviousPhaseId  string
-	NextPhaseId      string
-	ContentRef       ContentConfig
-	OrderedSequences []Sequence
+	Id              string
+	PreviousPhaseId string
+	NextPhaseId     string
+	// ContentRef: Type of content being referenced is not configurable
+	// each phase expects a specific type of content, e.g. CovPhase expects Factors
+	ContentRef       *ContentConfig
+	OrderedSequences []*Sequence
 }
 
 type Sequence struct {
-	Order       int
-	Repeatable  bool
-	FirstPrompt PromptConfig
+	RepeatOverContent bool // If true, repeat content over the list of contents sepecify in ContentRef
+	FirstPrompt       *PromptConfig
 }
 
 type PromptConfig struct {
-	Id                string
+	Id                string // Id must be unique within the phase
 	PhaseId           string
 	Text              string
 	UIActionModeId    string
 	PromptType        string
 	ResponseType      string
-	ExpectedResponses []ExpectedResponseConfig
+	ExpectedResponses []*ExpectedResponseConfig
+	sequenceOrder     int
 }
 
 type ExpectedResponseConfig struct {
@@ -174,7 +176,7 @@ func (c *ChartPhaseState) GetPhaseId() string {
 // var phaseConfigMap = make(map[string]PhaseConfig)
 var promptConfigMap = make(map[string]*PromptConfig) //key:PhaseConfig.Id+PromptConfig.Id
 var factorConfigMap = make(map[string]*Factor)       //key:PhaseConfig.Id+PromptConfig.Id
-var contentConfig ContentConfig
+var contentConfig *ContentConfig
 var appConfig AppConfig
 
 func InitWorkflow() {
@@ -195,31 +197,36 @@ func InitWorkflow() {
 		}
 		covPhaseConfig := appConfig.CovPhase
 		chartPhaseConfig := appConfig.ChartPhase
-		populatePromptConfigMap(&covPhaseConfig.OrderedSequences[0].FirstPrompt, covPhaseConfig.Id)
-		populatePromptConfigMap(&chartPhaseConfig.OrderedSequences[0].FirstPrompt, chartPhaseConfig.Id)
+		for i, v := range covPhaseConfig.OrderedSequences {
+			populatePromptConfigMap(v.FirstPrompt, covPhaseConfig.Id, i)
+		}
+		for i, v := range chartPhaseConfig.OrderedSequences {
+			populatePromptConfigMap(v.FirstPrompt, chartPhaseConfig.Id, i)
+		}
 
 		contentConfig = appConfig.Content
 	}
-	populateFactorConfigMap(&contentConfig)
+	populateFactorConfigMap(contentConfig)
 }
 
-func populatePromptConfigMap(pc *PromptConfig, phaseId string) {
+func populatePromptConfigMap(pc *PromptConfig, phaseId string, sequenceOrder int) {
 	if pc.PhaseId != "" {
 		phaseId = pc.PhaseId
 	} else {
 		pc.PhaseId = phaseId
 	}
+	pc.sequenceOrder = sequenceOrder
 	promptConfigMap[phaseId+pc.Id] = pc
 	for i := range pc.ExpectedResponses {
 		if pc.ExpectedResponses[i].NextPrompt != nil {
-			populatePromptConfigMap(pc.ExpectedResponses[i].NextPrompt, phaseId)
+			populatePromptConfigMap(pc.ExpectedResponses[i].NextPrompt, phaseId, sequenceOrder)
 		}
 	}
 }
 
 func populateFactorConfigMap(cf *ContentConfig) {
 	for i := range cf.Factors {
-		factorConfigMap[cf.Factors[i].Id] = &cf.Factors[i]
+		factorConfigMap[cf.Factors[i].Id] = cf.Factors[i]
 	}
 }
 
@@ -230,14 +237,15 @@ func GetFirstPromptInNextSequence(p *PromptConfig) *PromptConfigRef {
 	// of if should go to the next sequence or phase
 	phaseId := p.PhaseId
 	var promptId string
+	sequenceOrder := p.sequenceOrder
 	switch phaseId {
 	case PHASE_COV:
 		phaseId = PHASE_COV
-		promptId = appConfig.CovPhase.OrderedSequences[0].FirstPrompt.Id
+		promptId = appConfig.CovPhase.OrderedSequences[sequenceOrder].FirstPrompt.Id
 		break
 	case PHASE_CHART:
 		phaseId = PHASE_CHART
-		promptId = appConfig.ChartPhase.OrderedSequences[0].FirstPrompt.Id
+		promptId = appConfig.ChartPhase.OrderedSequences[sequenceOrder].FirstPrompt.Id
 		break
 	}
 	return &PromptConfigRef{Id: promptId, PhaseId: phaseId}
@@ -245,7 +253,7 @@ func GetFirstPromptInNextSequence(p *PromptConfig) *PromptConfigRef {
 
 func MakeFirstPrompt() Prompt {
 	// TODO Hardcoding the first prompt as CovPrompt
-	p := MakeCovPrompt(&appConfig.CovPhase.OrderedSequences[0].FirstPrompt)
+	p := MakeCovPrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt)
 	return p
 }
 
@@ -270,7 +278,7 @@ func GetPromptConfig(promptId string, phaseId string) *PromptConfig {
 }
 
 func GetContentConfig() *ContentConfig {
-	return &contentConfig
+	return contentConfig
 }
 
 func GetFactorConfig(factorId string) *Factor {

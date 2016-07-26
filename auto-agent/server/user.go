@@ -8,7 +8,7 @@ import (
 )
 
 type UserData struct {
-	uiUserData    workflow.UIUserData
+	uiUserData    *workflow.UIUserData
 	CurrentPrompt workflow.Prompt
 	user          *db.User
 }
@@ -26,6 +26,7 @@ func MakeUserData(u *db.User) *UserData {
 		promptId := u.CurrentPromptId
 		ud.CurrentPrompt = workflow.MakePrompt(promptId, phaseId)
 	}
+	ud.uiUserData = &workflow.UIUserData{}
 	ud.uiUserData.Username = u.Username
 	ud.uiUserData.Screenname = u.Screenname
 	ud.uiUserData.CurrentFactorId = u.CurrentFactorId
@@ -39,13 +40,13 @@ func MakeUserData(u *db.User) *UserData {
 		}
 		ud.uiUserData.State = s
 	}
-	ud.uiUserData.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt(&ud.uiUserData)
+	ud.uiUserData.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt(ud.uiUserData)
 
 	return ud
 }
 
 func (ud *UserData) GetUIUserData() *workflow.UIUserData {
-	return &ud.uiUserData
+	return ud.uiUserData
 }
 
 func (ud *UserData) UpdateWithNextPrompt() {
@@ -53,7 +54,7 @@ func (ud *UserData) UpdateWithNextPrompt() {
 
 	if ud.CurrentPrompt != nil {
 		// TODO cleanup -- Order might matter now but probably shouldn't
-		ud.uiUserData.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt(&ud.uiUserData)
+		ud.uiUserData.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt(ud.uiUserData)
 		ud.uiUserData.CurrentUIAction = ud.CurrentPrompt.GetUIAction()
 		ud.uiUserData.CurrentPhaseId = ud.CurrentPrompt.GetPhaseId()
 		ud.user.CurrentPhaseId = ud.CurrentPrompt.GetPhaseId()

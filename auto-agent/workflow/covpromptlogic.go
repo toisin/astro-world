@@ -83,12 +83,12 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 		}
 		if cp.response != nil {
 			cp.nextPrompt = cp.expectedResponseHandler.getNextPrompt(cp.response.GetResponseId())
-			cp.nextPrompt.initUIPromptDynamicText(uiUserData, &cp.response)
+			cp.nextPrompt.initUIPromptDynamicText(uiUserData, cp.response)
 		}
 	}
 }
 
-func (cp *CovPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r *Response) {
+func (cp *CovPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r Response) {
 	if cp.promptDynamicText == nil {
 		p := &UIPromptDynamicText{}
 		p.previousResponse = r
@@ -108,16 +108,16 @@ func (cp *CovPrompt) GetUIAction() UIAction {
 			p := NewUIRecordAction()
 			// TODO in progress
 			// p.SetPromptType(???)
-			p.Factors = make([]UIFactor, len(appConfig.CovPhase.ContentRef.Factors))
+			p.Factors = make([]*UIFactor, len(appConfig.CovPhase.ContentRef.Factors))
 			for i, v := range appConfig.CovPhase.ContentRef.Factors {
 				f := GetFactorConfig(v.Id)
-				p.Factors[i] = UIFactor{
+				p.Factors[i] = &UIFactor{
 					FactorId: f.Id,
 					Text:     f.Name,
 				}
-				p.Factors[i].Levels = make([]UIFactorOption, len(f.Levels))
+				p.Factors[i].Levels = make([]*UIFactorOption, len(f.Levels))
 				for j := range f.Levels {
-					p.Factors[i].Levels[j] = UIFactorOption{
+					p.Factors[i].Levels[j] = &UIFactorOption{
 						FactorLevelId: f.Levels[j].Id,
 						Text:          f.Levels[j].Name,
 						ImgPath:       f.Levels[j].ImgPath,
@@ -139,8 +139,8 @@ func (cp *CovPrompt) GetUIAction() UIAction {
 }
 
 type RecordsSelectResponse struct {
-	RecordNoOne         []SelectedFactor
-	RecordNoTwo         []SelectedFactor
+	RecordNoOne         []*SelectedFactor
+	RecordNoTwo         []*SelectedFactor
 	Id                  string
 	VaryingFactorIds    []string
 	VaryingFactorsCount int
@@ -280,7 +280,7 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 	uiUserData.State = cp.state
 }
 
-func (cp *CovPrompt) createRecordStateFromDB(r *db.Record, sf []SelectedFactor) *RecordState {
+func (cp *CovPrompt) createRecordStateFromDB(r *db.Record, sf []*SelectedFactor) *RecordState {
 	rs := &RecordState{}
 	if r != nil {
 		rs.RecordName = r.Firstname + " " + r.Lastname

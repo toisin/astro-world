@@ -10,7 +10,7 @@ type UIUserData struct {
 	Screenname      string
 	CurrentPhaseId  string
 	CurrentFactorId string
-	History         []db.Message
+	History         []*db.Message
 	CurrentUIPrompt UIPrompt
 	CurrentUIAction UIAction
 	State           StateEntities

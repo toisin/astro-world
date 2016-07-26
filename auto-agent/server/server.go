@@ -378,11 +378,11 @@ func GetUser(c appengine.Context, username string) (u db.User, k *datastore.Key,
 	return
 }
 
-func GetHistory(c appengine.Context, username string) (messages []db.Message, err error) {
+func GetHistory(c appengine.Context, username string) (messages []*db.Message, err error) {
 	q := datastore.NewQuery("Message").Ancestor(db.UserHistoryKey(c, username)).Order("MessageNo").Limit(100)
 	// [END query]
 	// [START getall]
-	messages = make([]db.Message, 0, 100)
+	messages = make([]*db.Message, 0, 100)
 	_, err = q.GetAll(c, &messages)
 	return
 }

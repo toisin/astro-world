@@ -147,7 +147,7 @@
     "OrderedSequences": [
       {
         "Order": 0,
-        "Repeatable": true,
+        "RepeatOverContent": true,
         "FirstPrompt": {
           "Id": "Intro1",
           "Text": "Before we get started, I want to know what your opinions are.",
@@ -341,10 +341,7 @@
     "OrderedSequences": [
       {
         "Order": 0,
-        "Frequency": {
-          "Repeat": true,
-          "ContentRef": "Factors"
-        },
+        "RepeatOverContent": true,
         "FirstPrompt": {
           "Id": "Which factor",
           "Text": "Which chart factor do you want to look at?",
