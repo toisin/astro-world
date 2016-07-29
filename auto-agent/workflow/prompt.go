@@ -36,35 +36,35 @@ type GenericPrompt struct {
 	expectedResponseHandler ExpectedResponseHandler
 	currentUIPrompt         UIPrompt
 	currentUIAction         UIAction
-	promptConfig            *PromptConfig
+	promptConfig            PromptConfig
 	nextPrompt              Prompt
 	currentPrompt           Prompt
 	promptDynamicText       *UIPromptDynamicText
 	state                   StateEntities
 }
 
-func (cp GenericPrompt) GetPhaseId() string {
+func (cp *GenericPrompt) GetPhaseId() string {
 	return cp.promptConfig.PhaseId
 }
 
-func (cp GenericPrompt) GetResponseId() string {
+func (cp *GenericPrompt) GetResponseId() string {
 	if cp.response != nil {
 		return cp.response.GetResponseId()
 	}
 	return ""
 }
 
-func (cp GenericPrompt) GetResponseText() string {
+func (cp *GenericPrompt) GetResponseText() string {
 	if cp.response != nil {
 		return cp.response.GetResponseText()
 	}
 	return ""
 }
 
-func (cp GenericPrompt) GetNextPrompt() Prompt {
+func (cp *GenericPrompt) GetNextPrompt() Prompt {
 	return cp.nextPrompt
 }
-func (cp GenericPrompt) GetPromptId() string {
+func (cp *GenericPrompt) GetPromptId() string {
 	return cp.promptConfig.Id
 }
 
@@ -74,9 +74,7 @@ func (cp *GenericPrompt) initUIPrompt(uiUserData *UIUserData) {
 		cp.currentUIPrompt = NewUIBasicPrompt()
 		cp.currentUIPrompt.setPromptType(pc.PromptType)
 		cp.currentPrompt.initUIPromptDynamicText(uiUserData, nil)
-		if cp.promptDynamicText != nil {
-			cp.currentUIPrompt.setText(cp.promptDynamicText.String())
-		}
+		cp.currentUIPrompt.setText(cp.promptDynamicText.String())
 		cp.currentUIPrompt.setId(pc.Id)
 		options := make([]*UIOption, len(pc.ExpectedResponses))
 		for i := range pc.ExpectedResponses {
@@ -88,11 +86,11 @@ func (cp *GenericPrompt) initUIPrompt(uiUserData *UIUserData) {
 	}
 }
 
-func (cp GenericPrompt) GetUIPrompt() UIPrompt {
+func (cp *GenericPrompt) GetUIPrompt() UIPrompt {
 	return cp.currentUIPrompt
 }
 
-func (cp *GenericPrompt) init(p *PromptConfig, uiUserData *UIUserData) {
+func (cp *GenericPrompt) init(p PromptConfig, uiUserData *UIUserData) {
 	cp.promptConfig = p
 	cp.expectedResponseHandler = cp.makeExpectedResponseHandler(p)
 	// invoking the initialization methods in the "subclass"
@@ -155,7 +153,7 @@ func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserDat
 
 }
 
-func (cp *GenericPrompt) makeExpectedResponseHandler(p *PromptConfig) ExpectedResponseHandler {
+func (cp *GenericPrompt) makeExpectedResponseHandler(p PromptConfig) ExpectedResponseHandler {
 	var erh ExpectedResponseHandler
 	if p.IsDynamicExpectedResponses {
 		erh = &DynamicExpectedResponseHandler{}
@@ -173,7 +171,7 @@ type Response interface {
 
 type StaticExpectedResponseHandler struct {
 	expectedResponseMap map[string]*PromptConfigRef
-	currentPromptConfig *PromptConfig
+	currentPromptConfig PromptConfig
 }
 
 type DynamicExpectedResponseHandler struct {
@@ -184,14 +182,16 @@ type DynamicExpectedResponseHandler struct {
 
 type ExpectedResponseHandler interface {
 	generateNextPrompt(Response, *UIUserData) Prompt
-	init(*PromptConfig)
+	init(PromptConfig)
 }
 
-func (derh *DynamicExpectedResponseHandler) init(p *PromptConfig) {
+// For now only call "super" init
+// May have more to add later
+func (derh *DynamicExpectedResponseHandler) init(p PromptConfig) {
 	derh.StaticExpectedResponseHandler.init(p)
 }
 
-func (erh *StaticExpectedResponseHandler) init(p *PromptConfig) {
+func (erh *StaticExpectedResponseHandler) init(p PromptConfig) {
 	erh.expectedResponseMap = make(map[string]*PromptConfigRef)
 	erh.currentPromptConfig = p
 
@@ -200,12 +200,15 @@ func (erh *StaticExpectedResponseHandler) init(p *PromptConfig) {
 	var promptId string
 
 	for _, v := range ecs {
-		if v.NextPromptRef != nil {
+		if v.NextPromptRef.Id != "" {
 			promptId = v.NextPromptRef.Id
 			if v.NextPromptRef.PhaseId != "" {
 				phaseId = v.NextPromptRef.PhaseId
 			}
-		} else {
+		}
+		// NextPromptRef and NextPrompt should not co-exist
+		// If both were present, NextPrompt takes over
+		if v.NextPrompt.Id != "" {
 			promptId = v.NextPrompt.Id
 			if v.NextPrompt.PhaseId != "" {
 				phaseId = v.NextPrompt.PhaseId
@@ -238,20 +241,20 @@ type SimpleResponse struct {
 	Id   string
 }
 
-func (sr SimpleResponse) GetResponseText() string {
+func (sr *SimpleResponse) GetResponseText() string {
 	if sr.Text != RESPONSE_SYSTEM_GENERATED {
 		return sr.Text
 	}
 	return ""
 }
 
-func (sr SimpleResponse) GetResponseId() string {
+func (sr *SimpleResponse) GetResponseId() string {
 	return sr.Id
 }
 
 type UIPromptDynamicText struct {
 	previousResponse Response
-	promptConfig     *PromptConfig
+	promptConfig     PromptConfig
 	state            StateEntities
 }
 

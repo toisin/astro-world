@@ -18,15 +18,12 @@ type CovPrompt struct {
 	*GenericPrompt
 }
 
-func MakeCovPrompt(p *PromptConfig, uiUserData *UIUserData) *CovPrompt {
+func MakeCovPrompt(p PromptConfig, uiUserData *UIUserData) *CovPrompt {
 	var n *CovPrompt
-	if p != nil {
-
-		n = &CovPrompt{}
-		n.GenericPrompt = &GenericPrompt{}
-		n.GenericPrompt.currentPrompt = n
-		n.init(p, uiUserData)
-	}
+	n = &CovPrompt{}
+	n.GenericPrompt = &GenericPrompt{}
+	n.GenericPrompt.currentPrompt = n
+	n.init(p, uiUserData)
 	return n
 }
 
@@ -63,8 +60,8 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 					log.Fatal(err)
 					return
 				}
-				recordsResponse.CheckRecords(uiUserData, c)
-				cp.updateStateRecords(uiUserData, &recordsResponse)
+				recordsResponse.checkRecords(uiUserData.CurrentFactorId, c)
+				cp.updateStateRecords(uiUserData, recordsResponse)
 				cp.response = &recordsResponse
 			}
 			break
@@ -171,14 +168,13 @@ type RecordsSelectResponse struct {
 	Id                  string
 	VaryingFactorIds    []string
 	VaryingFactorsCount int
-	dbRecordNoOne       *db.Record
-	dbRecordNoTwo       *db.Record
+	dbRecordNoOne       db.Record
+	dbRecordNoTwo       db.Record
 }
 
-func (rsr *RecordsSelectResponse) CheckRecords(uiUserData *UIUserData, c appengine.Context) {
+func (rsr *RecordsSelectResponse) checkRecords(currentFactorId string, c appengine.Context) {
 	rsr.VaryingFactorIds = make([]string, len(appConfig.CovPhase.ContentRef.Factors))
 	rsr.VaryingFactorsCount = 0
-	var CurrentFactorId = uiUserData.CurrentFactorId
 	var isTargetVarying = false
 
 	// Retrieve DB records
@@ -196,7 +192,7 @@ func (rsr *RecordsSelectResponse) CheckRecords(uiUserData *UIUserData, c appengi
 			return
 		}
 
-		rsr.dbRecordNoOne = &record
+		rsr.dbRecordNoOne = record
 	}
 
 	if rsr.RecordNoTwo != nil {
@@ -212,7 +208,7 @@ func (rsr *RecordsSelectResponse) CheckRecords(uiUserData *UIUserData, c appengi
 			log.Fatal(err)
 			return
 		}
-		rsr.dbRecordNoTwo = &record
+		rsr.dbRecordNoTwo = record
 	}
 
 	// Determine the type of record response
@@ -222,7 +218,7 @@ func (rsr *RecordsSelectResponse) CheckRecords(uiUserData *UIUserData, c appengi
 			for j := range rsr.RecordNoTwo {
 				if rsr.RecordNoOne[i].FactorId == rsr.RecordNoTwo[j].FactorId {
 					if rsr.RecordNoOne[i].SelectedLevelId != rsr.RecordNoTwo[j].SelectedLevelId {
-						if rsr.RecordNoOne[i].FactorId == CurrentFactorId {
+						if rsr.RecordNoOne[i].FactorId == currentFactorId {
 							isTargetVarying = true
 						}
 						rsr.VaryingFactorIds[rsr.VaryingFactorsCount] = rsr.RecordNoOne[i].FactorId
@@ -237,7 +233,7 @@ func (rsr *RecordsSelectResponse) CheckRecords(uiUserData *UIUserData, c appengi
 		} else if !isTargetVarying {
 			rsr.Id = COV_RESPONSE_ID_TARGET_NON_VARYING
 		} else if rsr.VaryingFactorsCount == 1 {
-			if rsr.VaryingFactorIds[0] == CurrentFactorId {
+			if rsr.VaryingFactorIds[0] == currentFactorId {
 				rsr.Id = COV_RESPONSE_ID_CONTROLLED
 			} else {
 				rsr.Id = COV_RESPONSE_ID_UNCONTROLLED
@@ -250,28 +246,30 @@ func (rsr *RecordsSelectResponse) CheckRecords(uiUserData *UIUserData, c appengi
 	}
 }
 
-func (rsr RecordsSelectResponse) GetResponseText() string {
+func (rsr *RecordsSelectResponse) GetResponseText() string {
 	return ""
 }
 
-func (rsr RecordsSelectResponse) GetResponseId() string {
+func (rsr *RecordsSelectResponse) GetResponseId() string {
 	return rsr.Id
 }
 
 func (cp *CovPrompt) updateStateCurrentFactor(uiUserData *UIUserData, fid string) {
 	cp.updateState(uiUserData)
-	cp.state.setTargetFactor(
-		&FactorState{
-			FactorName: factorConfigMap[fid].Name,
-			FactorId:   fid,
-			IsCausal:   factorConfigMap[fid].IsCausal})
+	if fid != "" {
+		cp.state.setTargetFactor(
+			FactorState{
+				FactorName: factorConfigMap[fid].Name,
+				FactorId:   fid,
+				IsCausal:   factorConfigMap[fid].IsCausal})
+	}
 	uiUserData.State = cp.state
 }
 
 // This method should only update records select
 // Unless if no existing state, than create new one, otherwise, only
 // update records select
-func (cp *CovPrompt) updateStateRecords(uiUserData *UIUserData, r *RecordsSelectResponse) {
+func (cp *CovPrompt) updateStateRecords(uiUserData *UIUserData, r RecordsSelectResponse) {
 	cp.updateState(uiUserData)
 	if cp.state != nil {
 		s := cp.state.(*CovPhaseState)
@@ -297,18 +295,20 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 		cp.state.setUsername(uiUserData.Username)
 		cp.state.setScreenname(uiUserData.Screenname)
 		fid := uiUserData.CurrentFactorId
-		cp.state.setTargetFactor(
-			&FactorState{
-				FactorName: factorConfigMap[fid].Name,
-				FactorId:   fid,
-				IsCausal:   factorConfigMap[fid].IsCausal})
+		if fid != "" {
+			cp.state.setTargetFactor(
+				FactorState{
+					FactorName: factorConfigMap[fid].Name,
+					FactorId:   fid,
+					IsCausal:   factorConfigMap[fid].IsCausal})
+		}
 	}
 	uiUserData.State = cp.state
 }
 
-func (cp *CovPrompt) createRecordStateFromDB(r *db.Record, sf []*SelectedFactor) *RecordState {
+func (cp *CovPrompt) createRecordStateFromDB(r db.Record, sf []*SelectedFactor) *RecordState {
 	rs := &RecordState{}
-	if r != nil {
+	if r.RecordNo != "" {
 		rs.RecordName = r.Firstname + " " + r.Lastname
 		rs.RecordNo = r.RecordNo
 		rs.FactorLevels = make(map[string]*FactorState)

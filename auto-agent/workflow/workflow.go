@@ -50,17 +50,17 @@ const (
 )
 
 type AppConfig struct {
-	CovPhase        *PhaseConfig
-	ChartPhase      *PhaseConfig
-	PredictionPhase *PhaseConfig
-	Content         *ContentConfig
+	CovPhase        PhaseConfig
+	ChartPhase      PhaseConfig
+	PredictionPhase PhaseConfig
+	Content         ContentConfig
 }
 
 type ContentConfig struct {
 	RecordFileName  string
 	RecordSize      int
-	Factors         []Factor
-	OutcomeVariable *Factor
+	Factors         []*Factor
+	OutcomeVariable Factor
 }
 
 type Factor struct {
@@ -84,13 +84,13 @@ type PhaseConfig struct {
 	NextPhaseId     string
 	// ContentRef: Type of content being referenced is not configurable
 	// each phase expects a specific type of content, e.g. CovPhase expects Factors
-	ContentRef       *ContentConfig
+	ContentRef       ContentConfig
 	OrderedSequences []*Sequence
 }
 
 type Sequence struct {
 	RepeatOverContent bool // If true, repeat content over the list of contents sepecify in ContentRef
-	FirstPrompt       *PromptConfig
+	FirstPrompt       PromptConfig
 }
 
 type PromptConfig struct {
@@ -100,7 +100,7 @@ type PromptConfig struct {
 	UIActionModeId             string
 	PromptType                 string
 	ResponseType               string
-	ExpectedResponses          []*ExpectedResponseConfig
+	ExpectedResponses          []ExpectedResponseConfig
 	IsDynamicExpectedResponses bool
 	sequenceOrder              int
 }
@@ -108,8 +108,8 @@ type PromptConfig struct {
 type ExpectedResponseConfig struct {
 	Id            string
 	Text          string
-	NextPrompt    *PromptConfig
-	NextPromptRef *PromptConfigRef
+	NextPrompt    PromptConfig
+	NextPromptRef PromptConfigRef
 }
 
 type PromptConfigRef struct {
@@ -121,7 +121,7 @@ type GenericState struct {
 	PhaseId            string
 	Username           string
 	Screenname         string
-	TargetFactor       *FactorState
+	TargetFactor       FactorState
 	RemainingFactorIds []string
 }
 
@@ -138,7 +138,7 @@ func (c *GenericState) setScreenname(s string) {
 }
 
 // Not applicable to all phases
-func (c *GenericState) setTargetFactor(t *FactorState) {
+func (c *GenericState) setTargetFactor(t FactorState) {
 	c.TargetFactor = t
 	c.updateSelectedFactor(t.FactorId)
 }
@@ -171,7 +171,7 @@ func (c *CovPhaseState) GetPhaseId() string {
 	return appConfig.CovPhase.Id
 }
 
-func (c *CovPhaseState) initContents(factors []Factor) {
+func (c *CovPhaseState) initContents(factors []*Factor) {
 	c.RemainingFactorIds = make([]string, len(factors))
 	for i, v := range factors {
 		c.RemainingFactorIds[i] = v.Id
@@ -225,18 +225,18 @@ func (cp *ChartPhaseState) isContentCompleted() bool {
 
 // var phaseConfigMap = make(map[string]PhaseConfig)
 var promptConfigMap = make(map[string]*PromptConfig) //key:PhaseConfig.Id+PromptConfig.Id
-var factorConfigMap = make(map[string]Factor)        //key:PhaseConfig.Id+PromptConfig.Id
-var contentConfig *ContentConfig
+var factorConfigMap = make(map[string]*Factor)       //key:PhaseConfig.Id+PromptConfig.Id
+var contentConfig ContentConfig
 var appConfig AppConfig
 
 func GetPhase(phaseId string) *PhaseConfig {
 	var currentPhase *PhaseConfig
 	switch phaseId {
 	case PHASE_COV:
-		currentPhase = appConfig.CovPhase
+		currentPhase = &appConfig.CovPhase
 		break
 	case PHASE_CHART:
-		currentPhase = appConfig.ChartPhase
+		currentPhase = &appConfig.ChartPhase
 		break
 	}
 	return currentPhase
@@ -261,15 +261,15 @@ func InitWorkflow() {
 		covPhaseConfig := appConfig.CovPhase
 		chartPhaseConfig := appConfig.ChartPhase
 		for i, v := range covPhaseConfig.OrderedSequences {
-			populatePromptConfigMap(v.FirstPrompt, covPhaseConfig.Id, i)
+			populatePromptConfigMap(&v.FirstPrompt, covPhaseConfig.Id, i)
 		}
 		for i, v := range chartPhaseConfig.OrderedSequences {
-			populatePromptConfigMap(v.FirstPrompt, chartPhaseConfig.Id, i)
+			populatePromptConfigMap(&v.FirstPrompt, chartPhaseConfig.Id, i)
 		}
 
 		contentConfig = appConfig.Content
 	}
-	populateFactorConfigMap(contentConfig)
+	populateFactorConfigMap(&contentConfig)
 }
 
 func populatePromptConfigMap(pc *PromptConfig, phaseId string, sequenceOrder int) {
@@ -281,9 +281,7 @@ func populatePromptConfigMap(pc *PromptConfig, phaseId string, sequenceOrder int
 	pc.sequenceOrder = sequenceOrder
 	promptConfigMap[phaseId+pc.Id] = pc
 	for i := range pc.ExpectedResponses {
-		if pc.ExpectedResponses[i].NextPrompt != nil {
-			populatePromptConfigMap(pc.ExpectedResponses[i].NextPrompt, phaseId, sequenceOrder)
-		}
+		populatePromptConfigMap(&pc.ExpectedResponses[i].NextPrompt, phaseId, sequenceOrder)
 	}
 }
 
@@ -293,8 +291,8 @@ func populateFactorConfigMap(cf *ContentConfig) {
 	}
 }
 
-func GetFirstPhase() PhaseConfig {
-	return *appConfig.CovPhase
+func GetFirstPhase() *PhaseConfig {
+	return &appConfig.CovPhase
 }
 
 func MakeFirstPrompt(uiUserData *UIUserData) Prompt {
@@ -305,10 +303,10 @@ func MakeFirstPrompt(uiUserData *UIUserData) Prompt {
 
 func MakePrompt(promptId string, phaseId string, uiUserData *UIUserData) Prompt {
 	pc := GetPromptConfig(promptId, phaseId)
-	return MakePromptFromConfig(pc, uiUserData)
+	return MakePromptFromConfig(*pc, uiUserData)
 }
 
-func MakePromptFromConfig(pc *PromptConfig, uiUserData *UIUserData) Prompt {
+func MakePromptFromConfig(pc PromptConfig, uiUserData *UIUserData) Prompt {
 	phaseId := pc.PhaseId
 	switch phaseId {
 	case PHASE_COV:
@@ -324,10 +322,10 @@ func GetPromptConfig(promptId string, phaseId string) *PromptConfig {
 }
 
 func GetContentConfig() *ContentConfig {
-	return contentConfig
+	return &contentConfig
 }
 
-func GetFactorConfig(factorId string) Factor {
+func GetFactorConfig(factorId string) *Factor {
 	return factorConfigMap[factorId]
 }
 

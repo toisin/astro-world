@@ -20,7 +20,7 @@ type StateEntities interface {
 	setPhaseId(string)
 	setUsername(string)
 	setScreenname(string)
-	setTargetFactor(*FactorState)
+	setTargetFactor(FactorState)
 	GetPhaseId() string
 	isContentCompleted() bool
 }

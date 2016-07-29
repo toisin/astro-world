@@ -46,7 +46,7 @@ func init() {
 
 type TextHandler string
 
-func (t TextHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *TextHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, t)
 }
 
@@ -150,15 +150,15 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		ud := MakeUserData(&u)
-		ud.GetUIUserData().History, err = GetHistory(c, username)
+		ud := MakeUserData(u)
+		ud.uiUserData.History, err = GetHistory(c, username)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting list of messages:"+err.Error()+"!\n\n")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		s, err := stringify(*(ud.GetUIUserData()))
+		s, err := stringify(ud.uiUserData)
 		if err != nil {
 			fmt.Println("Error converting messages to json", err)
 		}
@@ -276,8 +276,8 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Process submitted answers
-		ud := MakeUserData(&u)
-		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"), &u, ud.GetUIUserData(), c)
+		ud := MakeUserData(u)
+		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"), &ud.user, &ud.uiUserData, c)
 
 		responseId := ud.CurrentPrompt.GetResponseId()
 		responseText := ud.CurrentPrompt.GetResponseText()
@@ -331,20 +331,21 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Move to the next prompt
 		ud.UpdateWithNextPrompt()
 
-		err = PutUser(c, u, k)
+		// Store updated user in DB
+		err = PutUser(c, ud.user, k)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Put User:"+err.Error()+"!\n\n")
 			return
 		}
 
 		// Update history
-		ud.GetUIUserData().History, err = GetHistory(c, username)
+		ud.uiUserData.History, err = GetHistory(c, username)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting list of messages:"+err.Error()+"!\n\n")
 			return
 		}
 
-		s, err := stringify(*(ud.GetUIUserData()))
+		s, err := stringify(ud.uiUserData)
 		if err != nil {
 			fmt.Println("Error converting messages to json", err)
 			return

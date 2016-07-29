@@ -8,16 +8,18 @@ import (
 )
 
 type UserData struct {
-	uiUserData    *workflow.UIUserData
+	uiUserData    workflow.UIUserData
 	CurrentPrompt workflow.Prompt
-	user          *db.User
+	user          db.User
 }
 
-func MakeUserData(u *db.User) *UserData {
+func MakeUserData(u db.User) *UserData {
 	// Process submitted answer
 	ud := &UserData{}
 	ud.user = u
-	ud.uiUserData = &workflow.UIUserData{}
+	ud.uiUserData = workflow.UIUserData{}
+
+	// update new UserData with everything that is available on db.User
 	ud.uiUserData.Username = u.Username
 	ud.uiUserData.Screenname = u.Screenname
 	ud.uiUserData.CurrentFactorId = u.CurrentFactorId
@@ -32,24 +34,25 @@ func MakeUserData(u *db.User) *UserData {
 		ud.uiUserData.State = s
 	}
 
+	// Construct Prompt appropriately
 	if (u.CurrentPromptId == "") || (u.CurrentPhaseId == "") {
-		ud.CurrentPrompt = workflow.MakeFirstPrompt(ud.uiUserData)
-		u.CurrentPromptId = ud.CurrentPrompt.GetPromptId()
+		// No existing prompt, make the first one
+		ud.CurrentPrompt = workflow.MakeFirstPrompt(&ud.uiUserData)
+		ud.user.CurrentPromptId = ud.CurrentPrompt.GetPromptId()
 	} else {
+		// Returning user with existing prompt, reconstruct it
 		phaseId := u.CurrentPhaseId
 		promptId := u.CurrentPromptId
-		ud.CurrentPrompt = workflow.MakePrompt(promptId, phaseId, ud.uiUserData)
+		ud.CurrentPrompt = workflow.MakePrompt(promptId, phaseId, &ud.uiUserData)
 	}
+
+	// update UserData with latest prompt & Ui related members
 	ud.uiUserData.CurrentUIAction = ud.CurrentPrompt.GetUIAction()
 	ud.uiUserData.CurrentPhaseId = ud.CurrentPrompt.GetPhaseId()
 
 	ud.uiUserData.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt()
 
 	return ud
-}
-
-func (ud *UserData) GetUIUserData() *workflow.UIUserData {
-	return ud.uiUserData
 }
 
 func (ud *UserData) UpdateWithNextPrompt() {

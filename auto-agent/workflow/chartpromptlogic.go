@@ -18,14 +18,12 @@ type ChartPrompt struct {
 	*GenericPrompt
 }
 
-func MakeChartPrompt(p *PromptConfig, uiUserData *UIUserData) *ChartPrompt {
+func MakeChartPrompt(p PromptConfig, uiUserData *UIUserData) *ChartPrompt {
 	var n *ChartPrompt
-	if p != nil {
-		n = &ChartPrompt{}
-		n.GenericPrompt = &GenericPrompt{}
-		n.GenericPrompt.currentPrompt = n
-		n.init(p, uiUserData)
-	}
+	n = &ChartPrompt{}
+	n.GenericPrompt = &GenericPrompt{}
+	n.GenericPrompt.currentPrompt = n
+	n.init(p, uiUserData)
 	return n
 }
 
@@ -75,9 +73,7 @@ func (cp *ChartPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
 	cp.currentUIPrompt = NewUIBasicPrompt()
 	cp.currentUIPrompt.setPromptType(pc.PromptType)
 	cp.currentPrompt.initUIPromptDynamicText(uiUserData, nil)
-	if cp.promptDynamicText != nil {
-		cp.currentUIPrompt.setText(cp.promptDynamicText.String())
-	}
+	cp.currentUIPrompt.setText(cp.promptDynamicText.String())
 	cp.currentUIPrompt.setId(pc.Id)
 
 	options := []*UIOption{}
@@ -93,14 +89,12 @@ func (cp *ChartPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
 }
 
 func (cp *ChartPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r Response) {
-	if cp.promptDynamicText == nil {
-		p := &UIPromptDynamicText{}
-		p.previousResponse = r
-		p.promptConfig = cp.promptConfig
-		cp.updateState(uiUserData)
-		p.state = cp.state
-		cp.promptDynamicText = p
-	}
+	p := &UIPromptDynamicText{}
+	p.previousResponse = r
+	p.promptConfig = cp.promptConfig
+	cp.updateState(uiUserData)
+	p.state = cp.state
+	cp.promptDynamicText = p
 }
 
 // Returned UIAction may be nil if not action UI is needed
@@ -125,11 +119,13 @@ func (cp *ChartPrompt) initUIAction() {
 
 func (cp *ChartPrompt) updateStateCurrentFactor(uiUserData *UIUserData, fid string) {
 	cp.updateState(uiUserData)
-	cp.state.setTargetFactor(
-		&FactorState{
-			FactorName: factorConfigMap[fid].Name,
-			FactorId:   fid,
-			IsCausal:   factorConfigMap[fid].IsCausal})
+	if fid != "" {
+		cp.state.setTargetFactor(
+			FactorState{
+				FactorName: factorConfigMap[fid].Name,
+				FactorId:   fid,
+				IsCausal:   factorConfigMap[fid].IsCausal})
+	}
 	uiUserData.State = cp.state
 }
 
@@ -146,11 +142,14 @@ func (cp *ChartPrompt) updateState(uiUserData *UIUserData) {
 		cp.state.setUsername(uiUserData.Username)
 		cp.state.setScreenname(uiUserData.Screenname)
 		fid := uiUserData.CurrentFactorId
-		cp.state.setTargetFactor(
-			&FactorState{
-				FactorName: factorConfigMap[fid].Name,
-				FactorId:   fid,
-				IsCausal:   factorConfigMap[fid].IsCausal})
+		if fid != "" {
+			cp.state.setTargetFactor(
+				FactorState{
+					FactorName: factorConfigMap[fid].Name,
+					FactorId:   fid,
+					IsCausal:   factorConfigMap[fid].IsCausal})
+
+		}
 	}
 	uiUserData.State = cp.state
 }
