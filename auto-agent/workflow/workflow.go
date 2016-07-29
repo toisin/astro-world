@@ -165,7 +165,6 @@ type CovPhaseState struct {
 	GenericState
 	RecordNoOne *RecordState
 	RecordNoTwo *RecordState
-	// TODO - sequence loop
 }
 
 func (c *CovPhaseState) GetPhaseId() string {
@@ -294,71 +293,28 @@ func populateFactorConfigMap(cf *ContentConfig) {
 	}
 }
 
-// return PromptConfigRef
-// func GetFirstPromptInNextSequence(p *PromptConfig) Prompt {
-
-// 	// TODO Need to dynamically check if sequence should be repeated for the rest of the factors
-// 	// of if should go to the next sequence or phase
-// 	phaseId := p.PhaseId
-// 	var currentPhase *PhaseConfig
-// 	switch phaseId {
-// 	case PHASE_COV:
-// 		currentPhase = appConfig.CovPhase
-// 		break
-// 	case PHASE_CHART:
-// 		currentPhase = appConfig.ChartPhase
-// 		break
-// 	}
-
-// 	var nextPromptId string
-// 	var currentS *Sequence
-// 	var nextS *Sequence
-// 	sequenceOrder := p.sequenceOrder
-// 	currentS = currentPhase.OrderedSequences[sequenceOrder]
-
-// 	if currentS.RepeatOverContent {
-// 		// Check if all content has been through the current sequence
-// 		// if not, go to the next content, otherwise, repeat sequence for the remaining content
-
-// 	}
-// 	if nextS == nil {
-// 		// Go to the next sequence within the same phase
-// 		// If no next sequence, then go to the first sequence of the next phase
-// 		sequenceOrder++
-// 		if len(currentPhase.OrderedSequences) > sequenceOrder {
-// 			nextS = currentPhase.OrderedSequences[sequenceOrder]
-// 		} else {
-// 			phaseId = currentPhase.NextPhaseId
-// 		}
-// 	}
-// 	nextPromptId = nextS.FirstPrompt.Id
-
-// 	return MakePrompt(nextPromptId, phaseId)
-
-// }
-
 func GetFirstPhase() PhaseConfig {
 	return *appConfig.CovPhase
 }
 
-func MakeFirstPrompt() Prompt {
-	// TODO Hardcoding the first prompt as CovPrompt
-	p := MakeCovPrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt)
+func MakeFirstPrompt(uiUserData *UIUserData) Prompt {
+	// Hardcoding the first prompt is the first prompt of CovPrompt
+	p := MakeCovPrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt, uiUserData)
 	return p
 }
 
-func MakePrompt(promptId string, phaseId string) Prompt {
+func MakePrompt(promptId string, phaseId string, uiUserData *UIUserData) Prompt {
 	pc := GetPromptConfig(promptId, phaseId)
-	return MakePromptFromConfig(pc)
+	return MakePromptFromConfig(pc, uiUserData)
 }
 
-func MakePromptFromConfig(pc *PromptConfig) Prompt {
+func MakePromptFromConfig(pc *PromptConfig, uiUserData *UIUserData) Prompt {
 	phaseId := pc.PhaseId
 	switch phaseId {
 	case PHASE_COV:
-		return MakeCovPrompt(pc)
+		return MakeCovPrompt(pc, uiUserData)
 	case PHASE_CHART:
-		return MakeChartPrompt(pc)
+		return MakeChartPrompt(pc, uiUserData)
 	}
 	return nil
 }

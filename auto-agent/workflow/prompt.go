@@ -21,11 +21,13 @@ type Prompt interface {
 	GetResponseText() string
 	GetNextPrompt() Prompt
 	GetPromptId() string
-	GetUIPrompt(*UIUserData) UIPrompt
+	GetUIPrompt() UIPrompt
 	GetUIAction() UIAction
 	ProcessResponse(string, *db.User, *UIUserData, appengine.Context)
 	initUIPromptDynamicText(*UIUserData, Response)
 	initDynamicResponseUIPrompt(*UIUserData)
+	initUIPrompt(uiUserData *UIUserData)
+	initUIAction()
 	updateState(*UIUserData)
 }
 
@@ -41,57 +43,62 @@ type GenericPrompt struct {
 	state                   StateEntities
 }
 
-func (cp *GenericPrompt) GetPhaseId() string {
+func (cp GenericPrompt) GetPhaseId() string {
 	return cp.promptConfig.PhaseId
 }
 
-func (cp *GenericPrompt) GetResponseId() string {
+func (cp GenericPrompt) GetResponseId() string {
 	if cp.response != nil {
 		return cp.response.GetResponseId()
 	}
 	return ""
 }
 
-func (cp *GenericPrompt) GetResponseText() string {
+func (cp GenericPrompt) GetResponseText() string {
 	if cp.response != nil {
 		return cp.response.GetResponseText()
 	}
 	return ""
 }
 
-func (cp *GenericPrompt) GetNextPrompt() Prompt {
+func (cp GenericPrompt) GetNextPrompt() Prompt {
 	return cp.nextPrompt
 }
-func (cp *GenericPrompt) GetPromptId() string {
+func (cp GenericPrompt) GetPromptId() string {
 	return cp.promptConfig.Id
 }
 
-func (cp *GenericPrompt) GetUIPrompt(uiUserData *UIUserData) UIPrompt {
-	if cp.currentUIPrompt == nil {
-		pc := cp.promptConfig
-		if !pc.IsDynamicExpectedResponses {
-			cp.currentUIPrompt = NewUIBasicPrompt()
-			cp.currentUIPrompt.setPromptType(pc.PromptType)
-			cp.currentPrompt.initUIPromptDynamicText(uiUserData, nil)
-			if cp.promptDynamicText != nil {
-				cp.currentUIPrompt.setText(cp.promptDynamicText.String())
-			}
-			cp.currentUIPrompt.setId(pc.Id)
-			options := make([]*UIOption, len(pc.ExpectedResponses))
-			for i := range pc.ExpectedResponses {
-				options[i] = &UIOption{pc.ExpectedResponses[i].Id, pc.ExpectedResponses[i].Text}
-			}
-			cp.currentUIPrompt.setOptions(options)
-		} else {
-			cp.currentPrompt.initDynamicResponseUIPrompt(uiUserData)
+func (cp *GenericPrompt) initUIPrompt(uiUserData *UIUserData) {
+	pc := cp.promptConfig
+	if !pc.IsDynamicExpectedResponses {
+		cp.currentUIPrompt = NewUIBasicPrompt()
+		cp.currentUIPrompt.setPromptType(pc.PromptType)
+		cp.currentPrompt.initUIPromptDynamicText(uiUserData, nil)
+		if cp.promptDynamicText != nil {
+			cp.currentUIPrompt.setText(cp.promptDynamicText.String())
 		}
+		cp.currentUIPrompt.setId(pc.Id)
+		options := make([]*UIOption, len(pc.ExpectedResponses))
+		for i := range pc.ExpectedResponses {
+			options[i] = &UIOption{pc.ExpectedResponses[i].Id, pc.ExpectedResponses[i].Text}
+		}
+		cp.currentUIPrompt.setOptions(options)
+	} else {
+		cp.currentPrompt.initDynamicResponseUIPrompt(uiUserData)
 	}
+}
+
+func (cp GenericPrompt) GetUIPrompt() UIPrompt {
 	return cp.currentUIPrompt
 }
 
-func (cp *GenericPrompt) init(p *PromptConfig) {
+func (cp *GenericPrompt) init(p *PromptConfig, uiUserData *UIUserData) {
 	cp.promptConfig = p
 	cp.expectedResponseHandler = cp.makeExpectedResponseHandler(p)
+	// invoking the initialization methods in the "subclass"
+	// in case if they have been overriden
+	cp.currentPrompt.initUIPrompt(uiUserData)
+	cp.currentPrompt.initUIAction()
 }
 
 func (cp *GenericPrompt) processSimpleResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
@@ -109,16 +116,12 @@ func (cp *GenericPrompt) processSimpleResponse(r string, u *db.User, uiUserData 
 			cp.response = &response
 		}
 		if cp.response != nil {
-			cp.nextPrompt = cp.expectedResponseHandler.getNextPrompt(cp.response.GetResponseId())
-			cp.nextPrompt.initUIPromptDynamicText(uiUserData, cp.response)
+			cp.nextPrompt = cp.expectedResponseHandler.generateNextPrompt(cp.response, uiUserData)
 		}
 	}
 }
 
-func (cp *GenericPrompt) getFirstPromptInNextSequence() Prompt {
-
-	// TODO Need to dynamically check if sequence should be repeated for the rest of the factors
-	// of if should go to the next sequence or phase
+func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserData) Prompt {
 	phaseId := cp.promptConfig.PhaseId
 	currentPhase := GetPhase(phaseId)
 
@@ -148,7 +151,7 @@ func (cp *GenericPrompt) getFirstPromptInNextSequence() Prompt {
 	}
 	nextPromptId = nextS.FirstPrompt.Id
 
-	return MakePrompt(nextPromptId, phaseId)
+	return MakePrompt(nextPromptId, phaseId, uiUserData)
 
 }
 
@@ -180,8 +183,8 @@ type DynamicExpectedResponseHandler struct {
 }
 
 type ExpectedResponseHandler interface {
-	getNextPrompt(rid string) Prompt
-	init(p *PromptConfig)
+	generateNextPrompt(Response, *UIUserData) Prompt
+	init(*PromptConfig)
 }
 
 func (derh *DynamicExpectedResponseHandler) init(p *PromptConfig) {
@@ -214,7 +217,8 @@ func (erh *StaticExpectedResponseHandler) init(p *PromptConfig) {
 
 // Return the next prompt that maps to the expected response
 // If there is only one expected response, return that one regardless of the response id
-func (erh *StaticExpectedResponseHandler) getNextPrompt(rid string) Prompt {
+func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserData *UIUserData) Prompt {
+	rid := r.GetResponseId()
 	var p *PromptConfigRef
 	if len(erh.expectedResponseMap) == 1 {
 		for _, v := range erh.expectedResponseMap {
@@ -223,7 +227,10 @@ func (erh *StaticExpectedResponseHandler) getNextPrompt(rid string) Prompt {
 	} else {
 		p = erh.expectedResponseMap[strings.ToLower(rid)]
 	}
-	return MakePrompt(p.Id, p.PhaseId)
+	nextPrompt := MakePrompt(p.Id, p.PhaseId, uiUserData)
+	nextPrompt.initUIPromptDynamicText(uiUserData, r)
+
+	return nextPrompt
 }
 
 type SimpleResponse struct {

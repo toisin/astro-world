@@ -18,24 +18,13 @@ type ChartPrompt struct {
 	*GenericPrompt
 }
 
-func MakeChartPrompt(p *PromptConfig) *ChartPrompt {
-	// TODO - cleanup
-	// var n *ChartPrompt
-	// if p != nil {
-	// 	erh := MakeExpectedResponseHandler(p)
-	// 	n = &ChartPrompt{}
-	// 	n.GenericPrompt = &GenericPrompt{}
-	// 	n.GenericPrompt.currentPrompt = n
-	// 	n.promptConfig = p
-	// 	n.expectedResponseHandler = erh
-	// }
-	// return n
+func MakeChartPrompt(p *PromptConfig, uiUserData *UIUserData) *ChartPrompt {
 	var n *ChartPrompt
 	if p != nil {
 		n = &ChartPrompt{}
 		n.GenericPrompt = &GenericPrompt{}
 		n.GenericPrompt.currentPrompt = n
-		n.init(p)
+		n.init(p, uiUserData)
 	}
 	return n
 }
@@ -75,8 +64,7 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserD
 			}
 		}
 		if cp.response != nil {
-			cp.nextPrompt = cp.expectedResponseHandler.getNextPrompt(cp.response.GetResponseId())
-			cp.nextPrompt.initUIPromptDynamicText(uiUserData, cp.response)
+			cp.nextPrompt = cp.expectedResponseHandler.generateNextPrompt(cp.response, uiUserData)
 		}
 	}
 }
@@ -117,6 +105,10 @@ func (cp *ChartPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r Respons
 
 // Returned UIAction may be nil if not action UI is needed
 func (cp *ChartPrompt) GetUIAction() UIAction {
+	return cp.currentUIAction
+}
+
+func (cp *ChartPrompt) initUIAction() {
 	if cp.currentUIAction == nil {
 		pc := cp.promptConfig
 		switch pc.UIActionModeId {
@@ -129,7 +121,6 @@ func (cp *ChartPrompt) GetUIAction() UIAction {
 			cp.currentUIAction.setUIActionModeId(pc.UIActionModeId)
 		}
 	}
-	return cp.currentUIAction
 }
 
 func (cp *ChartPrompt) updateStateCurrentFactor(uiUserData *UIUserData, fid string) {

@@ -18,33 +18,21 @@ type CovPrompt struct {
 	*GenericPrompt
 }
 
-func MakeCovPrompt(p *PromptConfig) *CovPrompt {
-	// TODO - cleanup
-	// var n *CovPrompt
-	// if p != nil {
-	// 	erh := MakeExpectedResponseHandler(p)
-
-	// 	n = &CovPrompt{}
-	// 	n.GenericPrompt = &GenericPrompt{}
-	// 	n.GenericPrompt.currentPrompt = n
-	// 	n.promptConfig = p
-	// 	n.expectedResponseHandler = erh
-	// }
-	// return n
+func MakeCovPrompt(p *PromptConfig, uiUserData *UIUserData) *CovPrompt {
 	var n *CovPrompt
 	if p != nil {
 
 		n = &CovPrompt{}
 		n.GenericPrompt = &GenericPrompt{}
 		n.GenericPrompt.currentPrompt = n
-		n.init(p)
+		n.init(p, uiUserData)
 	}
 	return n
 }
 
 func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
 	if cp.promptConfig.ResponseType == RESPONSE_END {
-		cp.nextPrompt = cp.getFirstPromptInNextSequence()
+		cp.nextPrompt = cp.generateFirstPromptInNextSequence(uiUserData)
 	} else if r != "" {
 		dec := json.NewDecoder(strings.NewReader(r))
 		pc := cp.promptConfig
@@ -94,11 +82,8 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 			}
 		}
 		if cp.response != nil {
-			cp.nextPrompt = cp.expectedResponseHandler.getNextPrompt(cp.response.GetResponseId())
+			cp.nextPrompt = cp.expectedResponseHandler.generateNextPrompt(cp.response, uiUserData)
 		}
-	}
-	if cp.nextPrompt != nil {
-		cp.nextPrompt.initUIPromptDynamicText(uiUserData, cp.response)
 	}
 }
 
@@ -140,6 +125,10 @@ func (cp *CovPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r Response)
 
 // Returned UIAction may be nil if not action UI is needed
 func (cp *CovPrompt) GetUIAction() UIAction {
+	return cp.currentUIAction
+}
+
+func (cp *CovPrompt) initUIAction() {
 	if cp.currentUIAction == nil {
 		pc := cp.promptConfig
 		switch pc.UIActionModeId {
@@ -174,7 +163,6 @@ func (cp *CovPrompt) GetUIAction() UIAction {
 			cp.currentUIAction.setUIActionModeId(pc.UIActionModeId)
 		}
 	}
-	return cp.currentUIAction
 }
 
 type RecordsSelectResponse struct {
