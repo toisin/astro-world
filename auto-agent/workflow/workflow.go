@@ -35,6 +35,8 @@ const (
 	RESPONSE_SELECT_TARGET_FACTOR = "SELECT_TARGET_FACTOR"
 	RESPONSE_SYSTEM_GENERATED     = "SYSTEM_GENERATED" // For when a submit is triggered by the system
 
+	EXPECTED_SPECIAL_CONTENT_REF = "CONTENT_REF"
+
 	UIACTION_INACTIVE = "NO_UIACTION"
 	// ***TODO MUST FIX!!! server cannot be shut down when json is mulformed
 	// PhaseConfig->PromptConfig->ExpectedReponseConfig
@@ -57,7 +59,7 @@ type AppConfig struct {
 type ContentConfig struct {
 	RecordFileName  string
 	RecordSize      int
-	Factors         []*Factor
+	Factors         []Factor
 	OutcomeVariable *Factor
 }
 
@@ -92,14 +94,15 @@ type Sequence struct {
 }
 
 type PromptConfig struct {
-	Id                string // Id must be unique within the phase
-	PhaseId           string
-	Text              string
-	UIActionModeId    string
-	PromptType        string
-	ResponseType      string
-	ExpectedResponses []*ExpectedResponseConfig
-	sequenceOrder     int
+	Id                         string // Id must be unique within the phase
+	PhaseId                    string
+	Text                       string
+	UIActionModeId             string
+	PromptType                 string
+	ResponseType               string
+	ExpectedResponses          []*ExpectedResponseConfig
+	IsDynamicExpectedResponses bool
+	sequenceOrder              int
 }
 
 type ExpectedResponseConfig struct {
@@ -115,9 +118,15 @@ type PromptConfigRef struct {
 }
 
 type GenericState struct {
-	Username     string
-	Screenname   string
-	TargetFactor *FactorState
+	PhaseId            string
+	Username           string
+	Screenname         string
+	TargetFactor       *FactorState
+	RemainingFactorIds []string
+}
+
+func (c *GenericState) setPhaseId(s string) {
+	c.PhaseId = s
 }
 
 func (c *GenericState) setUsername(s string) {
@@ -128,8 +137,27 @@ func (c *GenericState) setScreenname(s string) {
 	c.Screenname = s
 }
 
+// Not applicable to all phases
 func (c *GenericState) setTargetFactor(t *FactorState) {
 	c.TargetFactor = t
+	c.updateSelectedFactor(t.FactorId)
+}
+
+// Not applicable to all phases
+func (c *GenericState) updateSelectedFactor(factorId string) {
+	if c.RemainingFactorIds != nil {
+		for i, v := range c.RemainingFactorIds {
+			if v == factorId {
+				c.RemainingFactorIds = append(c.RemainingFactorIds[:i], c.RemainingFactorIds[i+1:]...)
+				break
+			}
+		}
+	}
+}
+
+// Not applicable to all phases
+func (c *GenericState) getRemainingFactorIds() []string {
+	return c.RemainingFactorIds
 }
 
 // Implements workflow.StateEntities
@@ -137,10 +165,26 @@ type CovPhaseState struct {
 	GenericState
 	RecordNoOne *RecordState
 	RecordNoTwo *RecordState
+	// TODO - sequence loop
 }
 
 func (c *CovPhaseState) GetPhaseId() string {
 	return appConfig.CovPhase.Id
+}
+
+func (c *CovPhaseState) initContents(factors []Factor) {
+	c.RemainingFactorIds = make([]string, len(factors))
+	for i, v := range factors {
+		c.RemainingFactorIds[i] = v.Id
+
+	}
+}
+
+func (cp *CovPhaseState) isContentCompleted() bool {
+	if len(cp.RemainingFactorIds) > 0 {
+		return false
+	}
+	return true
 }
 
 type RecordState struct {
@@ -173,11 +217,31 @@ func (c *ChartPhaseState) GetPhaseId() string {
 	return appConfig.ChartPhase.Id
 }
 
+func (cp *ChartPhaseState) isContentCompleted() bool {
+	if len(cp.RemainingFactorIds) > 0 {
+		return false
+	}
+	return true
+}
+
 // var phaseConfigMap = make(map[string]PhaseConfig)
 var promptConfigMap = make(map[string]*PromptConfig) //key:PhaseConfig.Id+PromptConfig.Id
-var factorConfigMap = make(map[string]*Factor)       //key:PhaseConfig.Id+PromptConfig.Id
+var factorConfigMap = make(map[string]Factor)        //key:PhaseConfig.Id+PromptConfig.Id
 var contentConfig *ContentConfig
 var appConfig AppConfig
+
+func GetPhase(phaseId string) *PhaseConfig {
+	var currentPhase *PhaseConfig
+	switch phaseId {
+	case PHASE_COV:
+		currentPhase = appConfig.CovPhase
+		break
+	case PHASE_CHART:
+		currentPhase = appConfig.ChartPhase
+		break
+	}
+	return currentPhase
+}
 
 func InitWorkflow() {
 	f, err := os.Open(promptTreeJsonFile)
@@ -231,24 +295,50 @@ func populateFactorConfigMap(cf *ContentConfig) {
 }
 
 // return PromptConfigRef
-func GetFirstPromptInNextSequence(p *PromptConfig) *PromptConfigRef {
+// func GetFirstPromptInNextSequence(p *PromptConfig) Prompt {
 
-	// TODO Need to dynamically check if sequence should be repeated for the rest of the factors
-	// of if should go to the next sequence or phase
-	phaseId := p.PhaseId
-	var promptId string
-	sequenceOrder := p.sequenceOrder
-	switch phaseId {
-	case PHASE_COV:
-		phaseId = PHASE_COV
-		promptId = appConfig.CovPhase.OrderedSequences[sequenceOrder].FirstPrompt.Id
-		break
-	case PHASE_CHART:
-		phaseId = PHASE_CHART
-		promptId = appConfig.ChartPhase.OrderedSequences[sequenceOrder].FirstPrompt.Id
-		break
-	}
-	return &PromptConfigRef{Id: promptId, PhaseId: phaseId}
+// 	// TODO Need to dynamically check if sequence should be repeated for the rest of the factors
+// 	// of if should go to the next sequence or phase
+// 	phaseId := p.PhaseId
+// 	var currentPhase *PhaseConfig
+// 	switch phaseId {
+// 	case PHASE_COV:
+// 		currentPhase = appConfig.CovPhase
+// 		break
+// 	case PHASE_CHART:
+// 		currentPhase = appConfig.ChartPhase
+// 		break
+// 	}
+
+// 	var nextPromptId string
+// 	var currentS *Sequence
+// 	var nextS *Sequence
+// 	sequenceOrder := p.sequenceOrder
+// 	currentS = currentPhase.OrderedSequences[sequenceOrder]
+
+// 	if currentS.RepeatOverContent {
+// 		// Check if all content has been through the current sequence
+// 		// if not, go to the next content, otherwise, repeat sequence for the remaining content
+
+// 	}
+// 	if nextS == nil {
+// 		// Go to the next sequence within the same phase
+// 		// If no next sequence, then go to the first sequence of the next phase
+// 		sequenceOrder++
+// 		if len(currentPhase.OrderedSequences) > sequenceOrder {
+// 			nextS = currentPhase.OrderedSequences[sequenceOrder]
+// 		} else {
+// 			phaseId = currentPhase.NextPhaseId
+// 		}
+// 	}
+// 	nextPromptId = nextS.FirstPrompt.Id
+
+// 	return MakePrompt(nextPromptId, phaseId)
+
+// }
+
+func GetFirstPhase() PhaseConfig {
+	return *appConfig.CovPhase
 }
 
 func MakeFirstPrompt() Prompt {
@@ -281,7 +371,7 @@ func GetContentConfig() *ContentConfig {
 	return contentConfig
 }
 
-func GetFactorConfig(factorId string) *Factor {
+func GetFactorConfig(factorId string) Factor {
 	return factorConfigMap[factorId]
 }
 
@@ -316,6 +406,10 @@ func UnstringifyState(b []byte, phaseId string) (se StateEntities, err error) {
 		switch phaseId {
 		case appConfig.CovPhase.Id:
 			var cps CovPhaseState
+			err = unstringify(b, &cps)
+			se = &cps
+		case appConfig.ChartPhase.Id:
+			var cps ChartPhaseState
 			err = unstringify(b, &cps)
 			se = &cps
 		}

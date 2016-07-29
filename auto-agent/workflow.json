@@ -146,7 +146,6 @@
     },
     "OrderedSequences": [
       {
-        "Order": 0,
         "RepeatOverContent": true,
         "FirstPrompt": {
           "Id": "Intro1",
@@ -172,10 +171,10 @@
                       "PromptType": "NO_INPUT",
                       "ResponseType": "SELECT_TARGET_FACTOR",
                       "UIActionModeId": "NEW_TARGET_FACTOR",
+                      "IsDynamicExpectedResponses": true,
                       "ExpectedResponses": [
                         {
-                          "Id": "fitness",
-                          "Text": "Fitness",
+                          "Id": "CONTENT_REF",
                           "NextPrompt": {
                             "Id": "p1",
                             "Text": "How many records would you like to see? One or Two?",
@@ -282,27 +281,6 @@
                               }
                             ]
                           }
-                        },
-                        {
-                          "Id": "parentshealth",
-                          "Text": "Parents' Health",
-                          "NextPromptRef": {
-                            "Id": "p1"
-                          }
-                        },
-                        {
-                          "Id": "familysize",
-                          "Text": "Family Size",
-                          "NextPromptRef": {
-                            "Id": "p1"
-                          }
-                        },
-                        {
-                          "Id": "education",
-                          "Text": "Education",
-                          "NextPromptRef": {
-                            "Id": "p1"
-                          }
                         }
                       ]
                     }
@@ -340,8 +318,7 @@
     },
     "OrderedSequences": [
       {
-        "Order": 0,
-        "RepeatOverContent": true,
+        "RepeatOverContent": false,
         "FirstPrompt": {
           "Id": "Which factor",
           "Text": "Which chart factor do you want to look at?",

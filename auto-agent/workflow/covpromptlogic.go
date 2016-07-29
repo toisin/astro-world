@@ -19,21 +19,33 @@ type CovPrompt struct {
 }
 
 func MakeCovPrompt(p *PromptConfig) *CovPrompt {
+	// TODO - cleanup
+	// var n *CovPrompt
+	// if p != nil {
+	// 	erh := MakeExpectedResponseHandler(p)
+
+	// 	n = &CovPrompt{}
+	// 	n.GenericPrompt = &GenericPrompt{}
+	// 	n.GenericPrompt.currentPrompt = n
+	// 	n.promptConfig = p
+	// 	n.expectedResponseHandler = erh
+	// }
+	// return n
 	var n *CovPrompt
 	if p != nil {
-		erh := MakeExpectedResponseHandler(p)
 
 		n = &CovPrompt{}
 		n.GenericPrompt = &GenericPrompt{}
 		n.GenericPrompt.currentPrompt = n
-		n.promptConfig = p
-		n.expectedResponseHandler = erh
+		n.init(p)
 	}
 	return n
 }
 
 func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
-	if r != "" {
+	if cp.promptConfig.ResponseType == RESPONSE_END {
+		cp.nextPrompt = cp.getFirstPromptInNextSequence()
+	} else if r != "" {
 		dec := json.NewDecoder(strings.NewReader(r))
 		pc := cp.promptConfig
 		switch pc.ResponseType {
@@ -83,9 +95,36 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 		}
 		if cp.response != nil {
 			cp.nextPrompt = cp.expectedResponseHandler.getNextPrompt(cp.response.GetResponseId())
-			cp.nextPrompt.initUIPromptDynamicText(uiUserData, cp.response)
 		}
 	}
+	if cp.nextPrompt != nil {
+		cp.nextPrompt.initUIPromptDynamicText(uiUserData, cp.response)
+	}
+}
+
+func (cp *CovPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
+	pc := cp.promptConfig
+	cp.currentUIPrompt = NewUIBasicPrompt()
+	cp.currentUIPrompt.setPromptType(pc.PromptType)
+	cp.currentPrompt.initUIPromptDynamicText(uiUserData, nil)
+	if cp.promptDynamicText != nil {
+		cp.currentUIPrompt.setText(cp.promptDynamicText.String())
+	}
+	cp.currentUIPrompt.setId(pc.Id)
+
+	options := []*UIOption{}
+	for i := range pc.ExpectedResponses {
+		switch pc.ExpectedResponses[i].Id {
+		case EXPECTED_SPECIAL_CONTENT_REF:
+			c := uiUserData.State.(*CovPhaseState)
+			for _, v := range c.RemainingFactorIds {
+				options = append(options, &UIOption{v, GetFactorConfig(v).Name})
+			}
+		default:
+			options = append(options, &UIOption{pc.ExpectedResponses[i].Id, pc.ExpectedResponses[i].Text})
+		}
+	}
+	cp.currentUIPrompt.setOptions(options)
 }
 
 func (cp *CovPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r Response) {
@@ -223,23 +262,21 @@ func (rsr *RecordsSelectResponse) CheckRecords(uiUserData *UIUserData, c appengi
 	}
 }
 
-func (rsr *RecordsSelectResponse) GetResponseText() string {
+func (rsr RecordsSelectResponse) GetResponseText() string {
 	return ""
 }
 
-func (rsr *RecordsSelectResponse) GetResponseId() string {
+func (rsr RecordsSelectResponse) GetResponseId() string {
 	return rsr.Id
 }
 
 func (cp *CovPrompt) updateStateCurrentFactor(uiUserData *UIUserData, fid string) {
 	cp.updateState(uiUserData)
-	if factorConfigMap[fid] != nil {
-		cp.state.setTargetFactor(
-			&FactorState{
-				FactorName: factorConfigMap[fid].Name,
-				FactorId:   fid,
-				IsCausal:   factorConfigMap[fid].IsCausal})
-	}
+	cp.state.setTargetFactor(
+		&FactorState{
+			FactorName: factorConfigMap[fid].Name,
+			FactorId:   fid,
+			IsCausal:   factorConfigMap[fid].IsCausal})
 	uiUserData.State = cp.state
 }
 
@@ -265,17 +302,18 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 		}
 	}
 	if cp.state == nil {
-		cp.state = &CovPhaseState{}
+		cps := &CovPhaseState{}
+		cps.initContents(appConfig.CovPhase.ContentRef.Factors)
+		cp.state = cps
+		cp.state.setPhaseId(appConfig.CovPhase.Id)
 		cp.state.setUsername(uiUserData.Username)
 		cp.state.setScreenname(uiUserData.Screenname)
 		fid := uiUserData.CurrentFactorId
-		if factorConfigMap[fid] != nil {
-			cp.state.setTargetFactor(
-				&FactorState{
-					FactorName: factorConfigMap[fid].Name,
-					FactorId:   fid,
-					IsCausal:   factorConfigMap[fid].IsCausal})
-		}
+		cp.state.setTargetFactor(
+			&FactorState{
+				FactorName: factorConfigMap[fid].Name,
+				FactorId:   fid,
+				IsCausal:   factorConfigMap[fid].IsCausal})
 	}
 	uiUserData.State = cp.state
 }

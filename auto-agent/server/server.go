@@ -411,7 +411,7 @@ func ImportRecordsDB(c appengine.Context) {
 	}
 
 	if rc < 1 {
-		f, err := os.Open("cases.csv")
+		f, err := os.Open(workflow.GetContentConfig().RecordFileName)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s", err)
 			log.Fatal(err)
@@ -434,7 +434,7 @@ func ImportRecordsDB(c appengine.Context) {
 		factorColIndex := make(map[string]int)
 		var outcomeColIndex int
 		for i := range headers {
-			if workflow.GetFactorConfig(headers[i]) != nil {
+			if workflow.GetFactorConfig(headers[i]).Id != "" {
 				factorColIndex[headers[i]] = i
 			} else if headers[i] == workflow.GetContentConfig().OutcomeVariable.Id {
 				outcomeColIndex = i
