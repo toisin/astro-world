@@ -15,17 +15,18 @@ var CovAction = React.createClass({
     var user = this.props.user;
     var app = this.props.app;
     var action = user.getAction();
+    var onComplete = this.props.onComplete;
 
     if (action) {
       switch (action.UIActionModeId) {
         case "NEW_TARGET_FACTOR":
-          return  <SelectTargetFactor user={user} onComplete={app.changeState} app={app}/>;
+          return  <SelectTargetFactor user={user} onComplete={onComplete} app={app}/>;
         case "RECORD_SELECT_ONE":
-          return <RecordSelection user={user} onComplete={app.changeState} app={app} singleRecord={true}/>;
+          return <RecordSelection user={user} onComplete={onComplete} app={app} singleRecord={true}/>;
         case "RECORD_SELECT_TWO":
-          return <RecordSelection user={user} onComplete={app.changeState} app={app} singleRecord={false}/>;
+          return <RecordSelection user={user} onComplete={onComplete} app={app} singleRecord={false}/>;
         case "RECORD_PERFORMANCE":
-          return <RecordPerformance user={user} onComplete={app.changeState} app={app}/>;
+          return <RecordPerformance user={user} onComplete={onComplete} app={app}/>;
         default:
           return <div></div>;
       }

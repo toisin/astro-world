@@ -96,7 +96,7 @@ type Sequence struct {
 type PromptConfig struct {
 	Id                         string // Id must be unique within the phase
 	PhaseId                    string
-	Text                       string
+	Text                       []string
 	UIActionModeId             string
 	PromptType                 string
 	ResponseType               string

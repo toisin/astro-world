@@ -253,6 +253,14 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		promptId := r.FormValue("promptId")
 		phaseId := r.FormValue("phaseId")
 		questionText := r.FormValue("questionText")
+		var texts []string
+		dec := json.NewDecoder(strings.NewReader(questionText))
+		err := dec.Decode(&texts)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s", err)
+			log.Fatal(err)
+			return
+		}
 
 		// Query to see if user exists
 		u, k, err := GetUser(c, username)
@@ -298,14 +306,14 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		m := []db.Message{
 			db.Message{
-				Text:      questionText,
+				Texts:     texts,
 				Mtype:     db.ROBOT,
 				Date:      time.Now(),
 				MessageNo: rc1,
 			},
 			db.Message{
 				Id:        responseId,
-				Text:      responseText,
+				Texts:     []string{responseText},
 				Mtype:     db.HUMAN,
 				Date:      time.Now(),
 				MessageNo: rc2,

@@ -20,18 +20,11 @@ var Dialog = React.createClass({
   },
 
   changeState: function() {
-    this.setState({mode: 0});
     var user = this.props.user;
-    action = user.getAction()
-    if (action) {
-      // In cases when the dialog is ongoing and no UI action is needed
-      // No need to re-render the action frame. This allows the last 
-      // action UI to be present
-      if (action.UIActionModeId != UIACTION_INACTIVE) {
-        var app = this.props.app;
-        app.changeState()
-      }
-    }
+    action = user.getAction();
+    var app = this.props.app;
+    this.setState({mode: 0});
+
   },
 
   render: function() {
@@ -41,9 +34,9 @@ var Dialog = React.createClass({
     var newHistory = user.getHistory() ? user.getHistory().slice(state.oldHistory.length) : {};
     var messages = newHistory.map(
         function(message, i) {
-          return  <div className="chat" key={i}>
-                    <Message message={message} user={user}/>
-                  </div>;
+          return <div key={i}>
+                  <Message texts={message.Texts} mtype={message.Mtype} app={app}/>
+                </div>
         })
     var prompt = user.getPrompt();
     var welcomeText = this.state.welcomeText;
@@ -59,7 +52,7 @@ var Dialog = React.createClass({
                   <Title user={user} welcomeText={welcomeText}/>
                   <OldHistory user={user} oldHistory={state.oldHistory}/>
                   {messages}
-                  <Input user={user} prompt={prompt} onComplete={this.changeState}/>
+                  <Input user={user} prompt={prompt} onComplete={this.changeState} app={app}/>
                 </div>;
     }
 
@@ -84,8 +77,8 @@ var OldHistory = React.createClass({
     var oldHistory = this.props.oldHistory ? this.props.oldHistory : {};
     var messages = oldHistory.map(
         function(message, i) {
-          return  <div className="chat" key={i}>
-                    <Message message={message} user={user}/>
+          return  <div key={i}>
+                    <Message texts={message.Texts} mtype={message.Mtype} user={user} delay={false}/>
                   </div>;
         })
     if (messages.length > 0) {
@@ -124,7 +117,7 @@ var Title = React.createClass({
 
 
 // Render each message
-var Message = React.createClass({
+var MessageText = React.createClass({
   componentDidMount: function() {
     var e = React.findDOMNode(this);
     e.scrollIntoView();
@@ -160,11 +153,74 @@ var Message = React.createClass({
   }
 });
 
+// Render each message
+var Message = React.createClass({
+  getInitialState: function() {
+    return {count: 0};
+  },
+
+  componentDidMount: function() {
+    var e = React.findDOMNode(this);
+    e.scrollIntoView();
+  },
+    
+  componentDidUpdate: function(prevProps, prevState) {
+    var e = React.findDOMNode(this);
+    e.scrollIntoView();
+  },
+
+  triggerDelay: function() {
+    var d = DELAY_PROMPT_TIME_SHORT;
+    if (this.props.texts[this.state.count].length > 100) {
+      d = DELAY_PROMPT_TIME_LONG;
+    }
+    this.state.count++;
+    this.state.interval = window.setInterval(this.unTriggerDelay, d);
+  },
+
+  unTriggerDelay: function() {
+    window.clearInterval(this.state.interval);
+    this.setState({})
+    if (this.state.count == this.props.texts.length) {
+      // TODO - This implicitly only allow action UI to be shown
+      // when <Message> has delay = true
+      this.props.app.showAction(true);
+    }
+  },
+
+  render: function() {
+    var texts = this.props.texts;
+    var delay = this.props.delay;
+    var mtype = this.props.mtype;
+    var lastCount = 0;
+    if (delay) {
+      if (this.state.count < texts.length) {
+        this.triggerDelay();
+      }
+      lastCount = this.state.count;
+    } else {
+      lastCount = texts.length;
+    }
+
+    messages = texts.slice(0, lastCount).map(
+        function(text, i) {
+          var message = {};
+          message.Mtype = mtype;
+          message.Text = text;
+          return  <div className="chat" key={i}>
+                    <MessageText message={message} user={user}/>
+                  </div>;
+        })
+
+    return  <div>{messages}</div>;
+  }
+});
+
 // Renter input window
 var Input = React.createClass({
 
   getInitialState: function() {
-    return {enabled: false, delay: false};
+    return {enabled: false, passthrough: false};
   },
 
   isEnabled: function() {
@@ -183,18 +239,18 @@ var Input = React.createClass({
     }
   },
 
-  triggerDelay: function() {
-    this.state.delay = true;
-    var delay = DELAY_PROMPT_TIME_SHORT;
-    if (this.props.prompt.Text.length > 100) {
-      delay = DELAY_PROMPT_TIME_LONG;
+  triggerPassThrough: function() {
+    this.state.passthrough = true;
+    var d = DELAY_PROMPT_TIME_SHORT;
+    if (this.props.prompt.Texts[0].length > 100) {
+      d = DELAY_PROMPT_TIME_LONG;
     }
-    this.state.interval = window.setInterval(this.handleSubmit, delay);
+    this.state.interval = window.setInterval(this.unTriggerPassThrough, d);
   },
 
-  unTriggerDelay: function() {
-    this.state.delay = false;
+  unTriggerPassThrough: function() {
     window.clearInterval(this.state.interval);
+    this.handleSubmit()
   },
 
   handleSubmit: function(event) {
@@ -244,7 +300,9 @@ var Input = React.createClass({
   },
 
   render: function() {
+    var app = this.props.app;
     var prompt = this.props.prompt;
+    var texts = prompt.Texts
     var user = this.props.user;
 
     var promptId = prompt.PromptId;
@@ -254,11 +312,8 @@ var Input = React.createClass({
 
     switch (prompt.PromptType) {
     case UI_PROMPT_TEXT:
-      return  <div  className="chat">
-                <div className="researcher">
-                  <div className="name">{DisplayText[MSG_ROBOT]}</div>
-                  <div className="message">{prompt.Text}</div>
-                </div>
+      return  <div className="chat" key={promptId+user.getHistory().length}>
+                <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app}/>
                 <div className="human">
                   <div className="name">{human}</div>
                   <div className="form">
@@ -280,14 +335,11 @@ var Input = React.createClass({
       }
       var options = prompt.Options.map(
         function(option, i) {
-          return <PromptOption option={option} key={i}/>;
+          return <div key={i}><PromptOption option={option}/></div>;
         });
 
-      return  <div>
-                <div className="researcher">
-                  <div className="name">{DisplayText[MSG_ROBOT]}</div>
-                  <div className="message">{prompt.Text}</div>
-                </div>
+      return  <div className="chat" key={promptId+user.getHistory().length}>
+                <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app}/>
                 <div className="human">
                   <div className="name">{human}</div>
                   <div className="form">
@@ -303,18 +355,13 @@ var Input = React.createClass({
                 </div>
               </div>;
     case UI_PROMPT_STRAIGHT_THROUGH:
-      if (prompt) {
-        if (this.state.delay) {
-          this.unTriggerDelay(); // if it was turned on, turn it off.
-        } else {
-          this.triggerDelay();
-        }
+      if (this.state.passthrough) {
+        this.state.passthrough = false
+      } else {
+        this.triggerPassThrough();
       }
-      return  <div>
-                <div className="researcher">
-                  <div className="name">{DisplayText[MSG_ROBOT]}</div>
-                  <div className="message">{prompt.Text}</div>
-                </div>
+      return  <div className="chat" key={promptId+user.getHistory().length}>
+                <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app}/>
                 <div className="human">
                   <div className="name">{human}</div>
                   <div className="form">
@@ -329,11 +376,8 @@ var Input = React.createClass({
                 </div>
               </div>;    
     default:
-      return  <div>
-                <div className="researcher">
-                  <div className="name">{DisplayText[MSG_ROBOT]}</div>
-                  <div className="message">{prompt.Text}</div>
-                </div>
+      return  <div className="chat" key={promptId+user.getHistory().length}>
+                <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app}/>
               </div>;
     }
   },

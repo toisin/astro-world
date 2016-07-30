@@ -5,7 +5,11 @@
 
 var App = React.createClass({
   getInitialState: function() {
-    return {mode: 0};
+    return {mode: 0, actionReady: false};
+  },
+
+  showAction: function(show) {
+    this.setState({mode: 0, actionReady: true});
   },
 
   changeState: function() {
@@ -15,10 +19,17 @@ var App = React.createClass({
   render: function() {
     var state = this.state;
     var user = this.props.user;
-    return  <div className="content">
-                <Dialog user={user} app={this}/>
-                <Action user={user} app={this}/>
-            </div>;
+    if (!this.state.actionReady) {
+      return  <div className="content">
+                  <Dialog user={user} app={this}/>
+              </div>;
+    } else {
+      this.state.actionReady = false;
+      return  <div className="content">
+                  <Dialog user={user} app={this}/>
+                  <Action user={user} app={this}/>
+              </div>;
+    }
   }
 
 });

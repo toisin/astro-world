@@ -258,31 +258,33 @@ type UIPromptDynamicText struct {
 	state            StateEntities
 }
 
-func (ps *UIPromptDynamicText) String() string {
-	t := template.Must(template.New("display").Parse(ps.promptConfig.Text))
-	var doc bytes.Buffer
-	err := t.Execute(&doc, ps.state)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error executing template: %s\n\n", err)
-		log.Println("executing template:", err)
+func (ps *UIPromptDynamicText) String() []string {
+	display := make([]string, len(ps.promptConfig.Text))
+	for i, v := range ps.promptConfig.Text {
+		t := template.Must(template.New("display").Parse(v))
+		var doc bytes.Buffer
+		err := t.Execute(&doc, ps.state)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error executing template: %s\n\n", err)
+			log.Println("executing template:", err)
+		}
+		display[i] = doc.String()
 	}
-	display := doc.String()
-
 	return display
 }
 
 type UIPrompt interface {
-	setText(string)
+	setText([]string)
 	setPromptType(string)
 	setId(string)
 	setOptions([]*UIOption)
-	Display() string
+	Display() []string
 	GetId() string
 }
 
 type UIBasicPrompt struct {
 	PromptType string
-	Text       string
+	Texts      []string
 	PromptId   string
 	Options    []*UIOption
 }
@@ -291,8 +293,8 @@ func NewUIBasicPrompt() *UIBasicPrompt {
 	return &UIBasicPrompt{}
 }
 
-func (ps *UIBasicPrompt) setText(s string) {
-	ps.Text = s
+func (ps *UIBasicPrompt) setText(s []string) {
+	ps.Texts = s
 }
 
 func (ps *UIBasicPrompt) setPromptType(s string) {
@@ -311,8 +313,8 @@ func (ps *UIBasicPrompt) GetId() string {
 	return ps.PromptId
 }
 
-func (ps *UIBasicPrompt) Display() string {
-	return ps.Text
+func (ps *UIBasicPrompt) Display() []string {
+	return ps.Texts
 }
 
 type UIOption struct {

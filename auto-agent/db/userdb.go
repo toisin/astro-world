@@ -26,7 +26,7 @@ type User struct {
 type Message struct {
 	// Username string // Does not really need to store this everytime
 	Id        string
-	Text      string
+	Texts     []string
 	Mtype     string // ROBOT | HUMAN
 	Date      time.Time
 	MessageNo int // in the order of the message

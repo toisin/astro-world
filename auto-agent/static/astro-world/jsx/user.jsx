@@ -100,14 +100,15 @@ User.prototype = {
   submitResponse: function(promptId, phaseId, jsonResponse, renderCallback) {
     var self = this;
     // var text = value;
-    var question = self.CurrentUIPrompt.Text;
+    var question = self.CurrentUIPrompt.Texts;
+    var jsonQuestion = JSON.stringify(question); // Turns the texts array into json
     var phaseId = self.CurrentPhaseId;
     var promptId = self.CurrentUIPrompt.PromptId;
 
     var formData = new FormData();
 
     formData.append("user", self.Username);
-    formData.append("questionText", question);
+    formData.append("questionText", jsonQuestion);
     formData.append("promptId", promptId);
     formData.append("phaseId", phaseId);
     formData.append("jsonResponse", jsonResponse);
