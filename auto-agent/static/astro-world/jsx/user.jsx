@@ -29,6 +29,7 @@ function User(name) {
   this.CurrentPhaseId = "";
   this.CurrentUIPrompt = {};
   this.CurrentUIAction = {};
+  this.ContentFactors = [];
 }
 
 User.prototype = {
@@ -62,6 +63,10 @@ User.prototype = {
     return this.CurrentUIAction;
   },
 
+  getContentFactors: function() {
+    return this.ContentFactors;
+  },
+
   getScreenname: function() {
     return this.Screenname;
   },
@@ -70,9 +75,10 @@ User.prototype = {
     var self = this;
     self.Screenname = j.Screenname;
     self.History = j.History;
-    self.CurrentUIPrompt = j["CurrentUIPrompt"];
-    self.CurrentUIAction = j["CurrentUIAction"];
+    self.CurrentUIPrompt = j.CurrentUIPrompt;
+    self.CurrentUIAction = j.CurrentUIAction;
     self.CurrentPhaseId = j.CurrentPhaseId;
+    self.ContentFactors = j.ContentFactors;
   },
 
   loadHistory: function() {

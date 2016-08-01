@@ -17,22 +17,23 @@ func MakeUserData(u db.User) *UserData {
 	// Process submitted answer
 	ud := &UserData{}
 	ud.user = u
-	ud.uiUserData = workflow.UIUserData{}
+	ud.uiUserData = *workflow.MakeUIUserData(u)
+	// ud.uiUserData = workflow.UIUserData{}
 
-	// update new UserData with everything that is available on db.User
-	ud.uiUserData.Username = u.Username
-	ud.uiUserData.Screenname = u.Screenname
-	ud.uiUserData.CurrentFactorId = u.CurrentFactorId
-	ud.uiUserData.CurrentPhaseId = u.CurrentPhaseId
+	// // update new UserData with everything that is available on db.User
+	// ud.uiUserData.Username = u.Username
+	// ud.uiUserData.Screenname = u.Screenname
+	// ud.uiUserData.CurrentFactorId = u.CurrentFactorId
+	// ud.uiUserData.CurrentPhaseId = u.CurrentPhaseId
 
-	if u.UIState != nil {
-		s, err := workflow.UnstringifyState(u.UIState, u.CurrentPhaseId)
+	// if u.UIState != nil {
+	// 	s, err := workflow.UnstringifyState(u.UIState, u.CurrentPhaseId)
 
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error converting json to StateEntities: %s\n\n", err)
-		}
-		ud.uiUserData.State = s
-	}
+	// 	if err != nil {
+	// 		fmt.Fprintf(os.Stderr, "Error converting json to StateEntities: %s\n\n", err)
+	// 	}
+	// 	ud.uiUserData.State = s
+	// }
 
 	// Construct Prompt appropriately
 	if (u.CurrentPromptId == "") || (u.CurrentPhaseId == "") {

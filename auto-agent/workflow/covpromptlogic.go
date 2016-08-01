@@ -125,43 +125,6 @@ func (cp *CovPrompt) GetUIAction() UIAction {
 	return cp.currentUIAction
 }
 
-func (cp *CovPrompt) initUIAction() {
-	if cp.currentUIAction == nil {
-		pc := cp.promptConfig
-		switch pc.UIActionModeId {
-		case "RECORD_SELECT_TWO", "RECORD_SELECT_ONE":
-			p := NewUIRecordAction()
-			// TODO in progress
-			// p.SetPromptType(???)
-			p.Factors = make([]*UIFactor, len(appConfig.CovPhase.ContentRef.Factors))
-			for i, v := range appConfig.CovPhase.ContentRef.Factors {
-				f := GetFactorConfig(v.Id)
-				p.Factors[i] = &UIFactor{
-					FactorId: f.Id,
-					Text:     f.Name,
-				}
-				p.Factors[i].Levels = make([]*UIFactorOption, len(f.Levels))
-				for j := range f.Levels {
-					p.Factors[i].Levels[j] = &UIFactorOption{
-						FactorLevelId: f.Levels[j].Id,
-						Text:          f.Levels[j].Name,
-						ImgPath:       f.Levels[j].ImgPath,
-					}
-				}
-			}
-			cp.currentUIAction = p
-			break
-		default:
-			p := NewUIBasicAction()
-			cp.currentUIAction = p
-			break
-		}
-		if cp.currentUIAction != nil {
-			cp.currentUIAction.setUIActionModeId(pc.UIActionModeId)
-		}
-	}
-}
-
 type RecordsSelectResponse struct {
 	RecordNoOne         []*SelectedFactor
 	RecordNoTwo         []*SelectedFactor
@@ -311,6 +274,7 @@ func (cp *CovPrompt) createRecordStateFromDB(r db.Record, sf []*SelectedFactor) 
 	if r.RecordNo != "" {
 		rs.RecordName = r.Firstname + " " + r.Lastname
 		rs.RecordNo = r.RecordNo
+		rs.Performance = r.OutcomeLevel
 		rs.FactorLevels = make(map[string]*FactorState)
 		for _, v := range sf {
 			rs.FactorLevels[v.FactorId] = CreateCovFactorState(v.FactorId, v.SelectedLevelId)

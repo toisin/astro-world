@@ -146,15 +146,87 @@
     },
     "OrderedSequences": [
       {
+        "FirstPrompt": {
+          "Id": "Prior beliefs",
+          "Text": [
+            "Before we get started, I want to know what your opinions are.",
+            "On the screen, tell me which of the factors you think will make a difference to the performance in space.",
+            "When you are done, just hit \"Enter\"."
+          ],
+          "PromptType": "NO_INPUT",
+          "ResponseType": "PRIOR_BELIEF_FACTORS",
+          "UIActionModeId": "PRIOR_BELIEF_FACTORS",
+          "ExpectedResponses": [
+            {
+              "Id": "CONTENT_REF",
+              "NextPrompt": {
+                "Id": "Prior beliefs levels",
+                "Text": [
+                  "Ok, Now, for the factors that you thought would matter, tell me which level is best for performance.",
+                  "Hit \"Enter\" when you are done."
+                ],
+                "PromptType": "NO_INPUT",
+                "ResponseType": "PRIOR_BELIEF_LEVELS",
+                "UIActionModeId": "PRIOR_BELIEF_LEVELS",
+                "ExpectedResponses": [
+                  {
+                    "Id": "anything",
+                    "NextPrompt": {
+                      "Id": "test record select",
+                      "Text": [
+                        "So, you think that to performance in space.",
+                        "Now, let's figure out whether those factors actually matter!",
+                        "What I have in my database is a list of records of how the applicants performed.",
+                        "If you study the records carefully, you will be able to see which factors make a difference to performance and which don't.",
+                        "Now, let's try it.",
+                        "On the screen, you can look for an applicant who you want to look.", "Just select a level for each factor, and the computer will find you an applicant who has all those levels and tell you his/her performance",
+                        "Now, make your selection. Remember to click \"Enter\" when you are ready."
+                      ],
+                      "PromptType": "NO_INPUT",
+                      "ResponseType": "RECORD",
+                      "UIActionModeId": "RECORD_SELECT_ONE",
+                      "ExpectedResponses": [
+                        {
+                          "Id": "anything",
+                          "NextPrompt": {
+                            "Id": "test record result",
+                            "Text": [
+                              "As you can see, you selected Record "
+                            ],
+                            "PromptType": "STRAIGHT_THROUGH",
+                            "ResponseType": "Basic",
+                            "UIActionModeId": "RECORD_PERFORMANCE",
+                            "ExpectedResponses": [
+                              {
+                                "Id": "anything",
+                                "NextPrompt": {
+                                  "Id": "end",
+                                  "Text": [
+                                    "Now that you know how to select a record, you can start figuring out whether each factor matters by looking through the records."
+                                  ],
+                                  "PromptType": "STRAIGHT_THROUGH",
+                                  "ResponseType": "COMPLETE",
+                                  "UIActionModeId": "RECORD_PERFORMANCE"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
         "RepeatOverContent": true,
         "FirstPrompt": {
           "Id": "Intro1",
           "Text": [
-            "Before we get started, I want to know what your opinions are.",
-            "On the screen on the right, tell me which of the factors you think will make a difference to the performance in space.When you are done, just click \"Enter\"",
-            "more messages",
-            "more",
-            "Which of the factors do you think will make a difference?"
+            "Which factor would you like to figure out first?"
           ],
           "PromptType": "NO_INPUT",
           "ResponseType": "SELECT_TARGET_FACTOR",
@@ -165,8 +237,7 @@
               "Id": "CONTENT_REF",
               "NextPrompt": {
                 "Id": "p1",
-                "Text": [
-                  "How many records would you like to see? One or Two?"
+                "Text": ["Ok. Let's figure out whether {{.TargetFactor.FactorName}} matters.", "How many records would you like to see? One or Two?"
                 ],
                 "PromptType": "MC",
                 "ResponseType": "Basic",

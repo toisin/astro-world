@@ -58,7 +58,7 @@ var SelectTargetFactor = React.createClass({
 
 
     if (!prompt.Options) {
-      console.error("Error: MC Prompt without options!");    
+      console.error("Error: Select factor UI without options!");    
       return <div></div>;
     }
     var options = prompt.Options.map(
@@ -82,7 +82,7 @@ var SelectTargetFactor = React.createClass({
               <p>
                 <input type="hidden" id="promptId" value={promptId}/>
                 <input type="hidden" id="phaseId" value={phaseId}/>
-                <button type="submit" disabled={!this.isEnabled()}>Enter</button>
+                <button type="submit" disabled={!this.isEnabled()} key={"SelectTargetFactor"}>Enter</button>
               </p>
               </form>;
   },
@@ -97,6 +97,194 @@ var FactorPromptOption = React.createClass({
   },
 });
 
+//TODO - in progress
+var PriorBeliefFactors = React.createClass({
+
+  getInitialState: function() {
+    return {enabled: false};
+  },
+
+  isEnabled: function() {
+    return this.state.enabled;
+  },
+
+  handleChange: function(event) {
+    this.setState({enabled:true});
+  },
+
+  handleSubmit: function(event) {
+    event.preventDefault(); // default might be to follow a link, instead, takes control over the event
+
+    var user = this.props.user;
+    var onComplete = this.props.onComplete;
+    var e = document.getElementById("promptId");
+    var promptId = e ? e.value : "";
+    var e = document.getElementById("phaseId");
+    var phaseId = e ? e.value : "";
+    var f = document.getElementById("covactionForm");
+    var text, id = "";
+
+    // var options = user.getPrompt().Options;
+    // for (i = 0; i < options.length; i++) {
+    //   if (options[i].ResponseId == value) {
+    //     text = options[i].Text;
+    //     id = value;
+    //     break;
+    //   }
+    // }
+
+    var response = {};
+    response.text = text;
+    response.id = id;
+    jsonResponse = JSON.stringify(response);
+    user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
+    this.setState({mode: 0, enabled:false});
+  },
+
+  render: function() {
+    var user = this.props.user;
+    var prompt = user.getPrompt();
+    var factors = user.getContentFactors();
+
+    var promptId = prompt.PromptId;
+    var phaseId = user.getCurrentPhaseId();
+    var human = user.getScreenname() ? user.getScreenname() : user.getUsername();
+
+    var recordOneFactors = factors.map(
+      function(factor, i) {
+        return <FactorSelection factor={factor} key={i} record="1"/>;
+      });
+
+
+    return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
+      <div className ="hbox">
+        <div className="frame">
+            <table>
+              <tbody>
+              <tr>
+                <td>&nbsp;</td>
+                <td colSpan="3" className="question">First Record</td>
+              </tr>
+              {recordOneFactors}
+              </tbody>
+            </table>
+        </div>
+      </div>
+      <p>
+        <input type="hidden" id="promptId" value={promptId}/>
+        <input type="hidden" id="phaseId" value={phaseId}/>
+        <button type="submit" disabled={!this.isEnabled()} key={"PriorBeliefFactors"}>Enter</button>
+      </p>
+      </form>;
+
+    // if (!prompt.Options) {
+    //   console.error("Error: Prior Beliefs UI without options!");    
+    //   return <div></div>;
+    // }
+    // var options = prompt.Options.map(
+    //   function(option, i) {
+    //     return <FactorPromptOption option={option} key={i}/>;
+    //   });
+
+    // return   <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
+    //           <div className ="hbox">
+    //             <div className="frame">
+    //                 <table>
+    //                   <tbody>
+    //                   <tr>
+    //                     <td colSpan="2">Which factors do you think make a difference?</td>
+    //                   </tr>
+    //                   <tr>
+    //                     <td><label>
+    //                       <input type="checkbox" name="covactioninput" value={option.ResponseId}><br/>{option.Text}</input>
+    //                     </label></td>
+    //                   </tr>
+    //                   </tbody>
+    //                 </table>
+    //             </div>
+    //           </div>
+    //           <p>
+    //             <input type="hidden" id="promptId" value={promptId}/>
+    //             <input type="hidden" id="phaseId" value={phaseId}/>
+    //             <button type="submit" disabled={!this.isEnabled()}>Enter</button>
+    //           </p>
+    //           </form>;
+  },
+});
+
+// TODO - in progress
+var PriorBeliefLevels = React.createClass({
+
+  getInitialState: function() {
+    return {enabled: false};
+  },
+
+  isEnabled: function() {
+    return this.state.enabled;
+  },
+
+  handleChange: function(event) {
+    this.setState({enabled:true});
+  },
+
+  handleSubmit: function(event) {
+    event.preventDefault(); // default might be to follow a link, instead, takes control over the event
+
+    var user = this.props.user;
+    var onComplete = this.props.onComplete;
+    var e = document.getElementById("promptId");
+    var promptId = e ? e.value : "";
+    var e = document.getElementById("phaseId");
+    var phaseId = e ? e.value : "";
+    var f = document.getElementById("covactionForm");
+    var text, id = "";
+
+    var response = {};
+    response.text = text;
+    response.id = id;
+    jsonResponse = JSON.stringify(response);
+    user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
+    this.setState({mode: 0, enabled:false});
+  },
+
+  render: function() {
+    var user = this.props.user;
+    var prompt = user.getPrompt();
+    var factors = user.getContentFactors();
+
+    var promptId = prompt.PromptId;
+    var phaseId = user.getCurrentPhaseId();
+    var human = user.getScreenname() ? user.getScreenname() : user.getUsername();
+
+
+    var recordOneFactors = factors.map(
+      function(factor, i) {
+        return <FactorSelection factor={factor} key={i} record="1"/>;
+      });
+
+
+    return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
+      <div className ="hbox">
+        <div className="frame">
+            <table>
+              <tbody>
+              <tr>
+                <td>&nbsp;</td>
+                <td colSpan="3" className="question">First Record</td>
+              </tr>
+              {recordOneFactors}
+              </tbody>
+            </table>
+        </div>
+      </div>
+      <p>
+        <input type="hidden" id="promptId" value={promptId}/>
+        <input type="hidden" id="phaseId" value={phaseId}/>
+        <button type="submit" disabled={!this.isEnabled()} key={"PriorBeliefLevels"}>Enter</button>
+      </p>
+      </form>;
+  },
+});
 
 var RecordSelection = React.createClass({
   getInitialState: function() {
@@ -113,9 +301,8 @@ var RecordSelection = React.createClass({
   getSelectedFactors: function(record) {
     var user = this.props.user;
     var prompt = user.getPrompt();
-    var action = user.getAction();
     var form = document.getElementById("covactionForm");
-    var selectedFactors = action.Factors.map(
+    var selectedFactors = user.getContentFactors().map(
       function(factor, i) {
         var fid = form.elements[factor.FactorId+record];
         var f = {};
@@ -180,16 +367,16 @@ var RecordSelection = React.createClass({
     var app = this.props.app;
     var singleRecord = this.props.singleRecord;
     var prompt = user.getPrompt();
-    var action = user.getAction();
+    var factors = user.getContentFactors();
 
     var promptId = prompt.PromptId;
     var phaseId = user.getCurrentPhaseId();
 
-    var recordOneFactors = action.Factors.map(
+    var recordOneFactors = factors.map(
       function(factor, i) {
         return <FactorSelection factor={factor} key={i} record="1"/>;
       });
-    var recordTwoFactors = action.Factors.map(
+    var recordTwoFactors = factors.map(
       function(factor, i) {
         return <FactorSelection factor={factor} key={i} record="2"/>;
       });
@@ -212,7 +399,7 @@ var RecordSelection = React.createClass({
         <p>
           <input type="hidden" id="promptId" value={promptId}/>
           <input type="hidden" id="phaseId" value={phaseId}/>
-          <button type="submit" disabled={!this.isEnabled()}>Enter</button>
+          <button type="submit" disabled={!this.isEnabled()} key={"RecordSelection"}>Enter</button>
         </p>
         </form>;
     } else {
@@ -244,7 +431,7 @@ var RecordSelection = React.createClass({
         <p>
           <input type="hidden" id="promptId" value={promptId}/>
           <input type="hidden" id="phaseId" value={phaseId}/>
-          <button type="submit" disabled={!this.isEnabled()}>Enter</button>
+          <button type="submit" disabled={!this.isEnabled()} key={"RecordSelection"}>Enter</button>
         </p>
         </form>;
       }

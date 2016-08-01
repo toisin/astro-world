@@ -102,21 +102,6 @@ func (cp *ChartPrompt) GetUIAction() UIAction {
 	return cp.currentUIAction
 }
 
-func (cp *ChartPrompt) initUIAction() {
-	if cp.currentUIAction == nil {
-		pc := cp.promptConfig
-		switch pc.UIActionModeId {
-		default:
-			p := NewUIBasicAction()
-			cp.currentUIAction = p
-			break
-		}
-		if cp.currentUIAction != nil {
-			cp.currentUIAction.setUIActionModeId(pc.UIActionModeId)
-		}
-	}
-}
-
 func (cp *ChartPrompt) updateStateCurrentFactor(uiUserData *UIUserData, fid string) {
 	cp.updateState(uiUserData)
 	if fid != "" {

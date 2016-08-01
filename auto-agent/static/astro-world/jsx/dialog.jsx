@@ -14,7 +14,7 @@ var Dialog = React.createClass({
     var user = this.props.user;
     var history = user.getHistory() ? user.getHistory() : {};
     state.isNewUser = history.length == 0;
-    state.welcomeText = state.isNewUser ? "Welcome to the Mission!" : "Welcome back!";
+    state.welcomeText = state.isNewUser ? "Welcome to Astro-world!" : "Welcome back!";
     state.oldHistory = history;
     return state;
   },

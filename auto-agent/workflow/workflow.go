@@ -33,6 +33,7 @@ const (
 	RESPONSE_END                  = "COMPLETE"
 	RESPONSE_RECORD               = "RECORD"
 	RESPONSE_SELECT_TARGET_FACTOR = "SELECT_TARGET_FACTOR"
+	RESPONSE_PRIOR_BELIEF_FACTORS = "PRIOR_BELIEF_FACTORS"
 	RESPONSE_SYSTEM_GENERATED     = "SYSTEM_GENERATED" // For when a submit is triggered by the system
 
 	EXPECTED_SPECIAL_CONTENT_REF = "CONTENT_REF"
@@ -123,6 +124,13 @@ type GenericState struct {
 	Screenname         string
 	TargetFactor       FactorState
 	RemainingFactorIds []string
+	Beliefs            BeliefsState
+}
+
+type BeliefsState struct {
+	HasCausalFactors         bool
+	CausalFactors            []string
+	HasMultipleCausalFactors bool
 }
 
 func (c *GenericState) setPhaseId(s string) {
@@ -190,6 +198,7 @@ type RecordState struct {
 	RecordName   string
 	RecordNo     string
 	FactorLevels map[string]*FactorState
+	Performance  string
 	// Factor id as keys, such as:
 	// "fitness",
 	// "parentshealth",

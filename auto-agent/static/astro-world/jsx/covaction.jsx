@@ -21,6 +21,10 @@ var CovAction = React.createClass({
       switch (action.UIActionModeId) {
         case "NEW_TARGET_FACTOR":
           return  <SelectTargetFactor user={user} onComplete={onComplete} app={app}/>;
+        case "PRIOR_BELIEF_FACTORS":
+          return  <PriorBeliefFactors user={user} onComplete={onComplete} app={app}/>;
+        case "PRIOR_BELIEF_LEVELS":
+          return  <PriorBeliefLevels user={user} onComplete={onComplete} app={app}/>;
         case "RECORD_SELECT_ONE":
           return <RecordSelection user={user} onComplete={onComplete} app={app} singleRecord={true}/>;
         case "RECORD_SELECT_TWO":

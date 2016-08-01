@@ -99,6 +99,13 @@ func (cp *GenericPrompt) init(p PromptConfig, uiUserData *UIUserData) {
 	cp.currentPrompt.initUIAction()
 }
 
+func (cp *GenericPrompt) initUIAction() {
+	if cp.currentUIAction == nil {
+		cp.currentUIAction = NewUIBasicAction()
+		cp.currentUIAction.setUIActionModeId(cp.promptConfig.UIActionModeId)
+	}
+}
+
 func (cp *GenericPrompt) processSimpleResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
 	if r != "" {
 		dec := json.NewDecoder(strings.NewReader(r))
@@ -338,27 +345,16 @@ func (ps *UIBasicAction) setUIActionModeId(s string) {
 	ps.UIActionModeId = s
 }
 
-type UIRecordAction struct {
-	UIActionModeId string
-	Factors        []*UIFactor
-}
+// // TODO Remove - not needed, make always available through UIUserData
+// type UIRecordAction struct {
+// 	UIActionModeId string
+// 	Factors        []*UIFactor
+// }
 
-func NewUIRecordAction() *UIRecordAction {
-	return &UIRecordAction{}
-}
+// func NewUIRecordAction() *UIRecordAction {
+// 	return &UIRecordAction{}
+// }
 
-func (ps *UIRecordAction) setUIActionModeId(s string) {
-	ps.UIActionModeId = s
-}
-
-type UIFactor struct {
-	FactorId string
-	Text     string
-	Levels   []*UIFactorOption
-}
-
-type UIFactorOption struct {
-	FactorLevelId string
-	Text          string
-	ImgPath       string
-}
+// func (ps *UIRecordAction) setUIActionModeId(s string) {
+// 	ps.UIActionModeId = s
+// }
