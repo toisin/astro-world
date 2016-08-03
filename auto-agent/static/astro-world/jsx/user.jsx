@@ -71,6 +71,10 @@ User.prototype = {
     return this.Screenname;
   },
 
+  getState: function() {
+    return this.State;
+  },
+
   updateUser: function(j) {
     var self = this;
     self.Screenname = j.Screenname;
@@ -79,6 +83,7 @@ User.prototype = {
     self.CurrentUIAction = j.CurrentUIAction;
     self.CurrentPhaseId = j.CurrentPhaseId;
     self.ContentFactors = j.ContentFactors;
+    self.State = j.State;
   },
 
   loadHistory: function() {

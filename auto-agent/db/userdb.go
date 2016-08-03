@@ -33,6 +33,11 @@ type Message struct {
 }
 
 // userlistKey returns the key used for all user entries.
+func UserLogsKey(c appengine.Context, username string) *datastore.Key {
+	return datastore.NewKey(c, "Logs", username, 0, nil)
+}
+
+// userlistKey returns the key used for all user entries.
 func UserHistoryKey(c appengine.Context, username string) *datastore.Key {
 	return datastore.NewKey(c, "History", username, 0, nil)
 }

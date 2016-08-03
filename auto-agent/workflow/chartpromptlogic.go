@@ -77,12 +77,12 @@ func (cp *ChartPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
 	cp.currentUIPrompt.setId(pc.Id)
 
 	options := []*UIOption{}
-	for i := range pc.ExpectedResponses {
-		switch pc.ExpectedResponses[i].Id {
+	for i := range pc.ExpectedResponses.Values {
+		switch pc.ExpectedResponses.Values[i].Id {
 		case EXPECTED_SPECIAL_CONTENT_REF:
-			options = append(options, &UIOption{pc.ExpectedResponses[i].Id, pc.ExpectedResponses[i].Text})
+			options = append(options, &UIOption{pc.ExpectedResponses.Values[i].Id, pc.ExpectedResponses.Values[i].Text})
 		default:
-			options = append(options, &UIOption{pc.ExpectedResponses[i].Id, pc.ExpectedResponses[i].Text})
+			options = append(options, &UIOption{pc.ExpectedResponses.Values[i].Id, pc.ExpectedResponses.Values[i].Text})
 		}
 	}
 	cp.currentUIPrompt.setOptions(options)
@@ -95,11 +95,6 @@ func (cp *ChartPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r Respons
 	cp.updateState(uiUserData)
 	p.state = cp.state
 	cp.promptDynamicText = p
-}
-
-// Returned UIAction may be nil if not action UI is needed
-func (cp *ChartPrompt) GetUIAction() UIAction {
-	return cp.currentUIAction
 }
 
 func (cp *ChartPrompt) updateStateCurrentFactor(uiUserData *UIUserData, fid string) {

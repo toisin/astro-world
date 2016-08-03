@@ -124,6 +124,8 @@ func (covH *GetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		LogUserRequest(c, u, *r, true)
+
 		if len(r.URL.Path[len(COV):]) != 0 {
 			http.ServeFile(w, r, "static/astro-world"+r.URL.Path)
 			return
@@ -143,7 +145,7 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Always handle username in lowercase
 		username := strings.ToLower(r.URL.Query()["user"][0])
 		// Query to see if user exists
-		u, _, err := GetUser(c, username)
+		u, k, err := GetUser(c, username)
 
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting User:"+err.Error()+"!\n\n")
@@ -151,12 +153,21 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		ud := MakeUserData(u)
+		// Store updated user in DB
+		err = PutUser(c, ud.user, k)
+		if err != nil {
+			fmt.Fprint(os.Stderr, "DB Error Put User:"+err.Error()+"!\n\n")
+			return
+		}
+
 		ud.uiUserData.History, err = GetHistory(c, username)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting list of messages:"+err.Error()+"!\n\n")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		LogUserRequest(c, u, *r, true)
 
 		s, err := stringify(ud.uiUserData)
 		if err != nil {
@@ -285,7 +296,7 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// Process submitted answers
 		ud := MakeUserData(u)
-		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"), &ud.user, &ud.uiUserData, c)
+		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"), &ud.user, ud.uiUserData, c)
 
 		responseId := ud.CurrentPrompt.GetResponseId()
 		responseText := ud.CurrentPrompt.GetResponseText()
@@ -400,6 +411,47 @@ func GetHistoryCount(c appengine.Context, username string) (rc int, err error) {
 	q := datastore.NewQuery("Message").Ancestor(db.UserHistoryKey(c, username)).Limit(100)
 	rc, err = q.Count(c)
 	return
+}
+
+func LogUserRequest(c appengine.Context, u db.User, r http.Request, isGetRequest bool) {
+	promptId, phaseId, questionText, jsonResponse := "", "", "", ""
+	if isGetRequest {
+		if r.URL.Query()["promptId"] != nil {
+			promptId = r.URL.Query()["promptId"][0]
+		}
+		if r.URL.Query()["phaseId"] != nil {
+			phaseId = r.URL.Query()["phaseId"][0]
+		}
+		if r.URL.Query()["questionText"] != nil {
+			questionText = r.URL.Query()["questionText"][0]
+		}
+		if r.URL.Query()["jsonResponse"] != nil {
+			jsonResponse = r.URL.Query()["jsonResponse"][0]
+		}
+	} else {
+		promptId = r.FormValue("promptId")
+		phaseId = r.FormValue("phaseId")
+		questionText = r.FormValue("questionText")
+		jsonResponse = r.FormValue("jsonResponse")
+	}
+	userlogs := []db.UserLog{
+		db.UserLog{
+			Username:     u.Username,
+			PromptId:     promptId,
+			PhaseId:      phaseId,
+			QuestionText: questionText,
+			JsonResponse: jsonResponse,
+			Date:         time.Now(),
+			Mtype:        db.HUMAN,
+			URL:          r.URL.Path}}
+
+	var keys = []*datastore.Key{
+		datastore.NewIncompleteKey(c, "UserLog", db.UserLogsKey(c, u.Username))}
+
+	_, err := datastore.PutMulti(c, keys, userlogs)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Adding UserLog:"+err.Error()+"!\n\n")
+	}
 }
 
 func stringify(v interface{}) (b []byte, err error) {

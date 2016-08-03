@@ -68,6 +68,11 @@ func (cp *GenericPrompt) GetPromptId() string {
 	return cp.promptConfig.Id
 }
 
+// Returned UIAction may be nil if not action UI is needed
+func (cp *GenericPrompt) GetUIAction() UIAction {
+	return cp.currentUIAction
+}
+
 func (cp *GenericPrompt) initUIPrompt(uiUserData *UIUserData) {
 	pc := cp.promptConfig
 	if !pc.IsDynamicExpectedResponses {
@@ -76,9 +81,9 @@ func (cp *GenericPrompt) initUIPrompt(uiUserData *UIUserData) {
 		cp.currentPrompt.initUIPromptDynamicText(uiUserData, nil)
 		cp.currentUIPrompt.setText(cp.promptDynamicText.String())
 		cp.currentUIPrompt.setId(pc.Id)
-		options := make([]*UIOption, len(pc.ExpectedResponses))
-		for i := range pc.ExpectedResponses {
-			options[i] = &UIOption{pc.ExpectedResponses[i].Id, pc.ExpectedResponses[i].Text}
+		options := make([]*UIOption, len(pc.ExpectedResponses.Values))
+		for i := range pc.ExpectedResponses.Values {
+			options[i] = &UIOption{pc.ExpectedResponses.Values[i].Id, pc.ExpectedResponses.Values[i].Text}
 		}
 		cp.currentUIPrompt.setOptions(options)
 	} else {
@@ -134,7 +139,7 @@ func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserDat
 	var currentS *Sequence
 	var nextS *Sequence
 	sequenceOrder := cp.promptConfig.sequenceOrder
-	currentS = currentPhase.OrderedSequences[sequenceOrder]
+	currentS = &currentPhase.OrderedSequences[sequenceOrder]
 
 	if currentS.RepeatOverContent {
 		// Check if all content has been through the current sequence
@@ -148,10 +153,10 @@ func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserDat
 		// If no next sequence, then go to the first sequence of the next phase
 		sequenceOrder++
 		if len(currentPhase.OrderedSequences) > sequenceOrder {
-			nextS = currentPhase.OrderedSequences[sequenceOrder]
+			nextS = &currentPhase.OrderedSequences[sequenceOrder]
 		} else {
 			phaseId = currentPhase.NextPhaseId
-			nextS = GetPhase(phaseId).OrderedSequences[0]
+			nextS = &GetPhase(phaseId).OrderedSequences[0]
 		}
 	}
 	nextPromptId = nextS.FirstPrompt.Id
@@ -202,7 +207,7 @@ func (erh *StaticExpectedResponseHandler) init(p PromptConfig) {
 	erh.expectedResponseMap = make(map[string]*PromptConfigRef)
 	erh.currentPromptConfig = p
 
-	ecs := p.ExpectedResponses
+	ecs := p.ExpectedResponses.Values
 	phaseId := p.PhaseId
 	var promptId string
 
@@ -228,13 +233,34 @@ func (erh *StaticExpectedResponseHandler) init(p PromptConfig) {
 // Return the next prompt that maps to the expected response
 // If there is only one expected response, return that one regardless of the response id
 func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserData *UIUserData) Prompt {
-	rid := r.GetResponseId()
+	var rid string
 	var p *PromptConfigRef
 	if len(erh.expectedResponseMap) == 1 {
+		// If there is only one expected response, use it regardless of the response
 		for _, v := range erh.expectedResponseMap {
 			p = v
 		}
 	} else {
+		// If there are more than one expected responses, find the appropriate
+		// next prompt based on the current response
+
+		if erh.currentPromptConfig.ExpectedResponses.StateTemplateRef != "" {
+			// If StateTemplateRef is provided, evaluate it by applying
+			// StateEntities to find the matching expected response
+			text := erh.currentPromptConfig.ExpectedResponses.StateTemplateRef
+			t := template.Must(template.New("expectedResponses").Parse(text))
+			var doc bytes.Buffer
+			err := t.Execute(&doc, uiUserData.State)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error executing expectedResponses template: %s\n\n", err)
+				log.Println("executing expectedResponses template:", err)
+			}
+			rid = doc.String()
+		} else {
+			// If StateTemplateRef is not provided, use the response id directly
+			// to find the matching expected response
+			rid = r.GetResponseId()
+		}
 		p = erh.expectedResponseMap[strings.ToLower(rid)]
 	}
 	nextPrompt := MakePrompt(p.Id, p.PhaseId, uiUserData)

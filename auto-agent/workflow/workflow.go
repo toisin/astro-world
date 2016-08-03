@@ -34,6 +34,7 @@ const (
 	RESPONSE_RECORD               = "RECORD"
 	RESPONSE_SELECT_TARGET_FACTOR = "SELECT_TARGET_FACTOR"
 	RESPONSE_PRIOR_BELIEF_FACTORS = "PRIOR_BELIEF_FACTORS"
+	RESPONSE_PRIOR_BELIEF_LEVELS  = "PRIOR_BELIEF_LEVELS"
 	RESPONSE_SYSTEM_GENERATED     = "SYSTEM_GENERATED" // For when a submit is triggered by the system
 
 	EXPECTED_SPECIAL_CONTENT_REF = "CONTENT_REF"
@@ -60,7 +61,7 @@ type AppConfig struct {
 type ContentConfig struct {
 	RecordFileName  string
 	RecordSize      int
-	Factors         []*Factor
+	Factors         []Factor
 	OutcomeVariable Factor
 }
 
@@ -68,7 +69,7 @@ type Factor struct {
 	Name     string
 	Id       string
 	ImgPath  string
-	Levels   []*Level
+	Levels   []Level
 	DBIndex  int
 	IsCausal bool
 }
@@ -86,7 +87,7 @@ type PhaseConfig struct {
 	// ContentRef: Type of content being referenced is not configurable
 	// each phase expects a specific type of content, e.g. CovPhase expects Factors
 	ContentRef       ContentConfig
-	OrderedSequences []*Sequence
+	OrderedSequences []Sequence
 }
 
 type Sequence struct {
@@ -101,12 +102,17 @@ type PromptConfig struct {
 	UIActionModeId             string
 	PromptType                 string
 	ResponseType               string
-	ExpectedResponses          []ExpectedResponseConfig
+	ExpectedResponses          ExpectedResponseConfig
 	IsDynamicExpectedResponses bool
 	sequenceOrder              int
 }
 
 type ExpectedResponseConfig struct {
+	StateTemplateRef string // If StateTemplateRef is empty, treat value as is
+	Values           []ExpectedResponseValue
+}
+
+type ExpectedResponseValue struct {
 	Id            string
 	Text          string
 	NextPrompt    PromptConfig
@@ -179,11 +185,10 @@ func (c *CovPhaseState) GetPhaseId() string {
 	return appConfig.CovPhase.Id
 }
 
-func (c *CovPhaseState) initContents(factors []*Factor) {
+func (c *CovPhaseState) initContents(factors []Factor) {
 	c.RemainingFactorIds = make([]string, len(factors))
 	for i, v := range factors {
 		c.RemainingFactorIds[i] = v.Id
-
 	}
 }
 
@@ -234,7 +239,7 @@ func (cp *ChartPhaseState) isContentCompleted() bool {
 
 // var phaseConfigMap = make(map[string]PhaseConfig)
 var promptConfigMap = make(map[string]*PromptConfig) //key:PhaseConfig.Id+PromptConfig.Id
-var factorConfigMap = make(map[string]*Factor)       //key:PhaseConfig.Id+PromptConfig.Id
+var factorConfigMap = make(map[string]Factor)        //key:PhaseConfig.Id+PromptConfig.Id
 var contentConfig ContentConfig
 var appConfig AppConfig
 
@@ -269,11 +274,11 @@ func InitWorkflow() {
 		}
 		covPhaseConfig := appConfig.CovPhase
 		chartPhaseConfig := appConfig.ChartPhase
-		for i, v := range covPhaseConfig.OrderedSequences {
-			populatePromptConfigMap(&v.FirstPrompt, covPhaseConfig.Id, i)
+		for i, _ := range covPhaseConfig.OrderedSequences {
+			populatePromptConfigMap(&covPhaseConfig.OrderedSequences[i].FirstPrompt, covPhaseConfig.Id, i)
 		}
-		for i, v := range chartPhaseConfig.OrderedSequences {
-			populatePromptConfigMap(&v.FirstPrompt, chartPhaseConfig.Id, i)
+		for i, _ := range chartPhaseConfig.OrderedSequences {
+			populatePromptConfigMap(&chartPhaseConfig.OrderedSequences[i].FirstPrompt, chartPhaseConfig.Id, i)
 		}
 
 		contentConfig = appConfig.Content
@@ -289,8 +294,8 @@ func populatePromptConfigMap(pc *PromptConfig, phaseId string, sequenceOrder int
 	}
 	pc.sequenceOrder = sequenceOrder
 	promptConfigMap[phaseId+pc.Id] = pc
-	for i := range pc.ExpectedResponses {
-		populatePromptConfigMap(&pc.ExpectedResponses[i].NextPrompt, phaseId, sequenceOrder)
+	for i := range pc.ExpectedResponses.Values {
+		populatePromptConfigMap(&pc.ExpectedResponses.Values[i].NextPrompt, phaseId, sequenceOrder)
 	}
 }
 
@@ -306,7 +311,7 @@ func GetFirstPhase() *PhaseConfig {
 
 func MakeFirstPrompt(uiUserData *UIUserData) Prompt {
 	// Hardcoding the first prompt is the first prompt of CovPrompt
-	p := MakeCovPrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt, uiUserData)
+	p := MakePrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.CovPhase.Id, uiUserData)
 	return p
 }
 
@@ -334,7 +339,7 @@ func GetContentConfig() *ContentConfig {
 	return &contentConfig
 }
 
-func GetFactorConfig(factorId string) *Factor {
+func GetFactorConfig(factorId string) Factor {
 	return factorConfigMap[factorId]
 }
 

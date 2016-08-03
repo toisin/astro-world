@@ -29,9 +29,11 @@ type StateEntities interface {
 }
 
 type UIFactor struct {
-	FactorId string
-	Text     string
-	Levels   []*UIFactorOption
+	FactorId       string
+	Text           string
+	Levels         []*UIFactorOption
+	IsBeliefCausal bool
+	BestLevelId    string
 }
 
 type UIFactorOption struct {
@@ -75,4 +77,46 @@ func MakeUIUserData(u db.User) *UIUserData {
 		}
 	}
 	return uiUserData
+}
+
+type UISelectedFactor struct {
+	FactorId        string
+	SelectedLevelId string
+}
+
+type UIRecordsSelectResponse struct {
+	RecordNoOne         []*UISelectedFactor
+	RecordNoTwo         []*UISelectedFactor
+	Id                  string
+	VaryingFactorIds    []string
+	VaryingFactorsCount int
+	dbRecordNoOne       db.Record
+	dbRecordNoTwo       db.Record
+}
+
+func (rsr *UIRecordsSelectResponse) GetResponseText() string {
+	return ""
+}
+
+func (rsr *UIRecordsSelectResponse) GetResponseId() string {
+	return rsr.Id
+}
+
+type UIPriorBeliefFactor struct {
+	FactorId    string
+	IsCausal    bool
+	BestLevelId string
+}
+
+type UIPriorBeliefResponse struct {
+	CausalFactors []*UIPriorBeliefFactor
+	Id            string
+}
+
+func (rsr *UIPriorBeliefResponse) GetResponseText() string {
+	return ""
+}
+
+func (rsr *UIPriorBeliefResponse) GetResponseId() string {
+	return rsr.Id
 }

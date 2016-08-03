@@ -8,23 +8,33 @@ var App = React.createClass({
     return {mode: 0, actionReady: false};
   },
 
-  showAction: function(show) {
-    this.setState({mode: 0, actionReady: true});
+  changeState(){
+    // In cases when the dialog is ongoing and no UI action is needed
+    // No need to re-render the action frame. This allows the last 
+    // action UI to be present
+    action = user.getAction()
+    if (action) {
+      if (!this.state.actionReady && (action.UIActionModeId != UIACTION_INACTIVE)) {
+        this.state.actionReady = true;
+      }
+    }
+    this.setState(this.state);
   },
 
-  changeState: function() {
-    this.setState({mode: 0});
+  refreshState(){
+    this.setState({mode: 0, actionReady: false});
   },
 
   render: function() {
     var state = this.state;
     var user = this.props.user;
-    if (!this.state.actionReady) {
+    var actionReady = this.state.actionReady;
+
+    if (!actionReady) {
       return  <div className="content">
                   <Dialog user={user} app={this}/>
               </div>;
     } else {
-      this.state.actionReady = false;
       return  <div className="content">
                   <Dialog user={user} app={this}/>
                   <Action user={user} app={this}/>

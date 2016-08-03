@@ -22,7 +22,7 @@ function handleSubmit(e) {
 	var self = this;
 	xhr.onload = function() {
 		if (xhr.status != 200) {
-			handleError();
+			handleError(username);
 		} else {
 			setTimeout(function() {
 			    handleResponse(username);
@@ -48,18 +48,20 @@ function handleResponse(username) {
 	window.location = '/astro-world/?user=' + encodeURIComponent(username);
 }
 
-function handleError() {
+function handleError(username) {
 	var error = document.getElementById('error');
 	error.style.display = 'block';
+	document.getElementById('thename').innerHTML = username;
 }
 
 </script>
 
-<div id="error">The username you entered is taken. Please enter a new name or <a href="login.html">click here to login as an existing user</a></div>
+<div id="error">You entered username: <b><span id="thename"></span></b>.<br/>
+The name has already been taken. Please enter a new name or <a href="login.html">click here to login as an existing user</a></div>
 
 <form onsubmit="handleSubmit(event)">
-	<p>Enter a new username: <input type="text" id="username"></p>
-	<p>Optionally, enter a screen name: <input type="text" id="screenname"></p>
+	<p>Enter a new username: <input type="text" id="username" maxlength="10" size="10"></p>
+	<p>Optionally, enter a screen name: <input type="text" id="screenname" maxlength="10" size="10"></p>
 	<p><button>Create new user</button></p>
 </form>
 

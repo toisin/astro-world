@@ -20,11 +20,8 @@ var Dialog = React.createClass({
   },
 
   changeState: function() {
-    var user = this.props.user;
-    action = user.getAction();
     var app = this.props.app;
-    this.setState({mode: 0});
-
+    app.changeState();
   },
 
   render: function() {
@@ -35,7 +32,7 @@ var Dialog = React.createClass({
     var messages = newHistory.map(
         function(message, i) {
           return <div key={i}>
-                  <Message texts={message.Texts} mtype={message.Mtype} app={app}/>
+                  <Message texts={message.Texts} mtype={message.Mtype} app={app} user={user}/>
                 </div>
         })
     var prompt = user.getPrompt();
@@ -52,7 +49,7 @@ var Dialog = React.createClass({
                   <Title user={user} welcomeText={welcomeText}/>
                   <OldHistory user={user} oldHistory={state.oldHistory}/>
                   {messages}
-                  <Input user={user} prompt={prompt} onComplete={this.changeState} app={app}/>
+                  <Prompt user={user} prompt={prompt} onComplete={this.changeState} app={app}/>
                 </div>;
     }
 
@@ -156,17 +153,32 @@ var MessageText = React.createClass({
 // Render each message
 var Message = React.createClass({
   getInitialState: function() {
-    return {count: 0};
+    return {count: 1, complete: false};
+  },
+
+  refreshAfterDelay: function() {
+    var texts = this.props.texts;
+    if ((this.props.delay) && !this.state.complete) {
+      if (this.state.count < texts.length) {
+        this.triggerDelay();
+      } else {
+        this.state.complete = true;
+        this.setState(this.state);
+        // This should only be necessary if delay is turned on
+        // otherwise, everything would have been rendered.
+        if (this.props.onComplete) {
+          this.props.onComplete();
+        }
+      }
+    }
   },
 
   componentDidMount: function() {
-    var e = React.findDOMNode(this);
-    e.scrollIntoView();
+    this.refreshAfterDelay();
   },
     
   componentDidUpdate: function(prevProps, prevState) {
-    var e = React.findDOMNode(this);
-    e.scrollIntoView();
+    this.refreshAfterDelay();
   },
 
   triggerDelay: function() {
@@ -174,32 +186,25 @@ var Message = React.createClass({
     if (this.props.texts[this.state.count].length > 100) {
       d = DELAY_PROMPT_TIME_LONG;
     }
-    this.state.count++;
     this.state.interval = window.setInterval(this.unTriggerDelay, d);
   },
 
   unTriggerDelay: function() {
     window.clearInterval(this.state.interval);
-    this.setState({})
-    if (this.state.count == this.props.texts.length) {
-      // TODO - This implicitly only allow action UI to be shown
-      // when <Message> has delay = true
-      this.props.app.showAction(true);
-    }
+    this.state.count++;
+    this.setState(this.state);
   },
 
   render: function() {
     var texts = this.props.texts;
     var delay = this.props.delay;
     var mtype = this.props.mtype;
-    var lastCount = 0;
-    if (delay) {
-      if (this.state.count < texts.length) {
-        this.triggerDelay();
-      }
-      lastCount = this.state.count;
-    } else {
+    var lastCount;
+
+    if (!delay) {
       lastCount = texts.length;
+    } else {
+      lastCount = this.state.count;
     }
 
     messages = texts.slice(0, lastCount).map(
@@ -216,11 +221,73 @@ var Message = React.createClass({
   }
 });
 
+// Renter Prompt
+var Prompt = React.createClass({
+  getInitialState: function() {
+    return {};
+  },
+
+  handleChange: function(event) {
+    this.setState({});
+  },
+
+  render: function() {
+    var app = this.props.app;
+    var prompt = this.props.prompt;
+    var texts = prompt.Texts;
+    var user = this.props.user;
+    var onComplete = this.props.onComplete;
+
+    var promptId = prompt.PromptId;
+    var phaseId = user.CurrentPhaseId;
+
+    var human = this.props.user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
+
+    switch (prompt.PromptType) {
+    case UI_PROMPT_TEXT, UI_PROMPT_MC, UI_PROMPT_STRAIGHT_THROUGH:
+      return  <div className="chat" key={promptId+user.getHistory().length}>
+                <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app} user={user} onComplete={onComplete}/>
+                <div className="human">
+                  <div className="name">{human}</div>
+                  <Input user={user} prompt={prompt} onComplete={onComplete} app={app}/>
+                </div>
+              </div>;    
+    default:
+      return  <div className="chat" key={promptId+user.getHistory().length}>
+                <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app} user={user} onComplete={onComplete}/>
+              </div>;
+    }
+  },
+});
+
+var PromptOption = React.createClass({
+
+  render: function() {
+    var option = this.props.option;
+      return  <label>
+                <input type="radio" name="dialoginput" value={option.ResponseId}/>
+                {option.Text}
+              </label>
+  },
+});
+
+
 // Renter input window
 var Input = React.createClass({
-
   getInitialState: function() {
     return {enabled: false, passthrough: false};
+  },
+
+  componentDidMount: function() {
+    if (this.triggerSubmit()) {
+      this.handleSubmit()
+    }
+  },
+    
+  componentDidUpdate: function(prevProps, prevState) {
+    if (this.triggerSubmit()) {
+      this.handleSubmit()
+    }
   },
 
   isEnabled: function() {
@@ -239,19 +306,27 @@ var Input = React.createClass({
     }
   },
 
-  triggerPassThrough: function() {
-    this.state.passthrough = true;
-    var d = DELAY_PROMPT_TIME_SHORT;
-    if (this.props.prompt.Texts[0].length > 100) {
-      d = DELAY_PROMPT_TIME_LONG;
+  triggerSubmit: function() {
+    if (this.state.passthrough) {
+      this.state.passthrough = false;
+      return true;
     }
-    this.state.interval = window.setInterval(this.unTriggerPassThrough, d);
+    return false;
   },
 
-  unTriggerPassThrough: function() {
-    window.clearInterval(this.state.interval);
-    this.handleSubmit()
-  },
+  // triggerPassThrough: function() {
+  //   this.state.passthrough = true;
+  //   var d = DELAY_PROMPT_TIME_SHORT;
+  //   if (this.props.prompt.Texts[0].length > 100) {
+  //     d = DELAY_PROMPT_TIME_LONG;
+  //   }
+  //   this.state.interval = window.setInterval(this.unTriggerPassThrough, d);
+  // },
+
+  // unTriggerPassThrough: function() {
+  //   window.clearInterval(this.state.interval);
+  //   this.handleSubmit()
+  // },
 
   handleSubmit: function(event) {
     if (event) {
@@ -296,14 +371,14 @@ var Input = React.createClass({
     response.id = id;
     jsonResponse = JSON.stringify(response);
     user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
-    this.setState({mode: 0, enabled:false});
   },
 
   render: function() {
     var app = this.props.app;
     var prompt = this.props.prompt;
-    var texts = prompt.Texts
+    var texts = prompt.Texts;
     var user = this.props.user;
+    var onComplete = this.props.onComplete;
 
     var promptId = prompt.PromptId;
     var phaseId = user.CurrentPhaseId;
@@ -312,21 +387,15 @@ var Input = React.createClass({
 
     switch (prompt.PromptType) {
     case UI_PROMPT_TEXT:
-      return  <div className="chat" key={promptId+user.getHistory().length}>
-                <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app}/>
-                <div className="human">
-                  <div className="name">{human}</div>
-                  <div className="form">
-                    <form id="dialogForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
-                    className="request">
-                      <textarea autoFocus name="dialoginput" onKeyDown={this.handleEnter}></textarea>
-                      <br/>
-                      <input type="hidden" id="promptId" value={promptId}/>
-                      <input type="hidden" id="phaseId" value={phaseId}/>
-                      <button type="submit" disabled={!this.isEnabled()}>Enter</button>
-                    </form>
-                  </div>
-                </div>
+      return  <div className="form">
+                <form id="dialogForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
+                className="request">
+                  <textarea autoFocus name="dialoginput" onKeyDown={this.handleEnter}></textarea>
+                  <br/>
+                  <input type="hidden" id="promptId" value={promptId}/>
+                  <input type="hidden" id="phaseId" value={phaseId}/>
+                  <button type="submit" disabled={!this.isEnabled()}>Enter</button>
+                </form>
               </div>;
     case UI_PROMPT_MC:
       if (!prompt.Options) {
@@ -338,63 +407,32 @@ var Input = React.createClass({
           return <div key={i}><PromptOption option={option}/></div>;
         });
 
-      return  <div className="chat" key={promptId+user.getHistory().length}>
-                <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app}/>
-                <div className="human">
-                  <div className="name">{human}</div>
-                  <div className="form">
-                    <form id="dialogForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
-                    className="request">
-                      {options}
-                      <br/>
-                      <input type="hidden" id="promptId" value={promptId}/>
-                      <input type="hidden" id="phaseId" value={phaseId}/>
-                      <button type="submit" disabled={!this.isEnabled()}>Enter</button>
-                    </form>
-                  </div>
-                </div>
+      return  <div className="form">
+                <form id="dialogForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
+                className="request">
+                  {options}
+                  <br/>
+                  <input type="hidden" id="promptId" value={promptId}/>
+                  <input type="hidden" id="phaseId" value={phaseId}/>
+                  <button type="submit" disabled={!this.isEnabled()}>Enter</button>
+                </form>
               </div>;
     case UI_PROMPT_STRAIGHT_THROUGH:
-      if (this.state.passthrough) {
-        this.state.passthrough = false
-      } else {
-        this.triggerPassThrough();
-      }
-      return  <div className="chat" key={promptId+user.getHistory().length}>
-                <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app}/>
-                <div className="human">
-                  <div className="name">{human}</div>
-                  <div className="form">
-                    <form id="dialogForm" onSubmit={this.handleSubmit} className="request">
-                      <input type="text" name="dialoginput" disabled/>
-                      <br/>
-                      <input type="hidden" id="promptId" value={promptId}/>
-                      <input type="hidden" id="phaseId" value={phaseId}/>
-                      <button type="submit" id="submitButton" disabled={!this.isEnabled()}>Enter</button>
-                    </form>
-                  </div>
-                </div>
-              </div>;    
+      this.state.passthrough = true;
+      return <div className="form">
+              <form id="dialogForm" onSubmit={this.handleSubmit} className="request">
+                <input type="text" name="dialoginput" disabled/>
+                <br/>
+                <input type="hidden" id="promptId" value={promptId}/>
+                <input type="hidden" id="phaseId" value={phaseId}/>
+                <button type="submit" id="submitButton" disabled={!this.isEnabled()}>Enter</button>
+              </form>
+            </div>;
     default:
-      return  <div className="chat" key={promptId+user.getHistory().length}>
-                <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app}/>
-              </div>;
+      return  <div></div>;
     }
   },
 });
-
-var PromptOption = React.createClass({
-
-  render: function() {
-    var option = this.props.option;
-      return  <label>
-                <input type="radio" name="dialoginput" value={option.ResponseId}/>
-                {option.Text}
-              </label>
-  },
-});
-
-
 
 
 

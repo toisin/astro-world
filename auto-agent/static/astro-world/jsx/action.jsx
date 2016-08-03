@@ -11,9 +11,9 @@ var Action = React.createClass({
   },
 
   changeState: function() {
-    this.setState({mode: 0});
+    // this.setState({mode: 0});
     var app = this.props.app;
-    app.showAction();
+    app.refreshState();
   },
 
   render: function() {

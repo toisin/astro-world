@@ -8,7 +8,7 @@ import (
 )
 
 type UserData struct {
-	uiUserData    workflow.UIUserData
+	uiUserData    *workflow.UIUserData
 	CurrentPrompt workflow.Prompt
 	user          db.User
 }
@@ -17,40 +17,23 @@ func MakeUserData(u db.User) *UserData {
 	// Process submitted answer
 	ud := &UserData{}
 	ud.user = u
-	ud.uiUserData = *workflow.MakeUIUserData(u)
-	// ud.uiUserData = workflow.UIUserData{}
-
-	// // update new UserData with everything that is available on db.User
-	// ud.uiUserData.Username = u.Username
-	// ud.uiUserData.Screenname = u.Screenname
-	// ud.uiUserData.CurrentFactorId = u.CurrentFactorId
-	// ud.uiUserData.CurrentPhaseId = u.CurrentPhaseId
-
-	// if u.UIState != nil {
-	// 	s, err := workflow.UnstringifyState(u.UIState, u.CurrentPhaseId)
-
-	// 	if err != nil {
-	// 		fmt.Fprintf(os.Stderr, "Error converting json to StateEntities: %s\n\n", err)
-	// 	}
-	// 	ud.uiUserData.State = s
-	// }
-
+	ud.uiUserData = workflow.MakeUIUserData(u)
 	// Construct Prompt appropriately
 	if (u.CurrentPromptId == "") || (u.CurrentPhaseId == "") {
 		// No existing prompt, make the first one
-		ud.CurrentPrompt = workflow.MakeFirstPrompt(&ud.uiUserData)
+		ud.CurrentPrompt = workflow.MakeFirstPrompt(ud.uiUserData)
 		ud.user.CurrentPromptId = ud.CurrentPrompt.GetPromptId()
+		ud.user.CurrentPhaseId = ud.uiUserData.CurrentPhaseId
 	} else {
 		// Returning user with existing prompt, reconstruct it
 		phaseId := u.CurrentPhaseId
 		promptId := u.CurrentPromptId
-		ud.CurrentPrompt = workflow.MakePrompt(promptId, phaseId, &ud.uiUserData)
+		ud.CurrentPrompt = workflow.MakePrompt(promptId, phaseId, ud.uiUserData)
 	}
 
 	// update UserData with latest prompt & Ui related members
 	ud.uiUserData.CurrentUIAction = ud.CurrentPrompt.GetUIAction()
 	ud.uiUserData.CurrentPhaseId = ud.CurrentPrompt.GetPhaseId()
-
 	ud.uiUserData.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt()
 
 	return ud
@@ -75,5 +58,4 @@ func (ud *UserData) UpdateWithNextPrompt() {
 		}
 		ud.user.UIState = s
 	}
-
 }

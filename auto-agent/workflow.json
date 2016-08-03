@@ -156,9 +156,17 @@
           "PromptType": "NO_INPUT",
           "ResponseType": "PRIOR_BELIEF_FACTORS",
           "UIActionModeId": "PRIOR_BELIEF_FACTORS",
-          "ExpectedResponses": [
+          "ExpectedResponses": {
+            "StateTemplateRef":"{{.Beliefs.HasCausalFactors}}",
+            "Values": [
             {
-              "Id": "CONTENT_REF",
+              "Id": "false",
+              "NextPromptRef": {
+                "Id": "test record select"
+              }
+            },
+            {
+              "Id": "true",
               "NextPrompt": {
                 "Id": "Prior beliefs levels",
                 "Text": [
@@ -168,57 +176,60 @@
                 "PromptType": "NO_INPUT",
                 "ResponseType": "PRIOR_BELIEF_LEVELS",
                 "UIActionModeId": "PRIOR_BELIEF_LEVELS",
-                "ExpectedResponses": [
+                "ExpectedResponses": {
+                "Values": [
                   {
                     "Id": "anything",
                     "NextPrompt": {
                       "Id": "test record select",
                       "Text": [
-                        "So, you think that to performance in space.",
-                        "Now, let's figure out whether those factors actually matter!",
-                        "What I have in my database is a list of records of how the applicants performed.",
-                        "If you study the records carefully, you will be able to see which factors make a difference to performance and which don't.",
-                        "Now, let's try it.",
-                        "On the screen, you can look for an applicant who you want to look.", "Just select a level for each factor, and the computer will find you an applicant who has all those levels and tell you his/her performance",
+                        "So, you think that {{if .Beliefs.HasCausalFactors}}{{.Beliefs.CausalFactors}}{{if .Beliefs.HasMultipleCausalFactors}} matter{{- else}} matters{{- end}}{{- else}}none of the factors matters{{- end}} to performance in space.Now, let's figure out whether those factors actually matter!","What I have in my database is a list of records of how the applicants performed.If you study the records carefully, you will be able to see which factors make a difference to performance and which don't.",
+                        "Now, let's try it. On the screen, you can look for an applicant who you want to look.", "Just select a level for each factor, and the computer will find you an applicant who has all those levels and tell you his/her performance",
                         "Now, make your selection. Remember to click \"Enter\" when you are ready."
                       ],
                       "PromptType": "NO_INPUT",
                       "ResponseType": "RECORD",
                       "UIActionModeId": "RECORD_SELECT_ONE",
-                      "ExpectedResponses": [
+                      "ExpectedResponses": {
+                      "Values":[
                         {
                           "Id": "anything",
                           "NextPrompt": {
                             "Id": "test record result",
                             "Text": [
-                              "As you can see, you selected Record "
+                              "As you can see, you selected Record #{{.RecordNoOne.RecordNo}}, {{.RecordNoOne.RecordName}}. And you can see that his performance was {{.RecordNoOne.Performance}}."
                             ],
                             "PromptType": "STRAIGHT_THROUGH",
                             "ResponseType": "Basic",
                             "UIActionModeId": "RECORD_PERFORMANCE",
-                            "ExpectedResponses": [
+                            "ExpectedResponses": {
+                            "Values": [
                               {
                                 "Id": "anything",
                                 "NextPrompt": {
                                   "Id": "end",
                                   "Text": [
-                                    "Now that you know how to select a record, you can start figuring out whether each factor matters by looking through the records."
+                                    "Now that you know how to select a record, you can start figuring out whether each factor matters by looking through the records.", "Hit \"Enter\" when you are ready to continue."
                                   ],
-                                  "PromptType": "STRAIGHT_THROUGH",
+                                  "PromptType": "NO_INPUT",
                                   "ResponseType": "COMPLETE",
                                   "UIActionModeId": "RECORD_PERFORMANCE"
                                 }
                               }
                             ]
+                            }
                           }
                         }
                       ]
+                      }
                     }
                   }
                 ]
+                }
               }
             }
           ]
+          }
         }
       },
       {
@@ -232,7 +243,8 @@
           "ResponseType": "SELECT_TARGET_FACTOR",
           "UIActionModeId": "NEW_TARGET_FACTOR",
           "IsDynamicExpectedResponses": true,
-          "ExpectedResponses": [
+          "ExpectedResponses": {
+          "Values":[
             {
               "Id": "CONTENT_REF",
               "NextPrompt": {
@@ -242,7 +254,8 @@
                 "PromptType": "MC",
                 "ResponseType": "Basic",
                 "UIActionModeId": "NO_UIACTION",
-                "ExpectedResponses": [
+                "ExpectedResponses": {
+                  "Values":[
                   {
                     "Id": "p1r1",
                     "Text": "One",
@@ -254,7 +267,8 @@
                       "PromptType": "NO_INPUT",
                       "ResponseType": "RECORD",
                       "UIActionModeId": "RECORD_SELECT_ONE",
-                      "ExpectedResponses": [
+                      "ExpectedResponses": {
+                        "Values":[
                         {
                           "Id": "p1r1p1r1",
                           "NextPrompt": {
@@ -265,7 +279,8 @@
                             "PromptType": "Text",
                             "ResponseType": "Basic",
                             "UIActionModeId": "RECORD_PERFORMANCE",
-                            "ExpectedResponses": [
+                            "ExpectedResponses": {
+                            "Values":[
                               {
                                 "Id": "anything",
                                 "NextPromptRef": {
@@ -274,9 +289,11 @@
                                 }
                               }
                             ]
+                            }
                           }
                         }
                       ]
+                      }
                     }
                   },
                   {
@@ -290,7 +307,8 @@
                       "PromptType": "NO_INPUT",
                       "ResponseType": "RECORD",
                       "UIActionModeId": "RECORD_SELECT_TWO",
-                      "ExpectedResponses": [
+                      "ExpectedResponses": {
+                      "Values":[
                         {
                           "Id": "Target factor non-varying",
                           "NextPrompt": {
@@ -301,7 +319,8 @@
                             "PromptType": "Text",
                             "ResponseType": "Basic",
                             "UIActionModeId": "RECORD_PERFORMANCE",
-                            "ExpectedResponses": [
+                            "ExpectedResponses": {
+                            "Values":[
                               {
                                 "Id": "anything",
                                 "NextPrompt": {
@@ -315,6 +334,7 @@
                                 }
                               }
                             ]
+                            }
                           }
                         },
                         {
@@ -354,12 +374,15 @@
                           }
                         }
                       ]
+                      }
                     }
                   }
                 ]
+                }
               }
             }
           ]
+          }
         }
       }
     ]
@@ -398,7 +421,8 @@
           "PromptType": "NO_INPUT",
           "ResponseType": "SELECT_TARGET_FACTOR",
           "UIActionModeId": "NEW_TARGET_FACTOR",
-          "ExpectedResponses": [
+          "ExpectedResponses": {
+          "Values":[
             {
               "Id": "fitness",
               "Text": "Fitness",
@@ -441,6 +465,7 @@
               }
             }
           ]
+          }
         }
       }
     ]
