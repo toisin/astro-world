@@ -244,7 +244,9 @@ var Prompt = React.createClass({
     var human = this.props.user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
 
     switch (prompt.PromptType) {
-    case UI_PROMPT_TEXT, UI_PROMPT_MC, UI_PROMPT_STRAIGHT_THROUGH:
+    case UI_PROMPT_TEXT:
+    case UI_PROMPT_MC:
+    case UI_PROMPT_STRAIGHT_THROUGH:
       return  <div className="chat" key={promptId+user.getHistory().length}>
                 <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app} user={user} onComplete={onComplete}/>
                 <div className="human">
@@ -275,7 +277,7 @@ var PromptOption = React.createClass({
 // Renter input window
 var Input = React.createClass({
   getInitialState: function() {
-    return {enabled: false, passthrough: false};
+    return {enabled: false, passthrough: true};
   },
 
   componentDidMount: function() {
@@ -307,26 +309,14 @@ var Input = React.createClass({
   },
 
   triggerSubmit: function() {
-    if (this.state.passthrough) {
-      this.state.passthrough = false;
-      return true;
+    if (this.props.prompt.PromptType == UI_PROMPT_STRAIGHT_THROUGH) {
+      if (this.state.passthrough) {
+        this.state.passthrough = false;
+        return true;
+      }
     }
     return false;
   },
-
-  // triggerPassThrough: function() {
-  //   this.state.passthrough = true;
-  //   var d = DELAY_PROMPT_TIME_SHORT;
-  //   if (this.props.prompt.Texts[0].length > 100) {
-  //     d = DELAY_PROMPT_TIME_LONG;
-  //   }
-  //   this.state.interval = window.setInterval(this.unTriggerPassThrough, d);
-  // },
-
-  // unTriggerPassThrough: function() {
-  //   window.clearInterval(this.state.interval);
-  //   this.handleSubmit()
-  // },
 
   handleSubmit: function(event) {
     if (event) {
@@ -418,7 +408,6 @@ var Input = React.createClass({
                 </form>
               </div>;
     case UI_PROMPT_STRAIGHT_THROUGH:
-      this.state.passthrough = true;
       return <div className="form">
               <form id="dialogForm" onSubmit={this.handleSubmit} className="request">
                 <input type="text" name="dialoginput" disabled/>

@@ -40,6 +40,7 @@ func init() {
 	http.Handle(IMPORTDB_REQUEST, &ImportRecordDBHandler{})
 	http.Handle(CLEARDB_REQUEST, &ClearRecordDBHandler{})
 	http.Handle(CLEARALLUSERS_REQUEST, &ClearAllUsersDBHandler{})
+	http.Handle(CLEARUSERLOGS_REQUEST, &ClearUserLogsDBHandler{})
 
 	workflow.InitWorkflow()
 }
@@ -69,6 +70,7 @@ const COV_SENDRESPONSE = "/astro-world/sendresponse"
 const IMPORTDB_REQUEST = "/astro-world/importDB"
 const CLEARDB_REQUEST = "/astro-world/clearDB"
 const CLEARALLUSERS_REQUEST = "/astro-world/clearAllUsersDB"
+const CLEARUSERLOGS_REQUEST = "/astro-world/clearUserLogsDB"
 
 type GetHandler StaticHandler
 type HistoryHandler StaticHandler
@@ -78,6 +80,7 @@ type GetUserHandler StaticHandler
 type ImportRecordDBHandler StaticHandler
 type ClearRecordDBHandler StaticHandler
 type ClearAllUsersDBHandler StaticHandler
+type ClearUserLogsDBHandler StaticHandler
 
 func (covH *ImportRecordDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
@@ -94,6 +97,12 @@ func (covH *ClearRecordDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 func (covH *ClearAllUsersDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	ClearAllUsersDB(c)
+	http.ServeFile(w, r, "static/index.html")
+}
+
+func (covH *ClearUserLogsDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	ClearUserLogsDB(c)
 	http.ServeFile(w, r, "static/index.html")
 }
 
@@ -571,6 +580,27 @@ func ClearAllRecordsDB(c appengine.Context) {
 	err = datastore.DeleteMulti(c, ks)
 	if err != nil {
 		fmt.Fprint(os.Stderr, "DB Error Deleting Records:"+err.Error()+"!\n\n")
+		log.Fatal(err)
+		return
+	}
+}
+
+func ClearUserLogsDB(c appengine.Context) {
+	q := datastore.NewQuery("UserLog")
+
+	var logs []db.UserLog
+	// To retrieve the results,
+	// you must execute the Query using its GetAll or Run methods.
+	ks, err := q.GetAll(c, &logs)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Getting All UserLogs:"+err.Error()+"!\n\n")
+		log.Fatal(err)
+		return
+	}
+
+	err = datastore.DeleteMulti(c, ks)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Deleting All UserLogs:"+err.Error()+"!\n\n")
 		log.Fatal(err)
 		return
 	}

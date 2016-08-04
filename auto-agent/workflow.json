@@ -184,7 +184,7 @@
                       "Id": "test record select",
                       "Text": [
                         "So, you think that {{if .Beliefs.HasCausalFactors}}{{.Beliefs.CausalFactors}}{{if .Beliefs.HasMultipleCausalFactors}} matter{{- else}} matters{{- end}}{{- else}}none of the factors matters{{- end}} to performance in space.Now, let's figure out whether those factors actually matter!","What I have in my database is a list of records of how the applicants performed.If you study the records carefully, you will be able to see which factors make a difference to performance and which don't.",
-                        "Now, let's try it. On the screen, you can look for an applicant who you want to look.", "Just select a level for each factor, and the computer will find you an applicant who has all those levels and tell you his/her performance",
+                        "Now, let's try it. On the screen, you can look for an applicant who you want to see. Just select a level for each factor, and the computer will find you an applicant who has all those levels and tell you his/her performance",
                         "Now, make your selection. Remember to click \"Enter\" when you are ready."
                       ],
                       "PromptType": "NO_INPUT",
@@ -197,7 +197,7 @@
                           "NextPrompt": {
                             "Id": "test record result",
                             "Text": [
-                              "As you can see, you selected Record #{{.RecordNoOne.RecordNo}}, {{.RecordNoOne.RecordName}}. And you can see that his performance was {{.RecordNoOne.Performance}}."
+                              "You selected Record #{{.RecordNoOne.RecordNo}}, {{.RecordNoOne.RecordName}}. And you can see that his performance was {{.RecordNoOne.Performance}}."
                             ],
                             "PromptType": "STRAIGHT_THROUGH",
                             "ResponseType": "Basic",
