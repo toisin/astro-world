@@ -154,11 +154,11 @@ func (c *GenericState) setScreenname(s string) {
 // Not applicable to all phases
 func (c *GenericState) setTargetFactor(t FactorState) {
 	c.TargetFactor = t
-	c.updateSelectedFactor(t.FactorId)
 }
 
 // Not applicable to all phases
-func (c *GenericState) updateSelectedFactor(factorId string) {
+func (c *GenericState) updateRemainingFactors() {
+	factorId := c.TargetFactor.FactorId
 	if c.RemainingFactorIds != nil {
 		for i, v := range c.RemainingFactorIds {
 			if v == factorId {
@@ -329,6 +329,13 @@ func MakePromptFromConfig(pc PromptConfig, uiUserData *UIUserData) Prompt {
 		return MakeChartPrompt(pc, uiUserData)
 	}
 	return nil
+}
+
+func GetFirstPromptConfigInSequence(sequenceOrder int, phaseId string) *PromptConfig {
+	phase := GetPhase(phaseId)
+	// Call GetPromptConfig just in case if some kind of initialization happened when
+	// promptConfigMap was populated
+	return GetPromptConfig(phase.OrderedSequences[sequenceOrder].FirstPrompt.Id, phaseId)
 }
 
 func GetPromptConfig(promptId string, phaseId string) *PromptConfig {

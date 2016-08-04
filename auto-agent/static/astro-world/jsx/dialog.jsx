@@ -81,8 +81,8 @@ var OldHistory = React.createClass({
     if (messages.length > 0) {
       if (state.showMessages) {
         return <div>
-                  <button type="submit" onClick={this.changeState}>Click to Hide old chat history</button>
                   {messages}
+                  <button type="submit" onClick={this.changeState}>Click to Hide old chat history</button>
                </div>;
       } else {
         return <div>
@@ -183,7 +183,7 @@ var Message = React.createClass({
 
   triggerDelay: function() {
     var d = DELAY_PROMPT_TIME_SHORT;
-    if (this.props.texts[this.state.count].length > 100) {
+    if (this.props.texts[this.state.count].length > LONG_PROMPT_SIZE) {
       d = DELAY_PROMPT_TIME_LONG;
     }
     this.state.interval = window.setInterval(this.unTriggerDelay, d);

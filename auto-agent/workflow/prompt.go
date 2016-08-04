@@ -16,6 +16,7 @@ import (
 )
 
 type Prompt interface {
+	GetSequenceOrder() int
 	GetPhaseId() string
 	GetResponseId() string
 	GetResponseText() string
@@ -64,8 +65,13 @@ func (cp *GenericPrompt) GetResponseText() string {
 func (cp *GenericPrompt) GetNextPrompt() Prompt {
 	return cp.nextPrompt
 }
+
 func (cp *GenericPrompt) GetPromptId() string {
 	return cp.promptConfig.Id
+}
+
+func (cp *GenericPrompt) GetSequenceOrder() int {
+	return cp.promptConfig.sequenceOrder
 }
 
 // Returned UIAction may be nil if not action UI is needed

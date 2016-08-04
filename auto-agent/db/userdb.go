@@ -13,13 +13,14 @@ const (
 )
 
 type User struct {
-	Username        string
-	Screenname      string
-	Date            time.Time // Time when user is created
-	CurrentPhaseId  string
-	CurrentPromptId string
-	CurrentFactorId string
-	UIState         []byte // Do not store as string because string type has a limit of 500 characters
+	Username             string
+	Screenname           string
+	Date                 time.Time // Time when user is created
+	CurrentPhaseId       string
+	CurrentSequenceOrder int
+	CurrentPromptId      string
+	CurrentFactorId      string
+	UIState              []byte // Do not store as string because string type has a limit of 500 characters
 }
 
 // Generic message with no additional phase specific details

@@ -157,78 +157,90 @@
           "ResponseType": "PRIOR_BELIEF_FACTORS",
           "UIActionModeId": "PRIOR_BELIEF_FACTORS",
           "ExpectedResponses": {
-            "StateTemplateRef":"{{.Beliefs.HasCausalFactors}}",
+            "StateTemplateRef": "{{.Beliefs.HasCausalFactors}}",
             "Values": [
-            {
-              "Id": "false",
-              "NextPromptRef": {
-                "Id": "test record select"
-              }
-            },
-            {
-              "Id": "true",
-              "NextPrompt": {
-                "Id": "Prior beliefs levels",
-                "Text": [
-                  "Ok, Now, for the factors that you thought would matter, tell me which level is best for performance.",
-                  "Hit \"Enter\" when you are done."
-                ],
-                "PromptType": "NO_INPUT",
-                "ResponseType": "PRIOR_BELIEF_LEVELS",
-                "UIActionModeId": "PRIOR_BELIEF_LEVELS",
-                "ExpectedResponses": {
-                "Values": [
-                  {
-                    "Id": "anything",
-                    "NextPrompt": {
-                      "Id": "test record select",
-                      "Text": [
-                        "So, you think that {{if .Beliefs.HasCausalFactors}}{{.Beliefs.CausalFactors}}{{if .Beliefs.HasMultipleCausalFactors}} matter{{- else}} matters{{- end}}{{- else}}none of the factors matters{{- end}} to performance in space.Now, let's figure out whether those factors actually matter!","What I have in my database is a list of records of how the applicants performed.If you study the records carefully, you will be able to see which factors make a difference to performance and which don't.",
-                        "Now, let's try it. On the screen, you can look for an applicant who you want to see. Just select a level for each factor, and the computer will find you an applicant who has all those levels and tell you his/her performance",
-                        "Now, make your selection. Remember to click \"Enter\" when you are ready."
-                      ],
-                      "PromptType": "NO_INPUT",
-                      "ResponseType": "RECORD",
-                      "UIActionModeId": "RECORD_SELECT_ONE",
-                      "ExpectedResponses": {
-                      "Values":[
-                        {
-                          "Id": "anything",
-                          "NextPrompt": {
-                            "Id": "test record result",
-                            "Text": [
-                              "You selected Record #{{.RecordNoOne.RecordNo}}, {{.RecordNoOne.RecordName}}. And you can see that his performance was {{.RecordNoOne.Performance}}."
-                            ],
-                            "PromptType": "STRAIGHT_THROUGH",
-                            "ResponseType": "Basic",
-                            "UIActionModeId": "RECORD_PERFORMANCE",
-                            "ExpectedResponses": {
-                            "Values": [
-                              {
-                                "Id": "anything",
-                                "NextPrompt": {
-                                  "Id": "end",
-                                  "Text": [
-                                    "Now that you know how to select a record, you can start figuring out whether each factor matters by looking through the records.", "Hit \"Enter\" when you are ready to continue."
-                                  ],
-                                  "PromptType": "NO_INPUT",
-                                  "ResponseType": "COMPLETE",
-                                  "UIActionModeId": "RECORD_PERFORMANCE"
-                                }
-                              }
-                            ]
-                            }
-                          }
+              {
+                "Id": "false",
+                "NextPromptRef": {
+                  "Id": "end prior belief"
+                }
+              },
+              {
+                "Id": "true",
+                "NextPrompt": {
+                  "Id": "Prior beliefs levels",
+                  "Text": [
+                    "Ok, Now, for the factors that you thought would matter, tell me which level is best for performance.",
+                    "Hit \"Enter\" when you are done."
+                  ],
+                  "PromptType": "NO_INPUT",
+                  "ResponseType": "PRIOR_BELIEF_LEVELS",
+                  "UIActionModeId": "PRIOR_BELIEF_LEVELS",
+                  "ExpectedResponses": {
+                    "Values": [
+                      {
+                        "Id": "anything",
+                        "NextPrompt": {
+                          "Id": "end prior belief",
+                          "Text": [
+                            "So, you think that {{if .Beliefs.HasCausalFactors}}{{.Beliefs.CausalFactors}}{{if .Beliefs.HasMultipleCausalFactors}} matter{{- else}} matters{{- end}}{{- else}}none of the factors matters{{- end}} to performance in space."
+                          ],
+                          "PromptType": "STRAIGHT_THROUGH",
+                          "ResponseType": "COMPLETE",
+                          "UIActionModeId": "NO_UIACTION"
                         }
-                      ]
                       }
-                    }
+                    ]
                   }
-                ]
                 }
               }
-            }
-          ]
+            ]
+          }
+        }
+      },
+      {
+        "FirstPrompt": {
+          "Id": "test record select",
+          "Text": [
+            "Now, let's figure out whether those factors actually matter! What I have in my database is a list of records of how the applicants performed.If you study the records carefully, you will be able to see which factors make a difference to performance and which don't.",
+            "Let's try it. On the screen, you can look for an applicant who you want to see. Just select a level for each factor, and the computer will find you an applicant who has all those levels and tell you his/her performance",
+            "Now, make your selection. Remember to click \"Enter\" when you are ready."
+          ],
+          "PromptType": "NO_INPUT",
+          "ResponseType": "RECORD",
+          "UIActionModeId": "RECORD_SELECT_ONE",
+          "ExpectedResponses": {
+            "Values": [
+              {
+                "Id": "anything",
+                "NextPrompt": {
+                  "Id": "test record result",
+                  "Text": [
+                    "You selected Record #{{.RecordNoOne.RecordNo}}, {{.RecordNoOne.RecordName}}. And you can see that his performance was {{.RecordNoOne.Performance}}."
+                  ],
+                  "PromptType": "STRAIGHT_THROUGH",
+                  "ResponseType": "Basic",
+                  "UIActionModeId": "RECORD_PERFORMANCE",
+                  "ExpectedResponses": {
+                    "Values": [
+                      {
+                        "Id": "anything",
+                        "NextPrompt": {
+                          "Id": "end",
+                          "Text": [
+                            "Now that you know how to select a record, you can start figuring out whether each factor matters by looking through the records.",
+                            "Hit \"Enter\" when you are ready to continue."
+                          ],
+                          "PromptType": "NO_INPUT",
+                          "ResponseType": "COMPLETE",
+                          "UIActionModeId": "RECORD_PERFORMANCE"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
           }
         }
       },
@@ -244,144 +256,146 @@
           "UIActionModeId": "NEW_TARGET_FACTOR",
           "IsDynamicExpectedResponses": true,
           "ExpectedResponses": {
-          "Values":[
-            {
-              "Id": "CONTENT_REF",
-              "NextPrompt": {
-                "Id": "p1",
-                "Text": ["Ok. Let's figure out whether {{.TargetFactor.FactorName}} matters.", "How many records would you like to see? One or Two?"
-                ],
-                "PromptType": "MC",
-                "ResponseType": "Basic",
-                "UIActionModeId": "NO_UIACTION",
-                "ExpectedResponses": {
-                  "Values":[
-                  {
-                    "Id": "p1r1",
-                    "Text": "One",
-                    "NextPrompt": {
-                      "Id": "p1r1p1",
-                      "Text": [
-                        "Which one would you like to see?"
-                      ],
-                      "PromptType": "NO_INPUT",
-                      "ResponseType": "RECORD",
-                      "UIActionModeId": "RECORD_SELECT_ONE",
-                      "ExpectedResponses": {
-                        "Values":[
-                        {
-                          "Id": "p1r1p1r1",
-                          "NextPrompt": {
-                            "Id": "p1r1p1r1p1",
-                            "Text": [
-                              "So, you want to look at record {{.RecordNoOne.RecordName}}, {{.RecordNoOne.RecordNo}}. Now, before I show you the performance. Can you tell me what you would be able to figure out by looking at this record? What would happen if {{.TargetFactor.FactorName}} was {{$x:=index .RecordNoOne.FactorLevels .TargetFactor.FactorId}}{{$x.OppositeLevel}}"
-                            ],
-                            "PromptType": "Text",
-                            "ResponseType": "Basic",
-                            "UIActionModeId": "RECORD_PERFORMANCE",
-                            "ExpectedResponses": {
-                            "Values":[
+            "Values": [
+              {
+                "Id": "CONTENT_REF",
+                "NextPrompt": {
+                  "Id": "p1",
+                  "Text": [
+                    "Ok. Let's figure out whether {{.TargetFactor.FactorName}} matters.",
+                    "How many records would you like to see? One or Two?"
+                  ],
+                  "PromptType": "MC",
+                  "ResponseType": "Basic",
+                  "UIActionModeId": "NO_UIACTION",
+                  "ExpectedResponses": {
+                    "Values": [
+                      {
+                        "Id": "p1r1",
+                        "Text": "One",
+                        "NextPrompt": {
+                          "Id": "p1r1p1",
+                          "Text": [
+                            "Which one would you like to see?"
+                          ],
+                          "PromptType": "NO_INPUT",
+                          "ResponseType": "RECORD",
+                          "UIActionModeId": "RECORD_SELECT_ONE",
+                          "ExpectedResponses": {
+                            "Values": [
                               {
-                                "Id": "anything",
-                                "NextPromptRef": {
-                                  "Id": "Which factor",
-                                  "PhaseId": "Chart"
+                                "Id": "p1r1p1r1",
+                                "NextPrompt": {
+                                  "Id": "p1r1p1r1p1",
+                                  "Text": [
+                                    "So, you want to look at record {{.RecordNoOne.RecordName}}, {{.RecordNoOne.RecordNo}}. Now, before I show you the performance. Can you tell me what you would be able to figure out by looking at this record? What would happen if {{.TargetFactor.FactorName}} was {{$x:=index .RecordNoOne.FactorLevels .TargetFactor.FactorId}}{{$x.OppositeLevel}}"
+                                  ],
+                                  "PromptType": "Text",
+                                  "ResponseType": "Basic",
+                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                  "ExpectedResponses": {
+                                    "Values": [
+                                      {
+                                        "Id": "anything",
+                                        "NextPromptRef": {
+                                          "Id": "Which factor",
+                                          "PhaseId": "Chart"
+                                        }
+                                      }
+                                    ]
+                                  }
                                 }
                               }
                             ]
-                            }
                           }
                         }
-                      ]
-                      }
-                    }
-                  },
-                  {
-                    "Id": "p1r2",
-                    "Text": "Two",
-                    "NextPrompt": {
-                      "Id": "p1r2p1",
-                      "Text": [
-                        "Which records would you like to see?"
-                      ],
-                      "PromptType": "NO_INPUT",
-                      "ResponseType": "RECORD",
-                      "UIActionModeId": "RECORD_SELECT_TWO",
-                      "ExpectedResponses": {
-                      "Values":[
-                        {
-                          "Id": "Target factor non-varying",
-                          "NextPrompt": {
-                            "Id": "p1r2p1r1p1",
-                            "Text": [
-                              "What happens if one is higher?"
-                            ],
-                            "PromptType": "Text",
-                            "ResponseType": "Basic",
-                            "UIActionModeId": "RECORD_PERFORMANCE",
-                            "ExpectedResponses": {
-                            "Values":[
+                      },
+                      {
+                        "Id": "p1r2",
+                        "Text": "Two",
+                        "NextPrompt": {
+                          "Id": "p1r2p1",
+                          "Text": [
+                            "Which records would you like to see?"
+                          ],
+                          "PromptType": "NO_INPUT",
+                          "ResponseType": "RECORD",
+                          "UIActionModeId": "RECORD_SELECT_TWO",
+                          "ExpectedResponses": {
+                            "Values": [
                               {
-                                "Id": "anything",
+                                "Id": "Target factor non-varying",
                                 "NextPrompt": {
-                                  "Id": "The End",
+                                  "Id": "p1r2p1r1p1",
+                                  "Text": [
+                                    "What happens if one is higher?"
+                                  ],
+                                  "PromptType": "Text",
+                                  "ResponseType": "Basic",
+                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                  "ExpectedResponses": {
+                                    "Values": [
+                                      {
+                                        "Id": "anything",
+                                        "NextPrompt": {
+                                          "Id": "The End",
+                                          "Text": [
+                                            "Thank you"
+                                          ],
+                                          "PromptType": "STRAIGHT_THROUGH",
+                                          "ResponseType": "COMPLETE",
+                                          "UIActionModeId": "NO_UIACTION"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              },
+                              {
+                                "Id": "Two records non-varying",
+                                "NextPrompt": {
+                                  "Id": "p1r2p1r2p1",
                                   "Text": [
                                     "Thank you"
                                   ],
                                   "PromptType": "STRAIGHT_THROUGH",
                                   "ResponseType": "COMPLETE",
-                                  "UIActionModeId": "NO_UIACTION"
+                                  "UIActionModeId": "RECORD_PERFORMANCE"
+                                }
+                              },
+                              {
+                                "Id": "Two records uncontrolled",
+                                "NextPrompt": {
+                                  "Id": "p1r2p1r3p1",
+                                  "Text": [
+                                    "Uncontrolled, Thank you!"
+                                  ],
+                                  "PromptType": "STRAIGHT_THROUGH",
+                                  "ResponseType": "COMPLETE",
+                                  "UIActionModeId": "RECORD_PERFORMANCE"
+                                }
+                              },
+                              {
+                                "Id": "Two records controlled",
+                                "NextPrompt": {
+                                  "Id": "p1r2p1r4p1",
+                                  "Text": [
+                                    "Controlled, Thank you!"
+                                  ],
+                                  "PromptType": "STRAIGHT_THROUGH",
+                                  "ResponseType": "COMPLETE",
+                                  "UIActionModeId": "RECORD_PERFORMANCE"
                                 }
                               }
                             ]
-                            }
-                          }
-                        },
-                        {
-                          "Id": "Two records non-varying",
-                          "NextPrompt": {
-                            "Id": "p1r2p1r2p1",
-                            "Text": [
-                              "Thank you"
-                            ],
-                            "PromptType": "STRAIGHT_THROUGH",
-                            "ResponseType": "COMPLETE",
-                            "UIActionModeId": "RECORD_PERFORMANCE"
-                          }
-                        },
-                        {
-                          "Id": "Two records uncontrolled",
-                          "NextPrompt": {
-                            "Id": "p1r2p1r3p1",
-                            "Text": [
-                              "Uncontrolled, Thank you!"
-                            ],
-                            "PromptType": "STRAIGHT_THROUGH",
-                            "ResponseType": "COMPLETE",
-                            "UIActionModeId": "RECORD_PERFORMANCE"
-                          }
-                        },
-                        {
-                          "Id": "Two records controlled",
-                          "NextPrompt": {
-                            "Id": "p1r2p1r4p1",
-                            "Text": [
-                              "Controlled, Thank you!"
-                            ],
-                            "PromptType": "STRAIGHT_THROUGH",
-                            "ResponseType": "COMPLETE",
-                            "UIActionModeId": "RECORD_PERFORMANCE"
                           }
                         }
-                      ]
                       }
-                    }
+                    ]
                   }
-                ]
                 }
               }
-            }
-          ]
+            ]
           }
         }
       }
@@ -422,49 +436,49 @@
           "ResponseType": "SELECT_TARGET_FACTOR",
           "UIActionModeId": "NEW_TARGET_FACTOR",
           "ExpectedResponses": {
-          "Values":[
-            {
-              "Id": "fitness",
-              "Text": "Fitness",
-              "NextPrompt": {
-                "Id": "p1",
-                "Text": [
-                  "Thank you"
-                ],
-                "PromptType": "NO_INPUT",
-                "ResponseType": "COMPLETE",
-                "UIActionModeId": "NO_UIACTION"
+            "Values": [
+              {
+                "Id": "fitness",
+                "Text": "Fitness",
+                "NextPrompt": {
+                  "Id": "p1",
+                  "Text": [
+                    "Thank you"
+                  ],
+                  "PromptType": "NO_INPUT",
+                  "ResponseType": "COMPLETE",
+                  "UIActionModeId": "NO_UIACTION"
+                }
+              },
+              {
+                "Id": "parentshealth",
+                "Text": "Parents' Health",
+                "NextPromptRef": {
+                  "Id": "p1"
+                }
+              },
+              {
+                "Id": "familysize",
+                "Text": "Family Size",
+                "NextPromptRef": {
+                  "Id": "p1"
+                }
+              },
+              {
+                "Id": "education",
+                "Text": "Education",
+                "NextPromptRef": {
+                  "Id": "p1"
+                }
+              },
+              {
+                "Id": "homeclimate",
+                "Text": "Home Climate",
+                "NextPromptRef": {
+                  "Id": "p1"
+                }
               }
-            },
-            {
-              "Id": "parentshealth",
-              "Text": "Parents' Health",
-              "NextPromptRef": {
-                "Id": "p1"
-              }
-            },
-            {
-              "Id": "familysize",
-              "Text": "Family Size",
-              "NextPromptRef": {
-                "Id": "p1"
-              }
-            },
-            {
-              "Id": "education",
-              "Text": "Education",
-              "NextPromptRef": {
-                "Id": "p1"
-              }
-            },
-            {
-              "Id": "homeclimate",
-              "Text": "Home Climate",
-              "NextPromptRef": {
-                "Id": "p1"
-              }
-            }
-          ]
+            ]
           }
         }
       }

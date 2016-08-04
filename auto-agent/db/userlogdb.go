@@ -14,6 +14,8 @@ type UserLog struct {
 	PhaseId      string
 	QuestionText string
 	JsonResponse string
+	ResponseId   string
+	ResponseText string
 	Mtype        string // ROBOT | HUMAN
 	Date         time.Time
 	URL          string

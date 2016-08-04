@@ -133,7 +133,7 @@ func (covH *GetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		LogUserRequest(c, u, *r, true)
+		LogUserRequest(c, u, *r, true, "", "")
 
 		if len(r.URL.Path[len(COV):]) != 0 {
 			http.ServeFile(w, r, "static/astro-world"+r.URL.Path)
@@ -161,7 +161,10 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		ud := MakeUserData(u)
+
+		LogUserRequest(c, u, *r, true, "", "")
+
+		ud := MakeLoginUserData(u)
 		// Store updated user in DB
 		err = PutUser(c, ud.user, k)
 		if err != nil {
@@ -175,8 +178,6 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		LogUserRequest(c, u, *r, true)
 
 		s, err := stringify(ud.uiUserData)
 		if err != nil {
@@ -223,6 +224,8 @@ func (newuserH *NewUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		LogUserRequest(c, u, *r, false, "", "")
 
 		s, err := stringify(u)
 		if err != nil {
@@ -309,6 +312,8 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		responseId := ud.CurrentPrompt.GetResponseId()
 		responseText := ud.CurrentPrompt.GetResponseText()
+
+		LogUserRequest(c, ud.user, *r, false, responseId, responseText)
 
 		// Get the count of existing messages
 		rc, err := GetHistoryCount(c, username)
@@ -422,7 +427,7 @@ func GetHistoryCount(c appengine.Context, username string) (rc int, err error) {
 	return
 }
 
-func LogUserRequest(c appengine.Context, u db.User, r http.Request, isGetRequest bool) {
+func LogUserRequest(c appengine.Context, u db.User, r http.Request, isGetRequest bool, rid string, rtext string) {
 	promptId, phaseId, questionText, jsonResponse := "", "", "", ""
 	if isGetRequest {
 		if r.URL.Query()["promptId"] != nil {
@@ -450,6 +455,8 @@ func LogUserRequest(c appengine.Context, u db.User, r http.Request, isGetRequest
 			PhaseId:      phaseId,
 			QuestionText: questionText,
 			JsonResponse: jsonResponse,
+			ResponseId:   rid,
+			ResponseText: rtext,
 			Date:         time.Now(),
 			Mtype:        db.HUMAN,
 			URL:          r.URL.Path}}
