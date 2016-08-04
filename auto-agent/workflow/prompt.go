@@ -138,6 +138,10 @@ func (cp *GenericPrompt) processSimpleResponse(r string, u *db.User, uiUserData 
 }
 
 func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserData) Prompt {
+	// TODO - Not the cleanest way to do this
+	// Reset ArchieveHistoryLength to let the server deal with setting the new value
+	uiUserData.ArchiveHistoryLength = -1
+
 	phaseId := cp.promptConfig.PhaseId
 	currentPhase := GetPhase(phaseId)
 
@@ -241,6 +245,7 @@ func (erh *StaticExpectedResponseHandler) init(p PromptConfig) {
 func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserData *UIUserData) Prompt {
 	var rid string
 	var p *PromptConfigRef
+	currentPhaseId := uiUserData.CurrentPhaseId
 	if len(erh.expectedResponseMap) == 1 {
 		// If there is only one expected response, use it regardless of the response
 		for _, v := range erh.expectedResponseMap {
@@ -268,6 +273,12 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 			rid = r.GetResponseId()
 		}
 		p = erh.expectedResponseMap[strings.ToLower(rid)]
+	}
+
+	// TODO - Not the cleanest way to do this
+	// Reset ArchieveHistoryLength to let the server deal with setting the new value
+	if p.PhaseId != currentPhaseId {
+		uiUserData.ArchiveHistoryLength = -1
 	}
 	nextPrompt := MakePrompt(p.Id, p.PhaseId, uiUserData)
 	nextPrompt.initUIPromptDynamicText(uiUserData, r)

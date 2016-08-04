@@ -21,6 +21,7 @@ type User struct {
 	CurrentPromptId      string
 	CurrentFactorId      string
 	UIState              []byte // Do not store as string because string type has a limit of 500 characters
+	ArchiveHistoryLength int
 }
 
 // Generic message with no additional phase specific details

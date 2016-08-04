@@ -15,7 +15,6 @@ var Dialog = React.createClass({
     var history = user.getHistory() ? user.getHistory() : {};
     state.isNewUser = history.length == 0;
     state.welcomeText = state.isNewUser ? "Welcome to Astro-world!" : "Welcome back!";
-    state.oldHistory = history;
     return state;
   },
 
@@ -28,7 +27,9 @@ var Dialog = React.createClass({
     var state = this.state;
     var user = this.props.user;
     var app = this.props.app;
-    var newHistory = user.getHistory() ? user.getHistory().slice(state.oldHistory.length) : {};
+    var oldHistoryLength = user.getArchiveHistoryLength();
+    var oldHistory = user.getHistory() ? user.getHistory().slice(0, oldHistoryLength) : {};
+    var newHistory = user.getHistory() ? user.getHistory().slice(oldHistoryLength) : {};
     var messages = newHistory.map(
         function(message, i) {
           return <div key={i}>
@@ -41,13 +42,13 @@ var Dialog = React.createClass({
     if ((!prompt) || (Object.keys(prompt).length == 0)) {
         return  <div className="dialog">
                   <Title user={user} welcomeText={welcomeText}/>
-                  <OldHistory user={user} oldHistory={state.oldHistory}/>
+                  <OldHistory user={user} oldHistory={oldHistory}/>
                   {messages}
                 </div>;
     } else {
         return  <div className="dialog">
                   <Title user={user} welcomeText={welcomeText}/>
-                  <OldHistory user={user} oldHistory={state.oldHistory}/>
+                  <OldHistory user={user} oldHistory={oldHistory}/>
                   {messages}
                   <Prompt user={user} prompt={prompt} onComplete={this.changeState} app={app}/>
                 </div>;

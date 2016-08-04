@@ -14,38 +14,19 @@ type UserData struct {
 }
 
 func MakeLoginUserData(u db.User) *UserData {
-	// Process submitted answer
-	ud := &UserData{}
-	ud.user = u
-	ud.uiUserData = workflow.MakeUIUserData(u)
-	// Construct Prompt appropriately
-	if (u.CurrentPromptId == "") || (u.CurrentPhaseId == "") {
-		// No existing prompt, make the first one
-		ud.CurrentPrompt = workflow.MakeFirstPrompt(ud.uiUserData)
-		ud.user.CurrentPromptId = ud.CurrentPrompt.GetPromptId()
-		ud.user.CurrentPhaseId = ud.uiUserData.CurrentPhaseId
-		ud.user.CurrentSequenceOrder = ud.CurrentPrompt.GetSequenceOrder()
-	} else {
-		// Returning user with existing prompt, reconstruct it
-		phaseId := u.CurrentPhaseId
-		// Instead of using the stored currentPromptId, use the first prompt of the sequence
-		ud.user.CurrentPromptId = workflow.GetFirstPromptConfigInSequence(u.CurrentSequenceOrder, phaseId).Id
-		ud.CurrentPrompt = workflow.MakePrompt(ud.user.CurrentPromptId, phaseId, ud.uiUserData)
-	}
-
-	// update UserData with latest prompt & Ui related members
-	ud.uiUserData.CurrentUIAction = ud.CurrentPrompt.GetUIAction()
-	ud.uiUserData.CurrentPhaseId = ud.CurrentPrompt.GetPhaseId()
-	ud.uiUserData.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt()
-
-	return ud
+	return makeAllUserData(u, true)
 }
 
 func MakeUserData(u db.User) *UserData {
+	return makeAllUserData(u, false)
+}
+
+func makeAllUserData(u db.User, isNewLogin bool) *UserData {
 	// Process submitted answer
 	ud := &UserData{}
 	ud.user = u
 	ud.uiUserData = workflow.MakeUIUserData(u)
+	ud.uiUserData.ArchiveHistoryLength = ud.user.ArchiveHistoryLength
 	// Construct Prompt appropriately
 	if (u.CurrentPromptId == "") || (u.CurrentPhaseId == "") {
 		// No existing prompt, make the first one
@@ -56,7 +37,14 @@ func MakeUserData(u db.User) *UserData {
 	} else {
 		// Returning user with existing prompt, reconstruct it
 		phaseId := u.CurrentPhaseId
-		promptId := u.CurrentPromptId
+		var promptId string
+		if isNewLogin {
+			// Instead of using the stored currentPromptId, use the first prompt of the sequence
+			ud.user.CurrentPromptId = workflow.GetFirstPromptConfigInSequence(u.CurrentSequenceOrder, phaseId).Id
+			promptId = ud.user.CurrentPromptId
+		} else {
+			promptId = u.CurrentPromptId
+		}
 		ud.CurrentPrompt = workflow.MakePrompt(promptId, phaseId, ud.uiUserData)
 	}
 

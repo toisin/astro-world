@@ -148,6 +148,7 @@ func (covH *GetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// This is only called after the initial login
 func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	if r.URL.Query()["user"] != nil {
@@ -165,17 +166,26 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		LogUserRequest(c, u, *r, true, "", "")
 
 		ud := MakeLoginUserData(u)
-		// Store updated user in DB
-		err = PutUser(c, ud.user, k)
-		if err != nil {
-			fmt.Fprint(os.Stderr, "DB Error Put User:"+err.Error()+"!\n\n")
-			return
-		}
+		// // Store updated user in DB
+		// err = PutUser(c, ud.user, k)
+		// if err != nil {
+		// 	fmt.Fprint(os.Stderr, "DB Error Put User:"+err.Error()+"!\n\n")
+		// 	return
+		// }
 
 		ud.uiUserData.History, err = GetHistory(c, username)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting list of messages:"+err.Error()+"!\n\n")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		ud.uiUserData.ArchiveHistoryLength = len(ud.uiUserData.History)
+		ud.user.ArchiveHistoryLength = len(ud.uiUserData.History)
+
+		// Store updated user in DB
+		err = PutUser(c, ud.user, k)
+		if err != nil {
+			fmt.Fprint(os.Stderr, "DB Error Put User:"+err.Error()+"!\n\n")
 			return
 		}
 
@@ -361,20 +371,36 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			//return
 		}
 
+		// TODO cleanup
+		// currentSequenceOrder := ud.CurrentPrompt.GetSequenceOrder()
+
 		// Move to the next prompt
 		ud.UpdateWithNextPrompt()
-
-		// Store updated user in DB
-		err = PutUser(c, ud.user, k)
-		if err != nil {
-			fmt.Fprint(os.Stderr, "DB Error Put User:"+err.Error()+"!\n\n")
-			return
-		}
 
 		// Update history
 		ud.uiUserData.History, err = GetHistory(c, username)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting list of messages:"+err.Error()+"!\n\n")
+			return
+		}
+		// TODO cleanup
+		// // Mark previous messages as old history so they can be collapsed.
+		// if currentSequenceOrder != ud.CurrentPrompt.GetSequenceOrder() {
+		// 	ud.uiUserData.ArchiveHistoryLength = len(ud.uiUserData.History)
+		// 	ud.user.ArchiveHistoryLength = len(ud.uiUserData.History)
+		// }
+		// TODO - Not the cleanest way to do this
+		// Reset ArchieveHistoryLength whe UpdateWithNextPrompt
+		// then let the server deal with setting the new value
+		if ud.uiUserData.ArchiveHistoryLength < 0 {
+			ud.uiUserData.ArchiveHistoryLength = len(ud.uiUserData.History)
+			ud.user.ArchiveHistoryLength = len(ud.uiUserData.History)
+		}
+
+		// Store updated user in DB
+		err = PutUser(c, ud.user, k)
+		if err != nil {
+			fmt.Fprint(os.Stderr, "DB Error Put User:"+err.Error()+"!\n\n")
 			return
 		}
 

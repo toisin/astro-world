@@ -31,6 +31,8 @@ function User(name) {
   this.CurrentUIPrompt = {};
   this.CurrentUIAction = {};
   this.ContentFactors = [];
+  this.State = {};
+  this.ArchiveHistoryLength = 0;
 }
 
 User.prototype = {
@@ -76,6 +78,10 @@ User.prototype = {
     return this.State;
   },
 
+  getArchiveHistoryLength: function() {
+    return this.ArchiveHistoryLength;
+  },
+
   updateUser: function(j) {
     var self = this;
     self.Screenname = j.Screenname;
@@ -85,6 +91,7 @@ User.prototype = {
     self.CurrentPhaseId = j.CurrentPhaseId;
     self.ContentFactors = j.ContentFactors;
     self.State = j.State;
+    self.ArchiveHistoryLength = j.ArchiveHistoryLength;
   },
 
   loadHistory: function() {
