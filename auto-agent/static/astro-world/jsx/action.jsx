@@ -13,7 +13,7 @@ var Action = React.createClass({
   changeState: function() {
     // this.setState({mode: 0});
     var app = this.props.app;
-    app.refreshState();
+    app.changeState();
   },
 
   render: function() {

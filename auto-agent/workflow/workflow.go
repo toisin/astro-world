@@ -23,10 +23,11 @@ const (
 	COV_RESPONSE_ID_UNCONTROLLED       = "Two records uncontrolled"
 	COV_RESPONSE_ID_CONTROLLED         = "Two records controlled"
 
-	UI_PROMPT_TEXT             = "Text"
-	UI_PROMPT_MC               = "MC"
-	UI_PROMPT_NO_INPUT         = "NO_INPUT"         // No input from dialog but expect input from action screen
-	UI_PROMPT_STRAIGHT_THROUGH = "STRAIGHT_THROUGH" // Differ from NO_INPUT, no input expected, goes to next prompt directly
+	UI_PROMPT_ENTER_TO_CONTINUE = "ENTER_TO_CONTINUE"
+	UI_PROMPT_TEXT              = "Text"
+	UI_PROMPT_MC                = "MC"
+	UI_PROMPT_NO_INPUT          = "NO_INPUT"         // No input from dialog but expect input from action screen
+	UI_PROMPT_STRAIGHT_THROUGH  = "STRAIGHT_THROUGH" // Differ from NO_INPUT, no input expected, goes to next prompt directly
 	// UI_PROMPT_SELECT_FACTOR = "SELECT_TARGET_FACTOR"
 
 	RESPONSE_BASIC                = "Basic"

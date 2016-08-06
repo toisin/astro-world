@@ -525,8 +525,11 @@ var RecordPerformance = React.createClass({
       var state = this.state;
       var user = this.props.user;
       var app = this.props.app;
+      var showPerformance = this.props.showPerformance;
+
       var prompt = user.getPrompt();
       var promptId = prompt.PromptId;
+      var phaseId = user.getCurrentPhaseId();
       var record1 = user.getState().RecordNoOne;
       var record2 = user.getState().RecordNoTwo;
       var factors = user.getContentFactors().map(
@@ -551,33 +554,27 @@ var RecordPerformance = React.createClass({
                   {levels}
                 </tr>;
         });
+      var performance = showPerformance ? <p className="performance-level">Performance Level:
+                    <span className="grade">{record1.Performance}</span>
+                  </p> : null;
 
       if (record1) {
-      return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
-          <div className="frame">
-          <table className="record">
-            <tbody>
-              <tr>
-                <td colSpan="3" className="robot">Record #{record1.RecordNo} <b>{record1.RecordName}</b></td>
-                <td className="robot">Gender: ??</td>
-              </tr>
-            </tbody>
-          </table>
-          <table className="recorddetails">
-            <tbody>
-            {factors}
-            </tbody>
-          </table>
-          <p className="performance-level">Performance Level:
-            <span className="grade">{record1.Performance}</span>
-          </p>
-          </div>
-          <p>
-            <input type="hidden" id="promptId" value={promptId}/>
-            <input type="hidden" id="phaseId" value={phaseId}/>
-            <button type="submit" key={"RecordPerformance"}>Enter</button>
-          </p>
-          </form>;
+        return <div className="frame">
+                  <table className="record">
+                    <tbody>
+                      <tr>
+                        <td colSpan="3" className="robot">Record #{record1.RecordNo} <b>{record1.RecordName}</b></td>
+                        <td className="robot">Gender: ??</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <table className="recorddetails">
+                    <tbody>
+                    {factors}
+                    </tbody>
+                  </table>
+                  {performance}
+                </div>;
       } else {
         return <div></div>;
       }

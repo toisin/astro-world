@@ -23,6 +23,11 @@ var Dialog = React.createClass({
     app.changeState();
   },
 
+  showAction: function() {
+    var app = this.props.app;
+    app.showAction();
+  },
+
   render: function() {
     var state = this.state;
     var user = this.props.user;
@@ -50,7 +55,7 @@ var Dialog = React.createClass({
                   <Title user={user} welcomeText={welcomeText}/>
                   <OldHistory user={user} oldHistory={oldHistory}/>
                   {messages}
-                  <Prompt user={user} prompt={prompt} onComplete={this.changeState} app={app}/>
+                  <Prompt user={user} prompt={prompt} onShowInput={this.showAction} onComplete={this.changeState} app={app} key={prompt.PromptId}/>
                 </div>;
     }
 
@@ -76,7 +81,7 @@ var OldHistory = React.createClass({
     var messages = oldHistory.map(
         function(message, i) {
           return  <div key={i}>
-                    <Message texts={message.Texts} mtype={message.Mtype} user={user} delay={false}/>
+                    <Message texts={message.Texts} mtype={message.Mtype} user={user}/>
                   </div>;
         })
     if (messages.length > 0) {
@@ -225,11 +230,19 @@ var Message = React.createClass({
 // Renter Prompt
 var Prompt = React.createClass({
   getInitialState: function() {
-    return {};
+    return {completePrompt: false};
   },
 
   handleChange: function(event) {
     this.setState({});
+  },
+
+  showInput: function() {
+    this.state.completePrompt = true;
+    this.setState(this.state);
+    if (this.props.onShowInput) {
+      this.props.onShowInput();
+    }
   },
 
   render: function() {
@@ -244,22 +257,28 @@ var Prompt = React.createClass({
 
     var human = this.props.user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
 
-    switch (prompt.PromptType) {
-    case UI_PROMPT_TEXT:
-    case UI_PROMPT_MC:
-    case UI_PROMPT_STRAIGHT_THROUGH:
-      return  <div className="chat" key={promptId+user.getHistory().length}>
-                <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app} user={user} onComplete={onComplete}/>
-                <div className="human">
-                  <div className="name">{human}</div>
-                  <Input user={user} prompt={prompt} onComplete={onComplete} app={app}/>
-                </div>
-              </div>;    
-    default:
-      return  <div className="chat" key={promptId+user.getHistory().length}>
-                <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app} user={user} onComplete={onComplete}/>
-              </div>;
+    if (this.state.completePrompt) {
+      switch (prompt.PromptType) {
+      case UI_PROMPT_ENTER_TO_CONTINUE:
+      case UI_PROMPT_TEXT:
+      case UI_PROMPT_MC:
+      case UI_PROMPT_STRAIGHT_THROUGH:
+        return  <div className="chat" key={promptId+user.getHistory().length}>
+                  <Message texts={texts} mtype={MSG_ROBOT} app={app} user={user}/>
+                  <div className="human">
+                    <div className="name">{human}</div>
+                    <Input user={user} prompt={prompt} onComplete={onComplete} app={app}/>
+                  </div>
+                </div>;    
+      default:
+        return  <div className="chat" key={promptId+user.getHistory().length}>
+                  <Message texts={texts} mtype={MSG_ROBOT} app={app} user={user}/>
+                </div>;
+      }
     }
+    return  <div className="chat" key={promptId+user.getHistory().length}>
+              <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app} user={user} onComplete={this.showInput}/>
+            </div>;
   },
 });
 
@@ -351,6 +370,7 @@ var Input = React.createClass({
       text = value;
       id = options[0].ResponseId
       break;
+    case UI_PROMPT_ENTER_TO_CONTINUE:
     case UI_PROMPT_STRAIGHT_THROUGH:
       text = RESPONSE_SYSTEM_GENERATED;
       id = RESPONSE_SYSTEM_GENERATED;
@@ -377,6 +397,16 @@ var Input = React.createClass({
     var human = this.props.user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
 
     switch (prompt.PromptType) {
+    case UI_PROMPT_ENTER_TO_CONTINUE:
+      return  <div className="form">
+                <form id="dialogForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
+                className="request">
+                  <input type="hidden" id="dialoginput" disabled/>
+                  <input type="hidden" id="promptId" value={promptId}/>
+                  <input type="hidden" id="phaseId" value={phaseId}/>
+                  <button type="submit" autoFocus>Enter</button>
+                </form>
+              </div>;
     case UI_PROMPT_TEXT:
       return  <div className="form">
                 <form id="dialogForm" onSubmit={this.handleSubmit} onChange={this.handleChange}
@@ -405,7 +435,7 @@ var Input = React.createClass({
                   <br/>
                   <input type="hidden" id="promptId" value={promptId}/>
                   <input type="hidden" id="phaseId" value={phaseId}/>
-                  <button type="submit" disabled={!this.isEnabled()}>Enter</button>
+                  <button autoFocus type="submit" disabled={!this.isEnabled()}>Enter</button>
                 </form>
               </div>;
     case UI_PROMPT_STRAIGHT_THROUGH:

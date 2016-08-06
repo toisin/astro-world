@@ -46,9 +46,9 @@
         "IsCausal": true,
         "Levels": [
           {
-            "Name": "No College",
-            "Id": "no college",
-            "ImgPath": "no college.jpg"
+            "Name": "College",
+            "Id": "college",
+            "ImgPath": "college.jpg"
           },
           {
             "Name": "Some College",
@@ -56,9 +56,9 @@
             "ImgPath": "some college.jpg"
           },
           {
-            "Name": "College",
-            "Id": "college",
-            "ImgPath": "college.jpg"
+            "Name": "No College",
+            "Id": "no college",
+            "ImgPath": "no college.jpg"
           }
         ]
       },
@@ -162,7 +162,7 @@
               {
                 "Id": "false",
                 "NextPromptRef": {
-                  "Id": "end prior belief"
+                  "Id": "end prior beliefs"
                 }
               },
               {
@@ -181,11 +181,12 @@
                       {
                         "Id": "anything",
                         "NextPrompt": {
-                          "Id": "end prior belief",
+                          "Id": "end prior beliefs",
                           "Text": [
-                            "So, you think that {{if .Beliefs.HasCausalFactors}}{{.Beliefs.CausalFactors}}{{if .Beliefs.HasMultipleCausalFactors}} matter{{- else}} matters{{- end}}{{- else}}none of the factors matters{{- end}} to performance in space."
+                            "Great. So we know that you think {{if .Beliefs.HasCausalFactors}}{{.Beliefs.CausalFactors}}{{if .Beliefs.HasMultipleCausalFactors}} matter{{- else}} matters{{- end}}{{- else}}none of the factors matters{{- end}} to performance in space.",
+                            "Now, let's figure out whether those factors actually matter! Press \"Enter\" to continue when you are ready."
                           ],
-                          "PromptType": "STRAIGHT_THROUGH",
+                          "PromptType": "ENTER_TO_CONTINUE",
                           "ResponseType": "COMPLETE",
                           "UIActionModeId": "NO_UIACTION"
                         }
@@ -202,9 +203,9 @@
         "FirstPrompt": {
           "Id": "test record select",
           "Text": [
-            "Now, let's figure out whether those factors actually matter! What I have in my database is a list of records of how the applicants performed.If you study the records carefully, you will be able to see which factors make a difference to performance and which don't.",
+            "What I have in my database is a list of records of how the applicants performed. If you study the records carefully, you will be able to see which factors make a difference to performance and which don't.",
             "Let's try it. On the screen, you can look for an applicant who you want to see. Just select a level for each factor, and the computer will find you an applicant who has all those levels and tell you his/her performance",
-            "Now, make your selection. Remember to click \"Enter\" when you are ready."
+            "Ok, make your selection. Remember to click \"Enter\" when you are ready."
           ],
           "PromptType": "NO_INPUT",
           "ResponseType": "RECORD",
@@ -228,10 +229,9 @@
                         "NextPrompt": {
                           "Id": "end",
                           "Text": [
-                            "Now that you know how to select a record, you can start figuring out whether each factor matters by looking through the records.",
-                            "Hit \"Enter\" when you are ready to continue."
+                            "Now that you know how to select a record, you can start figuring out whether each factor matters by looking through the records. Hit \"Enter\" when you are ready to continue."
                           ],
-                          "PromptType": "NO_INPUT",
+                          "PromptType": "ENTER_TO_CONTINUE",
                           "ResponseType": "COMPLETE",
                           "UIActionModeId": "RECORD_PERFORMANCE"
                         }
@@ -247,7 +247,7 @@
       {
         "RepeatOverContent": true,
         "FirstPrompt": {
-          "Id": "Intro1",
+          "Id": "Select target factor",
           "Text": [
             "Which factor would you like to figure out first?"
           ],
@@ -260,7 +260,7 @@
               {
                 "Id": "CONTENT_REF",
                 "NextPrompt": {
-                  "Id": "p1",
+                  "Id": "one or two records",
                   "Text": [
                     "Ok. Let's figure out whether {{.TargetFactor.FactorName}} matters.",
                     "How many records would you like to see? One or Two?"
@@ -271,12 +271,13 @@
                   "ExpectedResponses": {
                     "Values": [
                       {
-                        "Id": "p1r1",
+                        "Id": "one record",
                         "Text": "One",
                         "NextPrompt": {
-                          "Id": "p1r1p1",
+                          "Id": "choose one record",
                           "Text": [
-                            "Which one would you like to see?"
+                            "Which one would you like to see?",
+                            "On the screen, select a level for each factor, and the computer will find you an applicant with those levels."
                           ],
                           "PromptType": "NO_INPUT",
                           "ResponseType": "RECORD",
@@ -284,22 +285,63 @@
                           "ExpectedResponses": {
                             "Values": [
                               {
-                                "Id": "p1r1p1r1",
+                                "Id": "anything",
                                 "NextPrompt": {
-                                  "Id": "p1r1p1r1p1",
+                                  "Id": "record result with no performance",
                                   "Text": [
-                                    "So, you want to look at record {{.RecordNoOne.RecordName}}, {{.RecordNoOne.RecordNo}}. Now, before I show you the performance. Can you tell me what you would be able to figure out by looking at this record? What would happen if {{.TargetFactor.FactorName}} was {{$x:=index .RecordNoOne.FactorLevels .TargetFactor.FactorId}}{{$x.OppositeLevel}}"
+                                    "So, you want to look at {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}}. Now, before I show you the performance. Can you tell me what you would be able to figure out by looking at this record?"
                                   ],
                                   "PromptType": "Text",
                                   "ResponseType": "Basic",
-                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                  "UIActionModeId": "RECORD_NO_PERFORMANCE",
                                   "ExpectedResponses": {
                                     "Values": [
                                       {
                                         "Id": "anything",
-                                        "NextPromptRef": {
-                                          "Id": "Which factor",
-                                          "PhaseId": "Chart"
+                                        "NextPrompt": {
+                                          "Id": "record with performance",
+                                          "Text": [
+                                            "The performance is {{.RecordNoOne.Performance}}","Ok, now that you saw the performance. What did you find out?"
+                                          ],
+                                          "PromptType": "Text",
+                                          "ResponseType": "Basic",
+                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                          "ExpectedResponses": {
+                                            "Values": [
+                                              {
+                                                "Id": "anything",
+                                                "NextPrompt": {
+                                                  "Id":"is there enough information",
+                                                  "Text": ["Do you have enough information to say whether fitness makes a difference to the performance in the space? Yes or No?"],
+                                                  "PromptType":"MC",
+                                                  "ResponseType": "Basic",
+                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                  "ExpectedResponses":{
+                                                    "Value":[
+                                                      {
+                                                        "Id": "yes",
+                                                        "Text": "Yes",
+                                                        "NextPrompt": {
+                                                          "Id": "enough information",
+                                                          "Text":["What will happen to the performance for this applicant if {{.TargetFactor.FactorName}} was {{$x.OppositeLevel}}?"],
+                                                          "PromptType": "Text",
+                                                          "ResponseType":"Basic",
+                                                          "UIActionModeId": "RECORD_PERFORMANCE"
+                                                        }
+                                                      },
+                                                      {                                                        "Id": "no",
+                                                        "Text": "No",
+                                                        "NextPrompt": {
+                                                          "Id": "not enough information",
+                                                          "Text":["What will happen to the performance for this applicant if {{.TargetFactor.FactorName}} was {{$x.OppositeLevel}}?"],
+                                                          "PromptType": "Text",
+                                                          "ResponseType":"Basic",
+                                                          "UIActionModeId": "RECORD_PERFORMANCE"
+                                                        }}]
+                                                  }
+                                                  }
+                                              }]
+                                          }
                                         }
                                       }
                                     ]
