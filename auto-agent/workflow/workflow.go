@@ -33,12 +33,14 @@ const (
 	RESPONSE_BASIC                = "Basic"
 	RESPONSE_END                  = "COMPLETE"
 	RESPONSE_RECORD               = "RECORD"
+	RESPONSE_CAUSAL_CONCLUSION    = "CAUSAL_CONCLUSION"
 	RESPONSE_SELECT_TARGET_FACTOR = "SELECT_TARGET_FACTOR"
 	RESPONSE_PRIOR_BELIEF_FACTORS = "PRIOR_BELIEF_FACTORS"
 	RESPONSE_PRIOR_BELIEF_LEVELS  = "PRIOR_BELIEF_LEVELS"
 	RESPONSE_SYSTEM_GENERATED     = "SYSTEM_GENERATED" // For when a submit is triggered by the system
 
 	EXPECTED_SPECIAL_CONTENT_REF = "CONTENT_REF"
+	EXPECTED_ANY_RESPONSE        = "ANY_RESPONSE"
 
 	UIACTION_INACTIVE = "NO_UIACTION"
 	// ***TODO MUST FIX!!! server cannot be shut down when json is mulformed
@@ -238,30 +240,35 @@ func GetFactorConfig(factorId string) Factor {
 	return factorConfigMap[factorId]
 }
 
-func CreateCovFactorState(factorId string, levelId string) FactorState {
+func CreateCovFactorState(factorId string, selectedLevelId string) FactorState {
 	f := GetFactorConfig(factorId)
 	allLevels := f.Levels
 	var selectedLevel string
 	var oppositeLevel string
+	var oppositeLevelId string
 	// The opposite level of the given level:
 	//  - If the given level is at index 0, return the level id of the highest index
 	//  - Otherwise, return the level id of index 0
 	for i, v := range allLevels {
-		if v.Id == levelId {
+		if v.Id == selectedLevelId {
 			selectedLevel = v.Name
 			if i == 0 {
 				oppositeLevel = allLevels[len(allLevels)-1].Name
+				oppositeLevelId = allLevels[len(allLevels)-1].Id
 			} else {
 				oppositeLevel = allLevels[0].Name
+				oppositeLevelId = allLevels[0].Id
 			}
 		}
 	}
 	return FactorState{
-		FactorName:    f.Name,
-		FactorId:      f.Id,
-		SelectedLevel: selectedLevel,
-		OppositeLevel: oppositeLevel,
-		IsCausal:      f.IsCausal}
+		FactorName:      f.Name,
+		FactorId:        f.Id,
+		SelectedLevel:   selectedLevel,
+		SelectedLevelId: selectedLevelId,
+		OppositeLevel:   oppositeLevel,
+		OppositeLevelId: oppositeLevelId,
+		IsCausal:        f.IsCausal}
 }
 
 func UnstringifyState(b []byte, phaseId string) (se StateEntities, err error) {

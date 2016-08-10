@@ -327,10 +327,12 @@ var RecordSelection = React.createClass({
     var selectedFactors = user.getContentFactors().map(
       function(factor, i) {
         var fid = form.elements[factor.FactorId+record];
-        var f = {};
-        f.FactorId = factor.FactorId;
-        f.SelectedLevelId = fid ? fid.value : "";
-        return f;
+        if (fid) {
+          var f = {};
+          f.FactorId = factor.FactorId;
+          f.SelectedLevelId = fid ? fid.value : "";
+          return f;
+        }
       });
     return selectedFactors;
   },
@@ -386,9 +388,12 @@ var RecordSelection = React.createClass({
     if (doubleRecord) {
       r2selectedFactors = this.getSelectedFactors("2");
     }
-    response.RecordNoOne = r1selectedFactors;
-    response.RecordNoTwo = r2selectedFactors;    
-
+    if (r1selectedFactors && (r1selectedFactors.length > 0)) {
+      response.RecordNoOne = r1selectedFactors;
+    }
+    if (r2selectedFactors && (r2selectedFactors.length > 0)) {
+      response.RecordNoTwo = r2selectedFactors;    
+    }
     jsonResponse = JSON.stringify(response);
     user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
   },
@@ -550,52 +555,83 @@ var RecordPerformance = React.createClass({
       var phaseId = user.getCurrentPhaseId();
       var record1 = user.getState().RecordNoOne;
       var record2 = user.getState().RecordNoTwo;
-      var factors = user.getContentFactors().map(
-        function(factor, i) {
-          var fid = factor.FactorId;
-          var selectedf = record1.FactorLevels[fid];
-          var SelectedLevelName = selectedf.SelectedLevel;
 
-          var levels = factor.Levels.map(
-            function(level, j) {
-              var imgPath = "/img/"+level.ImgPath;
-              if (level.Text == SelectedLevelName) {
-                return <td key={j}><label>
-                    <img src={imgPath}/><br/>{level.Text}</label></td>;
-              }
-              return <td key={j}><label className="dimmed">
-                    <img src={imgPath}/><br/>{level.Text}</label></td>;
-            });
+      var performance = function(r) {
+        return !hidePerformance ? <p className="performance-level">Performance Level:
+                    <span className="grade">{r.Performance}</span>
+                  </p> : null;};
 
-          return <tr key={i}>
-                  <td>{factor.Text}</td>
-                  {levels}
-                </tr>;
-        });
-      var performance = !hidePerformance ? <p className="performance-level">Performance Level:
-                    <span className="grade">{record1.Performance}</span>
-                  </p> : null;
+      var recordDetails = function(r) {
+        var factors = user.getContentFactors().map(
+          function(factor, i) {
+            var fid = factor.FactorId;
+            var selectedf = r.FactorLevels[fid];
+            var SelectedLevelName = selectedf.SelectedLevel;
 
+            var levels = factor.Levels.map(
+              function(level, j) {
+                var imgPath = "/img/"+level.ImgPath;
+                if (level.Text == SelectedLevelName) {
+                  return <td key={j}><label>
+                      <img src={imgPath}/><br/>{level.Text}</label></td>;
+                }
+                return <td key={j}><label className="dimmed">
+                      <img src={imgPath}/><br/>{level.Text}</label></td>;
+              });
+
+            return <tr key={i}>
+                    <td>{factor.Text}</td>
+                    {levels}
+                  </tr>;
+          });
+        return r ? <div className="frame" key={r.RecordNo}>
+                <table className="record">
+                  <tbody>
+                    <tr>
+                      <td colSpan="3" className="robot">Record #{r.RecordNo} <b>{r.RecordName}</b></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table className="recorddetails">
+                  <tbody>
+                  {factors}
+                  </tbody>
+                </table>
+                {performance(r)}
+              </div> : null;};
+              
+      var record1Details, record2Details
       if (record1) {
-        return <div className="frame">
-                  <table className="record">
-                    <tbody>
-                      <tr>
-                        <td colSpan="3" className="robot">Record #{record1.RecordNo} <b>{record1.RecordName}</b></td>
-                        <td className="robot">Gender: ??</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <table className="recorddetails">
-                    <tbody>
-                    {factors}
-                    </tbody>
-                  </table>
-                  {performance}
-                </div>;
-      } else {
-        return <div></div>;
+        record1Details = recordDetails(record1);
       }
+      if (record2) {
+        record2Details = recordDetails(record2);
+      }
+      return <div className ="hbox">
+                {record1Details}
+                {record2Details}
+              </div>
+
+      // if (record1) {
+      //   return <div className="frame">
+      //             <table className="record">
+      //               <tbody>
+      //                 <tr>
+      //                   <td colSpan="3" className="robot">Record #{record1.RecordNo} <b>{record1.RecordName}</b></td>
+      //                   <td className="robot">Gender: ??</td>
+      //                 </tr>
+      //               </tbody>
+      //             </table>
+      //             <table className="recorddetails">
+      //               <tbody>
+      //               {factors}
+      //               </tbody>
+      //             </table>
+      //             {performance}
+      //           </div>;
+      // } else {
+      //   return <div></div>;
+      // }
       // if (record1 && record2) {
       //   return  <div className="frame">
       //   <table className="record">

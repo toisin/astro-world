@@ -275,8 +275,17 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 			rid = r.GetResponseId()
 		}
 		p = erh.expectedResponseMap[strings.ToLower(rid)]
+
+		if p == nil {
+			p = erh.expectedResponseMap[strings.ToLower(EXPECTED_ANY_RESPONSE)]
+		}
 	}
 
+	if p == nil {
+		fmt.Fprintf(os.Stderr, "Error generating next prompt for response: %s\n\n", r)
+		log.Fatalf("Error generating next prompt for response: %s\n\n", r)
+		return nil
+	}
 	// TODO - Not the cleanest way to do this
 	// Reset ArchieveHistoryLength to let the server deal with setting the new value
 	if p.PhaseId != currentPhaseId {

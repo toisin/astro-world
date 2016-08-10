@@ -82,8 +82,11 @@ func (c *GenericState) getRemainingFactorIds() []string {
 // Implements workflow.StateEntities
 type CovPhaseState struct {
 	GenericState
-	RecordNoOne *RecordState
-	RecordNoTwo *RecordState
+	RecordNoOne            *RecordState
+	RecordNoTwo            *RecordState
+	RecordSelectionsTypeId string
+	VaryingFactorIds       []string
+	VaryingFactorsCount    int
 }
 
 func (c *CovPhaseState) GetPhaseId() string {
@@ -119,11 +122,13 @@ type RecordState struct {
 // This type is used in multiple contexts.
 // Not all members may be relevant.
 type FactorState struct {
-	FactorName    string
-	FactorId      string
-	SelectedLevel string // Level name
-	OppositeLevel string // Level name
-	IsCausal      bool
+	FactorName      string
+	FactorId        string
+	SelectedLevel   string // Level name
+	SelectedLevelId string // Level id
+	OppositeLevel   string // Level name
+	OppositeLevelId string // Level id
+	IsCausal        bool
 }
 
 // Implements workflow.StateEntities
