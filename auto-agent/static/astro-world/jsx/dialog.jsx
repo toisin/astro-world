@@ -191,6 +191,8 @@ var Message = React.createClass({
     var d = DELAY_PROMPT_TIME_SHORT;
     if (this.props.texts[this.state.count].length > LONG_PROMPT_SIZE) {
       d = DELAY_PROMPT_TIME_LONG;
+    } else if (this.props.texts[this.state.count].length < REALLYSHORT_PROMPT_SIZE) {
+      d = DELAY_PROMPT_TIME_REALLY_SHORT;
     }
     this.state.interval = window.setInterval(this.unTriggerDelay, d);
   },

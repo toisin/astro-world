@@ -3,9 +3,11 @@
 // npm install -g react-tools
 // jsx -w -x jsx public/js public/js
 
+var DELAY_PROMPT_TIME_REALLY_SHORT = 500;
 var DELAY_PROMPT_TIME_SHORT = 1000;
 var DELAY_PROMPT_TIME_LONG = 5000;
 var LONG_PROMPT_SIZE = 150;
+var REALLYSHORT_PROMPT_SIZE = 50;
 
 var UI_PROMPT_ENTER_TO_CONTINUE = "ENTER_TO_CONTINUE";
 var UI_PROMPT_TEXT = "Text";

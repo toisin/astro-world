@@ -109,6 +109,8 @@ func (cp *CovPhaseState) isContentCompleted() bool {
 
 type RecordState struct {
 	RecordName   string
+	FirstName    string
+	LastName     string
 	RecordNo     string
 	FactorLevels map[string]FactorState // factor id as key
 	Performance  string

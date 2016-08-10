@@ -157,6 +157,7 @@ func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, currentFactorId 
 
 	// Determine the type of record response
 	if rsr.RecordNoOne != nil && rsr.RecordNoTwo != nil {
+		// Two records selected from the screen
 		// For each factor, check if the two records have different levels
 		for i := range rsr.RecordNoOne {
 			for j := range rsr.RecordNoTwo {
@@ -164,52 +165,64 @@ func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, currentFactorId 
 					if rsr.RecordNoOne[i].SelectedLevelId != rsr.RecordNoTwo[j].SelectedLevelId {
 						if rsr.RecordNoOne[i].FactorId == currentFactorId {
 							isTargetVarying = true
+						} else {
+							rsr.VaryingFactorIds[rsr.VaryingFactorsCount] = rsr.RecordNoOne[i].FactorId
+							rsr.VaryingFactorsCount++
 						}
-						rsr.VaryingFactorIds[rsr.VaryingFactorsCount] = rsr.RecordNoOne[i].FactorId
-						rsr.VaryingFactorsCount++
 					}
 				}
 			}
 		}
 	} else if rsr.UseDBRecordNoOne && rsr.RecordNoTwo != nil {
+		// One record selected from the screen, compare it with the previously selected one
 		r := cp.state.(*CovPhaseState).RecordNoOne
 		for j := range rsr.RecordNoTwo {
 			if r.FactorLevels[rsr.RecordNoTwo[j].FactorId].SelectedLevelId != rsr.RecordNoTwo[j].SelectedLevelId {
 				if rsr.RecordNoTwo[j].FactorId == currentFactorId {
 					isTargetVarying = true
+				} else {
+					rsr.VaryingFactorIds[rsr.VaryingFactorsCount] = rsr.RecordNoTwo[j].FactorId
+					rsr.VaryingFactorsCount++
 				}
-				rsr.VaryingFactorIds[rsr.VaryingFactorsCount] = rsr.RecordNoTwo[j].FactorId
-				rsr.VaryingFactorsCount++
 			}
 		}
 	} else if rsr.UseDBRecordNoTwo && rsr.RecordNoOne != nil {
+		// One record selected from the screen, compare it with the previously selected one
 		r := cp.state.(*CovPhaseState).RecordNoTwo
 		for j := range rsr.RecordNoOne {
 			if r.FactorLevels[rsr.RecordNoOne[j].FactorId].SelectedLevelId != rsr.RecordNoOne[j].SelectedLevelId {
 				if rsr.RecordNoOne[j].FactorId == currentFactorId {
 					isTargetVarying = true
+				} else {
+					rsr.VaryingFactorIds[rsr.VaryingFactorsCount] = rsr.RecordNoOne[j].FactorId
+					rsr.VaryingFactorsCount++
 				}
-				rsr.VaryingFactorIds[rsr.VaryingFactorsCount] = rsr.RecordNoOne[j].FactorId
-				rsr.VaryingFactorsCount++
 			}
 		}
 	} else {
+		// no two records were selected for comparison
 		rsr.Id = COV_RESPONSE_ID_SINGLE_CASE
 	}
 	if rsr.Id != COV_RESPONSE_ID_SINGLE_CASE {
-		if rsr.VaryingFactorsCount == 0 {
-			rsr.Id = COV_RESPONSE_ID_NON_VARYING
-			rsr.RecordNoTwo = nil
-		} else if !isTargetVarying {
-			rsr.Id = COV_RESPONSE_ID_TARGET_NON_VARYING
-		} else if rsr.VaryingFactorsCount == 1 {
-			if rsr.VaryingFactorIds[0] == currentFactorId {
-				rsr.Id = COV_RESPONSE_ID_CONTROLLED
+		if !isTargetVarying {
+			if rsr.VaryingFactorsCount == 0 {
+				// Two records were selected but nothing is varying,
+				// practically the same as picking one record
+				rsr.Id = COV_RESPONSE_ID_NON_VARYING
+				rsr.RecordNoTwo = nil
 			} else {
-				rsr.Id = COV_RESPONSE_ID_UNCONTROLLED
+				// Two records were selected but only other factors varying
+				// and not the target factor
+				rsr.Id = COV_RESPONSE_ID_TARGET_NON_VARYING
 			}
 		} else {
-			rsr.Id = COV_RESPONSE_ID_UNCONTROLLED
+			if rsr.VaryingFactorsCount == 0 {
+				// Target factor and only the target factor is varying
+				rsr.Id = COV_RESPONSE_ID_CONTROLLED
+			} else {
+				// Target factor but other factors are also varying
+				rsr.Id = COV_RESPONSE_ID_UNCONTROLLED
+			}
 		}
 	}
 
@@ -351,6 +364,8 @@ func (cp *CovPrompt) createRecordStateFromDB(r db.Record, sf []*UISelectedFactor
 	rs := &RecordState{}
 	if sf != nil && len(sf) != 0 {
 		rs.RecordName = r.Firstname + " " + r.Lastname
+		rs.FirstName = r.Firstname
+		rs.LastName = r.Lastname
 		rs.RecordNo = r.RecordNo
 		rs.Performance = r.OutcomeLevel
 		rs.FactorLevels = make(map[string]FactorState)
