@@ -125,119 +125,6 @@ type PromptConfigRef struct {
 	PhaseId string
 }
 
-type GenericState struct {
-	PhaseId            string
-	Username           string
-	Screenname         string
-	TargetFactor       FactorState
-	RemainingFactorIds []string
-	Beliefs            BeliefsState
-}
-
-type BeliefsState struct {
-	HasCausalFactors         bool
-	CausalFactors            []string
-	HasMultipleCausalFactors bool
-}
-
-func (c *GenericState) setPhaseId(s string) {
-	c.PhaseId = s
-}
-
-func (c *GenericState) setUsername(s string) {
-	c.Username = s
-}
-
-func (c *GenericState) setScreenname(s string) {
-	c.Screenname = s
-}
-
-// Not applicable to all phases
-func (c *GenericState) setTargetFactor(t FactorState) {
-	c.TargetFactor = t
-}
-
-// Not applicable to all phases
-func (c *GenericState) updateRemainingFactors() {
-	factorId := c.TargetFactor.FactorId
-	if c.RemainingFactorIds != nil {
-		for i, v := range c.RemainingFactorIds {
-			if v == factorId {
-				c.RemainingFactorIds = append(c.RemainingFactorIds[:i], c.RemainingFactorIds[i+1:]...)
-				break
-			}
-		}
-	}
-}
-
-// Not applicable to all phases
-func (c *GenericState) getRemainingFactorIds() []string {
-	return c.RemainingFactorIds
-}
-
-// Implements workflow.StateEntities
-type CovPhaseState struct {
-	GenericState
-	RecordNoOne *RecordState
-	RecordNoTwo *RecordState
-}
-
-func (c *CovPhaseState) GetPhaseId() string {
-	return appConfig.CovPhase.Id
-}
-
-func (c *CovPhaseState) initContents(factors []Factor) {
-	c.RemainingFactorIds = make([]string, len(factors))
-	for i, v := range factors {
-		c.RemainingFactorIds[i] = v.Id
-	}
-}
-
-func (cp *CovPhaseState) isContentCompleted() bool {
-	if len(cp.RemainingFactorIds) > 0 {
-		return false
-	}
-	return true
-}
-
-type RecordState struct {
-	RecordName   string
-	RecordNo     string
-	FactorLevels map[string]*FactorState
-	Performance  string
-	// Factor id as keys, such as:
-	// "fitness",
-	// "parentshealth",
-	// "education",
-	// "familysize"
-}
-
-// This type is used in multiple contexts.
-// Not all members may be relevant.
-type FactorState struct {
-	FactorName    string
-	FactorId      string
-	SelectedLevel string
-	OppositeLevel string
-	IsCausal      bool
-}
-
-// Implements workflow.StateEntities
-type ChartPhaseState struct {
-	GenericState
-}
-
-func (c *ChartPhaseState) GetPhaseId() string {
-	return appConfig.ChartPhase.Id
-}
-
-func (cp *ChartPhaseState) isContentCompleted() bool {
-	if len(cp.RemainingFactorIds) > 0 {
-		return false
-	}
-	return true
-}
-
 // var phaseConfigMap = make(map[string]PhaseConfig)
 var promptConfigMap = make(map[string]*PromptConfig) //key:PhaseConfig.Id+PromptConfig.Id
 var factorConfigMap = make(map[string]Factor)        //key:PhaseConfig.Id+PromptConfig.Id
@@ -351,7 +238,7 @@ func GetFactorConfig(factorId string) Factor {
 	return factorConfigMap[factorId]
 }
 
-func CreateCovFactorState(factorId string, levelId string) *FactorState {
+func CreateCovFactorState(factorId string, levelId string) FactorState {
 	f := GetFactorConfig(factorId)
 	allLevels := f.Levels
 	var selectedLevel string
@@ -369,7 +256,7 @@ func CreateCovFactorState(factorId string, levelId string) *FactorState {
 			}
 		}
 	}
-	return &FactorState{
+	return FactorState{
 		FactorName:    f.Name,
 		FactorId:      f.Id,
 		SelectedLevel: selectedLevel,

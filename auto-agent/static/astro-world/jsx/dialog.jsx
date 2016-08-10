@@ -14,7 +14,7 @@ var Dialog = React.createClass({
     var user = this.props.user;
     var history = user.getHistory() ? user.getHistory() : {};
     state.isNewUser = history.length == 0;
-    state.welcomeText = state.isNewUser ? "Welcome to Astro-world!" : "Welcome back!";
+    state.welcomeText = state.isNewUser ? "Welcome to Astro-world!" : "Welcome back! Let's pick up where we left off.";
     return state;
   },
 
@@ -288,7 +288,7 @@ var PromptOption = React.createClass({
     var option = this.props.option;
       return  <label>
                 <input type="radio" name="dialoginput" value={option.ResponseId}/>
-                {option.Text}
+                {option.Text}&nbsp;
               </label>
   },
 });
@@ -425,7 +425,7 @@ var Input = React.createClass({
       }
       var options = prompt.Options.map(
         function(option, i) {
-          return <div key={i}><PromptOption option={option}/></div>;
+          return <PromptOption option={option} key={i}/>;
         });
 
       return  <div className="form">

@@ -88,6 +88,7 @@ func (cp *GenericPrompt) initUIPrompt(uiUserData *UIUserData) {
 		cp.currentUIPrompt.setText(cp.promptDynamicText.String())
 		cp.currentUIPrompt.setId(pc.Id)
 		options := make([]*UIOption, len(pc.ExpectedResponses.Values))
+
 		for i := range pc.ExpectedResponses.Values {
 			options[i] = &UIOption{pc.ExpectedResponses.Values[i].Id, pc.ExpectedResponses.Values[i].Text}
 		}
@@ -246,6 +247,7 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 	var rid string
 	var p *PromptConfigRef
 	currentPhaseId := uiUserData.CurrentPhaseId
+
 	if len(erh.expectedResponseMap) == 1 {
 		// If there is only one expected response, use it regardless of the response
 		for _, v := range erh.expectedResponseMap {

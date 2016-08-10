@@ -132,7 +132,6 @@ var PriorBeliefFactors = React.createClass({
     var user = this.props.user;
     var prompt = user.getPrompt();
     var onComplete = this.props.onComplete;
-    var singleRecord = this.props.singleRecord;
 
     var e = document.getElementById("promptId");
     var promptId = e ? e.value : "";
@@ -245,7 +244,6 @@ var PriorBeliefLevels = React.createClass({
     var user = this.props.user;
     var prompt = user.getPrompt();
     var onComplete = this.props.onComplete;
-    var singleRecord = this.props.singleRecord;
 
     var e = document.getElementById("promptId");
     var promptId = e ? e.value : "";
@@ -338,15 +336,19 @@ var RecordSelection = React.createClass({
   },
 
   handleChange: function(event) {
-    var singleRecord = this.props.singleRecord;
+    var doubleRecord = this.props.doubleRecord;
+    var comparePrevious = this.props.comparePrevious;
 
-    var selectedFactors = this.getSelectedFactors("1");
-    for (i=0; i < selectedFactors.length; i++) {
-      if (selectedFactors[i].SelectedLevelId == "") {
-        return;
+    var selectedFactors;
+    if (!comparePrevious) {
+      selectedFactors = this.getSelectedFactors("1");
+      for (i=0; i < selectedFactors.length; i++) {
+        if (selectedFactors[i].SelectedLevelId == "") {
+          return;
+        }
       }
     }
-    if (!singleRecord) {
+    if (doubleRecord) {
       selectedFactors = this.getSelectedFactors("2");
       for (i=0; i < selectedFactors.length; i++) {
         if (selectedFactors[i].SelectedLevelId == "") {
@@ -363,7 +365,8 @@ var RecordSelection = React.createClass({
     var user = this.props.user;
     var prompt = user.getPrompt();
     var onComplete = this.props.onComplete;
-    var singleRecord = this.props.singleRecord;
+    var doubleRecord = this.props.doubleRecord;
+    var comparePrevious = this.props.comparePrevious;
 
     var e = document.getElementById("promptId");
     var promptId = e ? e.value : "";
@@ -371,12 +374,18 @@ var RecordSelection = React.createClass({
     var phaseId = e ? e.value : "";
     var f = document.getElementById("covactionForm");
 
-    var r1selectedFactors = this.getSelectedFactors("1");
+    var response = {};
+
+    var r1selectedFactors
+    if (!comparePrevious) {
+      r1selectedFactors = this.getSelectedFactors("1");
+    } else {
+      response.UseDBRecordNoOne = true;
+    }
     var r2selectedFactors
-    if (!singleRecord) {
+    if (doubleRecord) {
       r2selectedFactors = this.getSelectedFactors("2");
     }
-    var response = {};
     response.RecordNoOne = r1selectedFactors;
     response.RecordNoTwo = r2selectedFactors;    
 
@@ -388,23 +397,26 @@ var RecordSelection = React.createClass({
     var state = this.state;
     var user = this.props.user;
     var app = this.props.app;
-    var singleRecord = this.props.singleRecord;
+    var doubleRecord = this.props.doubleRecord;
+    var comparePrevious = this.props.comparePrevious;
     var prompt = user.getPrompt();
     var factors = user.getContentFactors();
 
     var promptId = prompt.PromptId;
     var phaseId = user.getCurrentPhaseId();
-
-    var recordOneFactors = factors.map(
-      function(factor, i) {
-        return <FactorSelection factor={factor} key={i} record="1"/>;
-      });
+    var recordOneFactors = {}
+    if (!comparePrevious) {
+      recordOneFactors = factors.map(
+        function(factor, i) {
+          return <FactorSelection factor={factor} key={i} record="1"/>;
+        });
+    }
     var recordTwoFactors = factors.map(
       function(factor, i) {
         return <FactorSelection factor={factor} key={i} record="2"/>;
       });
 
-    if (singleRecord) {
+    if (!doubleRecord) {
       return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
         <div className ="hbox">
           <div className="frame">
@@ -425,7 +437,7 @@ var RecordSelection = React.createClass({
           <button type="submit" disabled={!this.isEnabled()} key={"RecordSelection"}>Enter</button>
         </p>
         </form>;
-    } else {
+    } else if (!comparePrevious) {
       return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
         <div className ="hbox">
           <div className="frame">
@@ -457,7 +469,33 @@ var RecordSelection = React.createClass({
           <button type="submit" disabled={!this.isEnabled()} key={"RecordSelection"}>Enter</button>
         </p>
         </form>;
-      }
+    } else {
+      return <div className ="hbox">
+              <div className="frame">
+                <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
+                <table className="record">
+                  <tbody>
+                  <tr>
+                    <td>&nbsp;</td>
+                    <td colSpan="3" className="question">Second Record</td>
+                  </tr>
+                  </tbody>
+                </table>
+                <table className="recorddetails">
+                  <tbody>
+                    {recordTwoFactors}
+                  </tbody>
+                </table>
+                <p>
+                  <input type="hidden" id="promptId" value={promptId}/>
+                  <input type="hidden" id="phaseId" value={phaseId}/>
+                  <button type="submit" disabled={!this.isEnabled()} key={"RecordSelection"}>Enter</button>
+                </p>
+                </form>
+              </div>
+              <RecordPerformance user={user} app={app}/>
+            </div>;
+    }
   }
 });
 
@@ -501,31 +539,11 @@ var RecordPerformance = React.createClass({
     return {mode: 0};
   },
 
-  handleSubmit: function(event) {
-    event.preventDefault();
-
-    var user = this.props.user;
-    var prompt = user.getPrompt();
-    var onComplete = this.props.onComplete;
-    var singleRecord = this.props.singleRecord;
-
-    var e = document.getElementById("promptId");
-    var promptId = e ? e.value : "";
-    var e = document.getElementById("phaseId");
-    var phaseId = e ? e.value : "";
-    var f = document.getElementById("covactionForm");
-
-    var response = {};
-
-    jsonResponse = JSON.stringify(response);
-    user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
-  },
-
   render: function() {
       var state = this.state;
       var user = this.props.user;
       var app = this.props.app;
-      var showPerformance = this.props.showPerformance;
+      var hidePerformance = this.props.hidePerformance;
 
       var prompt = user.getPrompt();
       var promptId = prompt.PromptId;
@@ -554,7 +572,7 @@ var RecordPerformance = React.createClass({
                   {levels}
                 </tr>;
         });
-      var performance = showPerformance ? <p className="performance-level">Performance Level:
+      var performance = !hidePerformance ? <p className="performance-level">Performance Level:
                     <span className="grade">{record1.Performance}</span>
                   </p> : null;
 

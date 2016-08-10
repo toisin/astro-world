@@ -150,8 +150,7 @@
           "Id": "Prior beliefs",
           "Text": [
             "Before we get started, I want to know what your opinions are.",
-            "On the screen, tell me which of the factors you think will make a difference to the performance in space.",
-            "When you are done, just hit \"Enter\"."
+            "On the screen, tell me which of the factors you think will make a difference to the performance in space. When you are done, just hit \"Enter\"."
           ],
           "PromptType": "NO_INPUT",
           "ResponseType": "PRIOR_BELIEF_FACTORS",
@@ -183,7 +182,7 @@
                         "NextPrompt": {
                           "Id": "end prior beliefs",
                           "Text": [
-                            "Great. So we know that you think {{if .Beliefs.HasCausalFactors}}{{.Beliefs.CausalFactors}}{{if .Beliefs.HasMultipleCausalFactors}} matter{{- else}} matters{{- end}}{{- else}}none of the factors matters{{- end}} to performance in space.",
+                            "Great. So we know that you think {{$length := len .Beliefs.CausalFactors }}{{if eq $length 4}}all factors matter{{else if .Beliefs.CausalFactors}}{{range $i, $v := .Beliefs.CausalFactors}}{{if $i}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v}}{{end}}{{if .Beliefs.HasMultipleCausalFactors}} matter{{- else}} matters{{- end}}{{- else}}none of the factors matters{{- end}} to performance in space.",
                             "Now, let's figure out whether those factors actually matter! Press \"Enter\" to continue when you are ready."
                           ],
                           "PromptType": "ENTER_TO_CONTINUE",
@@ -217,7 +216,7 @@
                 "NextPrompt": {
                   "Id": "test record result",
                   "Text": [
-                    "You selected Record #{{.RecordNoOne.RecordNo}}, {{.RecordNoOne.RecordName}}. And you can see that his performance was {{.RecordNoOne.Performance}}."
+                    "You selected Record #{{.RecordNoOne.RecordNo}}, {{.RecordNoOne.RecordName}}. And you can see that the applicant's performance was {{.RecordNoOne.Performance}}."
                   ],
                   "PromptType": "STRAIGHT_THROUGH",
                   "ResponseType": "Basic",
@@ -289,7 +288,7 @@
                                 "NextPrompt": {
                                   "Id": "record result with no performance",
                                   "Text": [
-                                    "So, you want to look at {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}}. Now, before I show you the performance. Can you tell me what you would be able to figure out by looking at this record?"
+                                    "So, you want to look at {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}}. Now, before I show you the applicant's performance. Can you tell me what you would be able to figure out by looking at this record?"
                                   ],
                                   "PromptType": "Text",
                                   "ResponseType": "Basic",
@@ -301,7 +300,7 @@
                                         "NextPrompt": {
                                           "Id": "record with performance",
                                           "Text": [
-                                            "The performance is {{.RecordNoOne.Performance}}","Ok, now that you saw the performance. What did you find out?"
+                                            "Ok. The performance of the applicant you chose is {{.RecordNoOne.Performance}}. Now that you saw the performance. What did you find out?"
                                           ],
                                           "PromptType": "Text",
                                           "ResponseType": "Basic",
@@ -311,36 +310,139 @@
                                               {
                                                 "Id": "anything",
                                                 "NextPrompt": {
-                                                  "Id":"is there enough information",
-                                                  "Text": ["Do you have enough information to say whether fitness makes a difference to the performance in the space? Yes or No?"],
-                                                  "PromptType":"MC",
+                                                  "Id": "is there enough information",
+                                                  "Text": [
+                                                    "Do you have enough information to say whether {{.TargetFactor.FactorName}} makes a difference to the performance in the space? Yes or No?"
+                                                  ],
+                                                  "PromptType": "MC",
                                                   "ResponseType": "Basic",
                                                   "UIActionModeId": "RECORD_PERFORMANCE",
-                                                  "ExpectedResponses":{
-                                                    "Value":[
+                                                  "ExpectedResponses": {
+                                                    "Values": [
                                                       {
                                                         "Id": "yes",
                                                         "Text": "Yes",
                                                         "NextPrompt": {
                                                           "Id": "enough information",
-                                                          "Text":["What will happen to the performance for this applicant if {{.TargetFactor.FactorName}} was {{$x.OppositeLevel}}?"],
+                                                          "Text": [
+                                                            "What will happen to the performance for this applicant if {{.TargetFactor.FactorName}} was {{$factorId := .TargetFactor.FactorId}}{{$factor := index .RecordNoOne.FactorLevels $factorId}}{{$factor.OppositeLevel}} instead?"
+                                                          ],
                                                           "PromptType": "Text",
-                                                          "ResponseType":"Basic",
-                                                          "UIActionModeId": "RECORD_PERFORMANCE"
+                                                          "ResponseType": "Basic",
+                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                          "ExpectedResponses": {
+                                                            "Values": [
+                                                              {
+                                                                "Id": "anything",
+                                                                "NextPrompt": {
+                                                                  "Id": "are you sure",
+                                                                  "Text": [
+                                                                    "Ok. Do you know for sure?"
+                                                                  ],
+                                                                  "PromptType": "Text",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "anything",
+                                                                        "NextPrompt": {
+                                                                          "Id": "test it out",
+                                                                          "Text": [
+                                                                            "Why don't you test it out? Press \"Enter\" when you are ready to continue."
+                                                                          ],
+                                                                          "PromptType": "ENTER_TO_CONTINUE",
+                                                                          "ResponseType": "Basic",
+                                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                          "ExpectedResponses": {
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "anything",
+                                                                                "NextPrompt": {
+                                                                                  "Id": "select record to compare",
+                                                                                  "Text": [
+                                                                                    "What record would you need to test this out? Find a record that can help you find out if you were right. Select a level for each factor, and the computer will find you an applicant with those levels."
+                                                                                  ],
+                                                                                  "PromptType": "NO_INPUT",
+                                                                                  "ResponseType": "RECORD",
+                                                                                  "UIActionModeId": "RECORD_SELECT_ONE_AND_SHOW_PERFORMANCE",
+                                                                                  "ExpectedResponses": {
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "Single record",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "p1r2p1r1p1"
+                                                                                        }
+                                                                                      },
+                                                                                      {
+                                                                                        "Id": "Target factor non-varying",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "p1r2p1r1p1"
+                                                                                        }
+                                                                                      },
+                                                                                      {
+                                                                                        "Id": "Two records non-varying",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "p1r2p1r2p1"
+                                                                                        }
+                                                                                      },
+                                                                                      {
+                                                                                        "Id": "Two records uncontrolled",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "p1r2p1r3p1"
+                                                                                        }
+                                                                                      },
+                                                                                      {
+                                                                                        "Id": "Two records controlled",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "p1r2p1r4p1"
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
                                                         }
                                                       },
-                                                      {                                                        "Id": "no",
+                                                      {
+                                                        "Id": "no",
                                                         "Text": "No",
                                                         "NextPrompt": {
                                                           "Id": "not enough information",
-                                                          "Text":["What will happen to the performance for this applicant if {{.TargetFactor.FactorName}} was {{$x.OppositeLevel}}?"],
+                                                          "Text": [
+                                                            "Ok, let's see how we can figure out whether {{.TargetFactor.FactorName}} makes a difference",
+                                                            "What do you think would happen to {{.RecordNoOne.RecordName}}'s performance, if {{.TargetFactor.FactorName}} was {{$factorId := .TargetFactor.FactorId}}{{$factor := index .RecordNoOne.FactorLevels $factorId}}{{$factor.OppositeLevel}} instead?"
+                                                          ],
                                                           "PromptType": "Text",
-                                                          "ResponseType":"Basic",
-                                                          "UIActionModeId": "RECORD_PERFORMANCE"
-                                                        }}]
+                                                          "ResponseType": "Basic",
+                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                          "ExpectedResponses": {
+                                                            "Values": [
+                                                              {
+                                                                "Id": "anything",
+                                                                "NextPromptRef": {
+                                                                  "Id": "are you sure"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
                                                   }
-                                                  }
-                                              }]
+                                                }
+                                              }
+                                            ]
                                           }
                                         }
                                       }

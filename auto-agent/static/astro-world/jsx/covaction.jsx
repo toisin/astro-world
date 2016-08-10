@@ -19,6 +19,11 @@ var CovAction = React.createClass({
     // var key = prompt.PromptId + action.UIActionModeId;
     var onComplete = this.props.onComplete;
 
+    var targetFactor
+    if (user.getState().TargetFactor) {
+     targetFactor = user.getState().TargetFactor.FactorId != "" ? <h3>Investigating Factor: <b>{user.getState().TargetFactor.FactorName}</b></h3> : null;
+    }
+
     if (action) {
       switch (action.UIActionModeId) {
         case "NEW_TARGET_FACTOR":
@@ -28,13 +33,30 @@ var CovAction = React.createClass({
         case "PRIOR_BELIEF_LEVELS":
           return  <PriorBeliefLevels user={user} onComplete={onComplete} app={app}/>;// key={key}/>;
         case "RECORD_SELECT_ONE":
-          return <RecordSelection user={user} onComplete={onComplete} app={app} singleRecord={true}/>;// key={key}/>;
+          return <div>
+                  {targetFactor}
+                  <RecordSelection user={user} onComplete={onComplete} app={app} />
+                </div>;
         case "RECORD_SELECT_TWO":
-          return <RecordSelection user={user} onComplete={onComplete} app={app} singleRecord={false}/>;// key={key}/>;
+          return <div>
+                  {targetFactor}
+                  <RecordSelection user={user} onComplete={onComplete} app={app} doubleRecord/>
+                </div>;
         case "RECORD_NO_PERFORMANCE":
-          return <RecordPerformance user={user} onComplete={onComplete} app={app} showPerformance={false}/>;// key={key}/>;
+          return <div>
+                  {targetFactor}
+                  <RecordPerformance user={user} onComplete={onComplete} app={app} hidePerformance/>
+                </div>;
+        case "RECORD_SELECT_ONE_AND_SHOW_PERFORMANCE":
+          return <div>
+                  {targetFactor}
+                  <RecordSelection user={user} onComplete={onComplete} app={app} doubleRecord comparePrevious/>
+                </div>;
         case "RECORD_PERFORMANCE":
-          return <RecordPerformance user={user} onComplete={onComplete} app={app} showPerformance/>;// key={key}/>;
+          return <div>
+                  {targetFactor}
+                  <RecordPerformance user={user} app={app}/>
+                </div>
         default:
           return <div></div>;
       }
