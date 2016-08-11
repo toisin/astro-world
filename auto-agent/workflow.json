@@ -203,7 +203,7 @@
           "Id": "test record select",
           "Text": [
             "What I have in my database is a list of records of how the applicants performed. If you study the records carefully, you will be able to see which factors make a difference to performance and which don't.",
-            "Let's try it. On the screen, you can look for an applicant who you want to see. Just select a level for each factor, and the computer will find you an applicant who has all those levels and tell you his/her performance",
+            "Let's try it. On the screen, you can look for an applicant who you want to see. Just select a level for each factor, and the computer will find you an applicant who has all those levels and tell you his/her performance.",
             "Ok, make your selection. Remember to click \"Enter\" when you are ready."
           ],
           "PromptType": "NO_INPUT",
@@ -216,8 +216,9 @@
                 "NextPrompt": {
                   "Id": "test record result",
                   "Text": [
-                    "You selected Record #{{.RecordNoOne.RecordNo}}, {{.RecordNoOne.RecordName}}. And you can see that the applicant's performance was {{.RecordNoOne.Performance}}.","Now that you know how to select a record, you can start figuring out whether each factor matters by looking through the records. Hit \"Enter\" when you are ready to continue."
-                          ],
+                    "You selected Record #{{.RecordNoOne.RecordNo}}, {{.RecordNoOne.RecordName}}. And you can see that the applicant's performance was {{.RecordNoOne.Performance}}.",
+                    "Now that you know how to select a record, you can start figuring out whether each factor matters by looking through the records. Hit \"Enter\" when you are ready to continue."
+                  ],
                   "PromptType": "ENTER_TO_CONTINUE",
                   "ResponseType": "COMPLETE",
                   "UIActionModeId": "RECORD_PERFORMANCE"
@@ -272,7 +273,7 @@
                                 "NextPrompt": {
                                   "Id": "record result with no performance",
                                   "Text": [
-                                    "So, you want to look at {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}}. Now, before I show you the applicant's performance. Can you tell me what you would be able to figure out by looking at this record?"
+                                    "So, you want to look at {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}}. Now, before I show you {{.RecordNoOne.FirstName}}'s performance. Can you tell me what you would be able to figure out by looking at this record?"
                                   ],
                                   "PromptType": "Text",
                                   "ResponseType": "Basic",
@@ -309,11 +310,11 @@
                                                         "NextPrompt": {
                                                           "Id": "enough information",
                                                           "Text": [
-                                                            "What will happen to the performance for this applicant if {{.TargetFactor.FactorName}} was {{$factorId := .TargetFactor.FactorId}}{{$factor := index .RecordNoOne.FactorLevels $factorId}}{{$factor.OppositeLevel}} instead?"
+                                                            "What will happen to {{.RecordNoOne.FirstName}}'s performance if {{.TargetFactor.FactorName}} was {{$factorId := .TargetFactor.FactorId}}{{$factor := index .RecordNoOne.FactorLevels $factorId}}{{$factor.OppositeLevel}} instead?"
                                                           ],
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",
-                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                          "UIActionModeId": "RECORD_ONE_PERFORMANCE",
                                                           "ExpectedResponses": {
                                                             "Values": [
                                                               {
@@ -325,7 +326,7 @@
                                                                   ],
                                                                   "PromptType": "MC",
                                                                   "ResponseType": "Basic",
-                                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                  "UIActionModeId": "RECORD_ONE_PERFORMANCE",
                                                                   "ExpectedResponses": {
                                                                     "Values": [
                                                                       {
@@ -338,7 +339,7 @@
                                                                           ],
                                                                           "PromptType": "Text",
                                                                           "ResponseType": "Basic",
-                                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                          "UIActionModeId": "RECORD_ONE_PERFORMANCE",
                                                                           "ExpectedResponses": {
                                                                             "Values": [
                                                                               {
@@ -350,7 +351,7 @@
                                                                                   ],
                                                                                   "PromptType": "ENTER_TO_CONTINUE",
                                                                                   "ResponseType": "Basic",
-                                                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                                  "UIActionModeId": "RECORD_ONE_PERFORMANCE",
                                                                                   "ExpectedResponses": {
                                                                                     "Values": [
                                                                                       {
@@ -358,7 +359,7 @@
                                                                                         "NextPrompt": {
                                                                                           "Id": "select record to compare",
                                                                                           "Text": [
-                                                                                            "What record would you need to test it out? Select a record on the screen that can help you find out if you were right."
+                                                                                            "What record would you need to test what will happen to {{.RecordNoOne.FirstName}} if {{.RecordNoOne.FirstName}}'s {{.TargetFactor.FactorName}} was {{$factorId := .TargetFactor.FactorId}}{{$factor := index .RecordNoOne.FactorLevels $factorId}}{{$factor.OppositeLevel}}? Select a record on the screen that can help you find out if you were right."
                                                                                           ],
                                                                                           "PromptType": "NO_INPUT",
                                                                                           "ResponseType": "RECORD",
@@ -393,7 +394,7 @@
                                                                                                 "NextPrompt": {
                                                                                                   "Id": "one more record result with performance",
                                                                                                   "Text": [
-                                                                                                    "So, you want to compare {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}} with {{.RecordNoTwo.RecordName}}, record #{{.RecordNoTwo.RecordNo}}. You can see that {{.RecordNoOne.FirstName}} has {{.RecordNoOne.Performance}} and {{.RecordNoTwo.FirstName}} has {{.RecordNoTwo.Performance}}. Now that you saw the performances. What did you find out?"
+                                                                                                    "So, you want to compare {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}} with {{.RecordNoTwo.RecordName}}, record #{{.RecordNoTwo.RecordNo}}. You can see that {{.RecordNoOne.FirstName}} has {{.RecordNoOne.Performance}} and {{.RecordNoTwo.FirstName}} has {{.RecordNoTwo.Performance}}. Now that you saw their performances. What did you find out?"
                                                                                                   ],
                                                                                                   "PromptType": "Text",
                                                                                                   "ResponseType": "Basic",
@@ -406,7 +407,7 @@
                                                                                                           "Id": "two records conclusion"
                                                                                                         }
                                                                                                       }
-                                                                                                      ]
+                                                                                                    ]
                                                                                                   }
                                                                                                 }
                                                                                               }
@@ -490,8 +491,8 @@
                         "NextPrompt": {
                           "Id": "choose two records",
                           "Text": [
-                            "Which two records would you like to see?",
-                            "On the screen, choose two records. Select a level for each factor, and the computer will find you the applicants with those levels."
+                            "Which records would you like to see?",
+                            "On the screen, choose the records you want that will help you figure out whether {{.TargetFactor.FactorName}} makes a difference. Select a level for each factor, and the computer will find you the applicants with those levels."
                           ],
                           "PromptType": "NO_INPUT",
                           "ResponseType": "RECORD",
@@ -504,7 +505,7 @@
                                   "Id": "two same records selection",
                                   "Text": [
                                     "You selected the same record twice.",
-                                    "So, you want to look at {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}}. Now, before I show you the applicant's performance. Can you tell me what you would be able to figure out by looking at this record?"
+                                    "So, you want to look at {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}}. Now, before I show you {{.RecordNoOne.FirstName}}'s performance. Can you tell me what you would be able to figure out by looking at this record?"
                                   ],
                                   "PromptType": "Text",
                                   "ResponseType": "Basic",
@@ -526,7 +527,7 @@
                                 "NextPrompt": {
                                   "Id": "two record results with no performance",
                                   "Text": [
-                                    "So, you want to look at {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}} and {{.RecordNoTwo.RecordName}}, record #{{.RecordNoTwo.RecordNo}}. Now, before I show you the applicant's performance. Tell me, what are you going to find out by comparing these two records?"
+                                    "So, you want to look at {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}} and {{.RecordNoTwo.RecordName}}, record #{{.RecordNoTwo.RecordNo}}. Now, before I show you the applicants' performances. Tell me, what are you going to find out by comparing these two records?"
                                   ],
                                   "PromptType": "Text",
                                   "ResponseType": "Basic",
@@ -538,7 +539,7 @@
                                         "NextPrompt": {
                                           "Id": "two records with performance",
                                           "Text": [
-                                            "Ok. The performance of the applicant you chose are {{.RecordNoOne.Performance}} and {{.RecordNoTwo.Performance}}. Now that you saw the performances. What did you find out?"
+                                            "Ok. The grades of the applicants you chose are {{.RecordNoOne.Performance}} and {{.RecordNoTwo.Performance}}. Now that you saw their performances. What did you find out?"
                                           ],
                                           "PromptType": "Text",
                                           "ResponseType": "Basic",
@@ -556,7 +557,6 @@
                                                   "ResponseType": "CAUSAL_CONCLUSION",
                                                   "UIActionModeId": "RECORD_PERFORMANCE",
                                                   "ExpectedResponses": {
-                                                    "StateTemplateRef": "{{.TargetFactor.IsCausal}}",
                                                     "Values": [
                                                       {
                                                         "Id": "true",
@@ -564,9 +564,9 @@
                                                         "NextPrompt": {
                                                           "Id": "two records causal",
                                                           "Text": [
-                                                            "Ok, So you think that {{.TargetFactor.FactorName}} makes a difference."
+                                                            "Ok, So you think that {{.TargetFactor.FactorName}} makes a difference. What makes you say that?"
                                                           ],
-                                                          "PromptType": "STRAIGHT_THROUGH",
+                                                          "PromptType": "Text",
                                                           "ResponseType": "Basic",
                                                           "UIActionModeId": "RECORD_PERFORMANCE",
                                                           "ExpectedResponses": {
@@ -597,25 +597,181 @@
                                                               {
                                                                 "Id": "Two records uncontrolled",
                                                                 "NextPrompt": {
-                                                                  "Id": "two records uncontrolled",
+                                                                  "Id": "two records uncontrolled causal",
                                                                   "Text": [
-                                                                    "That may be true. But can we really tell for sure that {{.TargetFactor.FactorName}} makes a difference to the performance? Couldn’t someone say that it is because {{.RecordNoTwo.FirstName}} has {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}} and that is why {{.RecordNoTwo.FirstName}} has a different grade from {{.RecordNoOne.FirstName}}? Do you really know for sure that {{.TargetFactor.FactorName}} made the difference?"
+                                                                    "That may be true. But can we really tell for sure that {{.TargetFactor.FactorName}} makes a difference to the performance? Couldn’t someone say that it is because {{.RecordNoTwo.FirstName}} has {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}} and that is why {{.RecordNoOne.FirstName}} has a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade than {{.RecordNoTwo.FirstName}}? Can you really know for sure that {{.TargetFactor.FactorName}}  gave {{.RecordNoOne.FirstName}} a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade?"
                                                                   ],
-                                                                  "PromptType": "Text",
+                                                                  "PromptType": "MC",
                                                                   "ResponseType": "Basic",
-                                                                  "UIActionModeId": "RECORD_PERFORMANCE"
+                                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "yes",
+                                                                        "Text": "I am sure.",
+                                                                        "NextPrompt": {
+                                                                          "Id": "two records uncontrolled sure causal",
+                                                                          "Text": [
+                                                                            "Ok. Now, let's look for more records and see what we find. Press \"Enter\" when you are ready to continue."
+                                                                          ],
+                                                                          "PromptType": "ENTER_TO_CONTINUE",
+                                                                          "ResponseType": "Basic",
+                                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                          "ExpectedResponses": {
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "ANY_RESPONSE",
+                                                                                "NextPromptRef": {
+                                                                                  "Id": "choose two records"
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "Id": "no",
+                                                                        "Text": "I am not sure.",
+                                                                        "NextPrompt": {
+                                                                          "Id": "two records uncontrolled unsure causal",
+                                                                          "Text": [
+                                                                            "How can we be 100% sure? Can you find a better record to compare {{.RecordNoOne.FirstName}} with so that we know what would happen to {{.RecordNoOne.FirstName}} if {{.RecordNoOne.FirstName}}'s {{.TargetFactor.FactorName}} goes to {{$factorId := .TargetFactor.FactorId}}{{$factor := index .RecordNoOne.FactorLevels $factorId}}{{$factor.OppositeLevel}}?",
+                                                                            "What would we need? Press \"Enter\" when you are ready to continue."
+                                                                          ],
+                                                                          "PromptType": "ENTER_TO_CONTINUE",
+                                                                          "ResponseType": "Basic",
+                                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                          "ExpectedResponses": {
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "ANY_RESPONSE",
+                                                                                "NextPromptRef": {
+                                                                                  "Id": "select a better record to compare"
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
                                                                 }
                                                               },
                                                               {
                                                                 "Id": "Two records controlled",
                                                                 "NextPrompt": {
-                                                                  "Id": "two records controlled",
+                                                                  "Id": "two records controlled causal challenge",
                                                                   "Text": [
-                                                                    "Controlled, Thank you!"
+                                                                    "I see. But does it have to be {{.TargetFactor.FactorName}} that is making the difference? Could someone say that {{.RecordNoOne.FirstName}} has a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade from {{.RecordNoTwo.FirstName}} because {{.RecordNoOne.FirstName}} has {{$otherFactorId := index .NonVaryingFactorIds 0}}{{$otherFactor := index .RecordNoOne.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}}?"
                                                                   ],
-                                                                  "PromptType": "STRAIGHT_THROUGH",
-                                                                  "ResponseType": "COMPLETE",
-                                                                  "UIActionModeId": "RECORD_PERFORMANCE"
+                                                                  "PromptType": "Text",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPrompt": {
+                                                                          "Id": "two records controlled causal check causal",
+                                                                          "Text": [
+                                                                            "Ok, so what will happen to someone's performance when {{.TargetFactor.FactorName}} changes from one level to another?"
+                                                                          ],
+                                                                          "PromptType": "Text",
+                                                                          "ResponseType": "Basic",
+                                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                          "ExpectedResponses": {
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "ANY_RESPONSE",
+                                                                                "NextPrompt": {
+                                                                                  "Id": "controlled are you sure",
+                                                                                  "Text": [
+                                                                                    "Ok. Can you be sure that {{.TargetFactor.FactorName}} makes a difference to performance in space then?"
+                                                                                  ],
+                                                                                  "PromptType": "MC",
+                                                                                  "ResponseType": "Basic",
+                                                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                                  "ExpectedResponses": {
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "yes",
+                                                                                        "Text": "I am sure.",
+                                                                                        "NextPrompt": {
+                                                                                          "Id": "controlled sure",
+                                                                                          "Text": [
+                                                                                            "I see! Ok. Now, Suppose someone disagrees with you and doesn't think that {{.TargetFactor.FactorName}} makes a difference to performance in space. What would you say to them?"
+                                                                                          ],
+                                                                                          "PromptType": "Text",
+                                                                                          "ResponseType": "Basic",
+                                                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                                          "ExpectedResponses": {
+                                                                                            "Values": [
+                                                                                              {
+                                                                                                "Id": "ANY_RESPONSE",
+                                                                                                "NextPrompt": {
+                                                                                                  "Id": "memo",
+                                                                                                  "Text": [
+                                                                                                    "Ok, great, so you are sure then.",
+                                                                                                    "Ok. Let's write down what you found out here as a memo to the foundation. Don't forget to click \"Enter\" to submit it."
+                                                                                                  ],
+                                                                                                  "PromptType": "NO_INPUT",
+                                                                                                  "ResponseType": "COMPLETE",
+                                                                                                  "UIActionModeId": "MEMO_FORM"
+                                                                                                }
+                                                                                              }
+                                                                                            ]
+                                                                                          }
+                                                                                        }
+                                                                                      },
+                                                                                      {
+                                                                                        "Id": "no",
+                                                                                        "Text": "I am not sure.",
+                                                                                        "NextPrompt": {
+                                                                                          "Id": "controlled not sure",
+                                                                                          "Text": [
+                                                                                            "No problem. Tell me what makes you feel unsure."
+                                                                                          ],
+                                                                                          "PromptType": "Text",
+                                                                                          "ResponseType": "Basic",
+                                                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                                          "ExpectedResponses": {
+                                                                                            "Values": [
+                                                                                              {
+                                                                                                "Id": "ANY_RESPONSE",
+                                                                                                "NextPrompt": {
+                                                                                                  "Id": "controlled not sure try again",
+                                                                                                  "Text": [
+                                                                                                    "Ok. Got it. How about we try and look at some other records and see if you will be more sure? Press \"Enter\" when you are ready to continue."
+                                                                                                  ],
+                                                                                                  "PromptType": "ENTER_TO_CONTINUE",
+                                                                                                  "ResponseType": "Basic",
+                                                                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                                                  "ExpectedResponses": {
+                                                                                                    "Values": [
+                                                                                                      {
+                                                                                                        "Id": "ANY_RESPONSE",
+                                                                                                        "NextPromptRef": {
+                                                                                                          "Id": "choose two records"
+                                                                                                        }
+                                                                                                      }
+                                                                                                    ]
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            ]
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
                                                                 }
                                                               }
                                                             ]
@@ -626,11 +782,11 @@
                                                         "Id": "false",
                                                         "Text": "No",
                                                         "NextPrompt": {
-                                                          "Id": "two records causal",
+                                                          "Id": "two records noncausal",
                                                           "Text": [
-                                                            "Ok, So you think that {{.TargetFactor.FactorName}} makes a difference."
+                                                            "Ok, So you think that {{.TargetFactor.FactorName}} does not make a difference. What makes you say that?"
                                                           ],
-                                                          "PromptType": "STRAIGHT_THROUGH",
+                                                          "PromptType": "Text",
                                                           "ResponseType": "Basic",
                                                           "UIActionModeId": "RECORD_PERFORMANCE",
                                                           "ExpectedResponses": {
@@ -639,9 +795,9 @@
                                                               {
                                                                 "Id": "Target factor non-varying",
                                                                 "NextPrompt": {
-                                                                  "Id": "target non-varying selection",
+                                                                  "Id": "target non-varying selection non-causal",
                                                                   "Text": [
-                                                                    "I see. But what do you think will happen to {{.RecordNoOne.FirstName}}'s performance if {{.TargetFactor.FactorName}} was {{$factorId := .TargetFactor.FactorId}}{{$factor := index .RecordNoOne.FactorLevels $factorId}}{{$factor.OppositeLevel}} instead?"
+                                                                    "I see. But what do you think will happen to {{.RecordNoOne.FirstName}}'s performance if {{.TargetFactor.FactorName}} was {{$factorId := .TargetFactor.FactorId}}{{$factor := index .RecordNoOne.FactorLevels $factorId}}{{$factor.OppositeLevel}} instead? Will the performance still be the same?"
                                                                   ],
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
@@ -661,25 +817,260 @@
                                                               {
                                                                 "Id": "Two records uncontrolled",
                                                                 "NextPrompt": {
-                                                                  "Id": "two records uncontrolled",
+                                                                  "Id": "two records uncontrolled non-causal",
                                                                   "Text": [
-                                                                    "That may be true. But can we really tell for sure that {{.TargetFactor.FactorName}} makes a difference to the performance? Couldn’t someone say that it is because {{.RecordNoTwo.FirstName}} has {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}} and that is why {{.RecordNoTwo.FirstName}} has a different grade than {{.RecordNoOne.FirstName}}? Do you really know for sure that {{.TargetFactor.FactorName}} made the difference?"
+                                                                    "That may be true. But {{.TargetFactor.FactorName}} and {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.FactorName}} are both different in the two records. {{if eq .RecordNoOne.Performance .RecordNoTwo.Performance}}Can you really know why their grades are the same? {{end}}Maybe one makes the grade go up and the other makes it go down so they offset each other? Can you really know for sure that {{.TargetFactor.FactorName}} does not make a difference to performance?"
                                                                   ],
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
-                                                                  "UIActionModeId": "RECORD_PERFORMANCE"
+                                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPromptRef": {
+                                                                          "Id": "enough information"
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
                                                                 }
                                                               },
                                                               {
                                                                 "Id": "Two records controlled",
                                                                 "NextPrompt": {
-                                                                  "Id": "two records controlled",
+                                                                  "Id": "two records controlled non-causal",
                                                                   "Text": [
-                                                                    "Controlled, Thank you!"
+                                                                    "What will happen to someone's grade when {{.TargetFactor.FactorName}} changes from one level to another?"
                                                                   ],
-                                                                  "PromptType": "STRAIGHT_THROUGH",
-                                                                  "ResponseType": "COMPLETE",
-                                                                  "UIActionModeId": "RECORD_PERFORMANCE"
+                                                                  "PromptType": "Text",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPrompt": {
+                                                                          "Id": "controlled non-causal sure",
+                                                                          "Text": [
+                                                                            "I see! Ok. Now, Suppose someone disagrees with you and thinks that {{.TargetFactor.FactorName}} really does make a difference to performance in space. What would you say to them?"
+                                                                          ],
+                                                                          "PromptType": "Text",
+                                                                          "ResponseType": "Basic",
+                                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                          "ExpectedResponses": {
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "ANY_RESPONSE",
+                                                                                "NextPromptRef": {
+                                                                                  "Id": "memo"
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "Id": "ANY_RESPONSE",
+                                                        "Text": "Not sure",
+                                                        "NextPrompt": {
+                                                          "Id": "two records causal unsure",
+                                                          "Text": [
+                                                            "It's ok that you are not sure wheather {{.TargetFactor.FactorName}} makes a difference."
+                                                          ],
+                                                          "PromptType": "STRAIGHT_THROUGH",
+                                                          "ResponseType": "Basic",
+                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                          "ExpectedResponses": {
+                                                            "StateTemplateRef": "{{.RecordSelectionsTypeId}}",
+                                                            "Values": [
+                                                              {
+                                                                "Id": "Target factor non-varying",
+                                                                "NextPrompt": {
+                                                                  "Id": "causal unsure target non-varying selection",
+                                                                  "Text": [
+                                                                    "Let's talk about it.",
+                                                                    "What do you think will happen to {{.RecordNoOne.FirstName}}'s performance if {{.TargetFactor.FactorName}} was {{$factorId := .TargetFactor.FactorId}}{{$factor := index .RecordNoOne.FactorLevels $factorId}}{{$factor.OppositeLevel}} instead?"
+                                                                  ],
+                                                                  "PromptType": "Text",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPromptRef": {
+                                                                          "Id": "will performance change"
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "Id": "ANY_RESPONSE",
+                                                                "NextPrompt": {
+                                                                  "Id": "two records target varying causal unsure",
+                                                                  "Text": [
+                                                                    "Let's look at these records again. What do you think these records tell us?",
+                                                                    "Do you think that, Yes, they do show that {{.TargetFactor.FactorName}} make a difference? Or No, these records really shows that {{.TargetFactor.FactorName}} does not make a difference? Or you just can't tell with these records?"
+                                                                  ],
+                                                                  "PromptType": "MC",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "true",
+                                                                        "Text": "Yes",
+                                                                        "NextPrompt": {
+                                                                          "Id": "two records maybe causal",
+                                                                          "Text": [
+                                                                            "Ok, So you think that these records show that {{.TargetFactor.FactorName}} may make a difference.",
+                                                                            "What about these records that tell you {{.TargetFactor.FactorName}} makes a difference?"
+                                                                          ],
+                                                                          "PromptType": "Text",
+                                                                          "ResponseType": "Basic",
+                                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                          "ExpectedResponses": {
+                                                                            "StateTemplateRef": "{{.RecordSelectionsTypeId}}",
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "Two records uncontrolled",
+                                                                                "NextPrompt": {
+                                                                                  "Id": "two records uncontrolled maybe causal",
+                                                                                  "Text": [
+                                                                                    "That may be true. But couldn’t someone say that it is because {{.RecordNoTwo.FirstName}} has {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}} and that is why {{.RecordNoOne.FirstName}} has a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade than {{.RecordNoTwo.FirstName}}? How can we be 100% sure? Let's see if you can find a better record to compare {{.RecordNoOne.FirstName}} with so that we know whether {{.TargetFactor.FactorName}} really makes a difference?",
+                                                                                    "What would we need? Press \"Enter\" when you are ready to continue."
+                                                                                  ],
+                                                                                  "PromptType": "ENTER_TO_CONTINUE",
+                                                                                  "ResponseType": "Basic",
+                                                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                                  "ExpectedResponses": {
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "ANY_RESPONSE",
+                                                                                        "NextPrompt": {
+                                                                                          "Id": "select a better record to compare",
+                                                                                          "Text": [
+                                                                                            "Select a record on the screen to compare with {{.RecordNoOne.FirstName}} so that you can know for sure whether {{.TargetFactor.FactorName}} really makes a difference."
+                                                                                          ],
+                                                                                          "PromptType": "NO_INPUT",
+                                                                                          "ResponseType": "RECORD",
+                                                                                          "UIActionModeId": "RECORD_SELECT_ONE_AND_SHOW_PERFORMANCE",
+                                                                                          "ExpectedResponses": {
+                                                                                            "Values": [
+                                                                                              {
+                                                                                                "Id": "Two records non-varying",
+                                                                                                "NextPromptRef": {
+                                                                                                  "Id": "one more same record selection"
+                                                                                                }
+                                                                                              },
+                                                                                              {
+                                                                                                "Id": "ANY_RESPONSE",
+                                                                                                "NextPromptRef": {
+                                                                                                  "Id": "one more record result with performance"
+                                                                                                }
+                                                                                              }
+                                                                                            ]
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              {
+                                                                                "Id": "Two records controlled",
+                                                                                "NextPrompt": {
+                                                                                  "Id": "two records controlled maybe causal",
+                                                                                  "Text": [
+                                                                                    "Ok, So you think that {{.TargetFactor.FactorName}} makes a difference. What makes you say that?"
+                                                                                  ],
+                                                                                  "PromptType": "Text",
+                                                                                  "ResponseType": "Basic",
+                                                                                  "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                                  "ExpectedResponses": {
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "ANY_RESPONSE",
+                                                                                        "NextPrompt": {
+                                                                                          "Id": "two records controlled maybe causal challenge",
+                                                                                          "Text": [
+                                                                                            "I see. Does it have to be {{.TargetFactor.FactorName}} that is making the difference? Could someone say that {{.RecordNoOne.FirstName}} has a different grade from {{.RecordNoTwo.FirstName}} because {{.RecordNoOne.FirstName}} has {{$otherFactorId := index .RecordNoOne.NonVaryingFactorIds 0}}{{$otherFactor := index .RecordNoOne.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}}?"
+                                                                                          ],
+                                                                                          "PromptType": "Text",
+                                                                                          "ResponseType": "Basic",
+                                                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                                          "ExpectedResponses": {
+                                                                                            "Values": [
+                                                                                              {
+                                                                                                "Id": "ANY_RESPONSE",
+                                                                                                "NextPromptRef": {
+                                                                                                  "Id": "two records controlled causal check causal"
+                                                                                                }
+                                                                                              }
+                                                                                            ]
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "Id": "false",
+                                                                        "Text": "No",
+                                                                        "NextPrompt": {
+                                                                          "Id": "two records maybe non-causal",
+                                                                          "Text": [
+                                                                            "Ok, So you think that these records show that {{.TargetFactor.FactorName}} may make a difference.",
+                                                                            "What about these records that tell you {{.TargetFactor.FactorName}} makes a difference?"
+                                                                          ],
+                                                                          "PromptType": "Text",
+                                                                          "ResponseType": "Basic",
+                                                                          "UIActionModeId": "RECORD_PERFORMANCE"
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "Text": "Cannot Tell",
+                                                                        "NextPrompt": {
+                                                                          "Id": "two records no conclusion",
+                                                                          "Text": [
+                                                                            "Ok, So you don't think these records help us figure out whether {{.TargetFactor.FactorName}} make a difference.",
+                                                                            "What do you think we would need instead to figure out whether {{.TargetFactor.FactorName}} make a difference to performance? Let's pick some new records.",
+                                                                            "Press \"Enter\" when you are ready to continue."
+                                                                          ],
+                                                                          "PromptType": "ENTER_TO_CONTINUE",
+                                                                          "ResponseType": "Basic",
+                                                                          "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                          "ExpectedResponses": {
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "ANY_RESPONSE",
+                                                                                "NextPromptRef": {
+                                                                                  "Id": "choose two records"
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
                                                                 }
                                                               }
                                                             ]

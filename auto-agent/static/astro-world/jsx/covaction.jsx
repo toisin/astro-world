@@ -16,59 +16,60 @@ var CovAction = React.createClass({
     var app = this.props.app;
     var prompt = user.getPrompt();
     var action = user.getAction();
-    // var key = prompt.PromptId + action.UIActionModeId;
     var onComplete = this.props.onComplete;
 
-    var targetFactor
+    var investigatingFactorHeading
     if (user.getState().TargetFactor) {
-     targetFactor = user.getState().TargetFactor.FactorId != "" ? <h3>Investigating Factor: <b>{user.getState().TargetFactor.FactorName}</b></h3> : null;
+     investigatingFactorHeading = user.getState().TargetFactor.FactorId != "" ? <h3>Investigating Factor: <b>{user.getState().TargetFactor.FactorName}</b></h3> : null;
     }
 
     if (action) {
       switch (action.UIActionModeId) {
         case "NEW_TARGET_FACTOR":
-          return  <SelectTargetFactor user={user} onComplete={onComplete} app={app}/>;// key={key}/>;
+          return  <SelectTargetFactor user={user} onComplete={onComplete} app={app}/>;
         case "PRIOR_BELIEF_FACTORS":
-          return  <PriorBeliefFactors user={user} onComplete={onComplete} app={app}/>;// key={key}/>;
+          return  <PriorBeliefFactors user={user} onComplete={onComplete} app={app}/>;
         case "PRIOR_BELIEF_LEVELS":
-          return  <PriorBeliefLevels user={user} onComplete={onComplete} app={app}/>;// key={key}/>;
+          return  <PriorBeliefLevels user={user} onComplete={onComplete} app={app}/>;
         case "RECORD_SELECT_ONE":
           return <div>
-                  {targetFactor}
+                  {investigatingFactorHeading}
                   <RecordSelection user={user} onComplete={onComplete} app={app} />
                 </div>;
         case "RECORD_SELECT_TWO":
           return <div>
-                  {targetFactor}
+                  {investigatingFactorHeading}
                   <RecordSelection user={user} onComplete={onComplete} app={app} doubleRecord/>
                 </div>;
         case "RECORD_NO_PERFORMANCE":
           return <div>
-                  {targetFactor}
+                  {investigatingFactorHeading}
                   <RecordPerformance user={user} onComplete={onComplete} app={app} hidePerformance/>
                 </div>;
         case "RECORD_SELECT_ONE_AND_SHOW_PERFORMANCE":
           return <div>
-                  {targetFactor}
+                  {investigatingFactorHeading}
                   <RecordSelection user={user} onComplete={onComplete} app={app} doubleRecord comparePrevious/>
+                </div>;
+        case "RECORD_ONE_PERFORMANCE":
+          return <div>
+                  {investigatingFactorHeading}
+                  <RecordPerformance user={user} app={app} recordOneOnly/>
                 </div>;
         case "RECORD_PERFORMANCE":
           return <div>
-                  {targetFactor}
+                  {investigatingFactorHeading}
                   <RecordPerformance user={user} app={app}/>
-                </div>
+                </div>;
+        case "MEMO_FORM":
+          return <div><MemoForm user={user} onComplete={onComplete} app={app}/></div>;
+        case "MEMO":
+          return <div><Memo user={user} app={app}/></div>;
         default:
           return <div></div>;
       }
     }
     return <div></div>;
-    //   case "chart":
-    //     return <div></div>
-    //   case "prediction":
-    //     return <div></div>
-
-    //     break;
-    // }
   }
 });
 

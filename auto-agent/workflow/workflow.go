@@ -33,6 +33,7 @@ const (
 	RESPONSE_BASIC                = "Basic"
 	RESPONSE_END                  = "COMPLETE"
 	RESPONSE_RECORD               = "RECORD"
+	RESPONSE_MEMO                 = "MEMO"
 	RESPONSE_CAUSAL_CONCLUSION    = "CAUSAL_CONCLUSION"
 	RESPONSE_SELECT_TARGET_FACTOR = "SELECT_TARGET_FACTOR"
 	RESPONSE_PRIOR_BELIEF_FACTORS = "PRIOR_BELIEF_FACTORS"
@@ -189,6 +190,15 @@ func populatePromptConfigMap(pc *PromptConfig, phaseId string, sequenceOrder int
 	}
 }
 
+func GetOutcomeLevelOrder(levelName string) int {
+	for i, v := range appConfig.Content.OutcomeVariable.Levels {
+		if v.Name == levelName {
+			return i
+		}
+	}
+	return -1
+}
+
 func populateFactorConfigMap(cf *ContentConfig) {
 	for i := range cf.Factors {
 		factorConfigMap[cf.Factors[i].Id] = cf.Factors[i]
@@ -289,5 +299,10 @@ func UnstringifyState(b []byte, phaseId string) (se StateEntities, err error) {
 
 func unstringify(b []byte, v interface{}) (err error) {
 	err = json.Unmarshal(b, v)
+	return
+}
+
+func Stringify(v interface{}) (b []byte, err error) {
+	b, err = json.Marshal(v)
 	return
 }

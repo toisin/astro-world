@@ -25,8 +25,13 @@ type StateEntities interface {
 	setUsername(string)
 	setScreenname(string)
 	setTargetFactor(FactorState)
+	setBeliefs(BeliefsState)
+	setLastMemo(UIMemoResponse)
 	GetPhaseId() string
+	GetBeliefs() BeliefsState
 	isContentCompleted() bool
+	GetTargetFactor() FactorState
+	GetLastMemo() UIMemoResponse
 }
 
 type GenericState struct {
@@ -36,12 +41,30 @@ type GenericState struct {
 	TargetFactor       FactorState
 	RemainingFactorIds []string
 	Beliefs            BeliefsState
+	LastMemo           UIMemoResponse
 }
 
 type BeliefsState struct {
 	HasCausalFactors         bool
 	CausalFactors            []string
 	HasMultipleCausalFactors bool
+}
+
+func (c *GenericState) GetPhaseId() string {
+	return c.PhaseId
+}
+
+func (c *GenericState) GetLastMemo() UIMemoResponse {
+	return c.LastMemo
+}
+
+func (c *GenericState) GetBeliefs() BeliefsState {
+	return c.Beliefs
+}
+
+// Not applicable to all phases
+func (c *GenericState) GetTargetFactor() FactorState {
+	return c.TargetFactor
 }
 
 func (c *GenericState) setPhaseId(s string) {
@@ -59,6 +82,21 @@ func (c *GenericState) setScreenname(s string) {
 // Not applicable to all phases
 func (c *GenericState) setTargetFactor(t FactorState) {
 	c.TargetFactor = t
+}
+
+func (c *GenericState) setBeliefs(s BeliefsState) {
+	c.Beliefs = s
+}
+
+func (c *GenericState) setLastMemo(s UIMemoResponse) {
+	c.LastMemo = s
+}
+
+func (cp *GenericState) isContentCompleted() bool {
+	if len(cp.RemainingFactorIds) > 0 {
+		return false
+	}
+	return true
 }
 
 // Not applicable to all phases
@@ -87,6 +125,7 @@ type CovPhaseState struct {
 	RecordSelectionsTypeId string
 	VaryingFactorIds       []string
 	VaryingFactorsCount    int
+	NonVaryingFactorIds    []string
 }
 
 func (c *CovPhaseState) GetPhaseId() string {
@@ -100,20 +139,14 @@ func (c *CovPhaseState) initContents(factors []Factor) {
 	}
 }
 
-func (cp *CovPhaseState) isContentCompleted() bool {
-	if len(cp.RemainingFactorIds) > 0 {
-		return false
-	}
-	return true
-}
-
 type RecordState struct {
-	RecordName   string
-	FirstName    string
-	LastName     string
-	RecordNo     string
-	FactorLevels map[string]FactorState // factor id as key
-	Performance  string
+	RecordName       string
+	FirstName        string
+	LastName         string
+	RecordNo         string
+	FactorLevels     map[string]FactorState // factor id as key
+	Performance      string
+	PerformanceLevel int
 	// Factor id as keys, such as:
 	// "fitness",
 	// "parentshealth",
@@ -140,13 +173,6 @@ type ChartPhaseState struct {
 
 func (c *ChartPhaseState) GetPhaseId() string {
 	return appConfig.ChartPhase.Id
-}
-
-func (cp *ChartPhaseState) isContentCompleted() bool {
-	if len(cp.RemainingFactorIds) > 0 {
-		return false
-	}
-	return true
 }
 
 type UIFactor struct {
@@ -211,6 +237,7 @@ type UIRecordsSelectResponse struct {
 	Id                  string
 	VaryingFactorIds    []string
 	VaryingFactorsCount int
+	NonVaryingFactorIds []string
 	dbRecordNoOne       db.Record
 	dbRecordNoTwo       db.Record
 	UseDBRecordNoOne    bool
@@ -218,7 +245,21 @@ type UIRecordsSelectResponse struct {
 }
 
 func (rsr *UIRecordsSelectResponse) GetResponseText() string {
-	return ""
+	responseText := ""
+	count := 0
+	if rsr.dbRecordNoOne.RecordNo != "" {
+		responseText = "Record #" + rsr.dbRecordNoOne.RecordNo
+		count++
+	}
+	if rsr.dbRecordNoTwo.RecordNo != "" {
+		if count > 0 {
+			responseText = responseText + " and " + "Record #" + rsr.dbRecordNoTwo.RecordNo
+		} else {
+			responseText = "Record #" + rsr.dbRecordNoTwo.RecordNo
+		}
+	}
+
+	return responseText
 }
 
 func (rsr *UIRecordsSelectResponse) GetResponseId() string {
@@ -237,9 +278,51 @@ type UIPriorBeliefResponse struct {
 }
 
 func (rsr *UIPriorBeliefResponse) GetResponseText() string {
-	return ""
+	responseText := ""
+	count := 0
+	totalcausal := 0
+
+	for _, v := range rsr.CausalFactors {
+		// quickly count number of causal
+		if v.IsCausal {
+			totalcausal++
+		}
+	}
+
+	for _, v := range rsr.CausalFactors {
+		if v.IsCausal {
+			factorName := GetFactorConfig(v.FactorId).Name
+			if count == 0 {
+				responseText = factorName
+			} else if count == (totalcausal - 1) {
+				responseText = responseText + " and " + factorName
+			} else {
+				responseText = responseText + ", " + factorName
+			}
+			if v.BestLevelId != "" {
+				responseText = responseText + ": " + v.BestLevelId
+			}
+			count++
+		}
+	}
+	return responseText
 }
 
 func (rsr *UIPriorBeliefResponse) GetResponseId() string {
+	return rsr.Id
+}
+
+type UIMemoResponse struct {
+	Memo       string
+	Evidence   string
+	Id         string // Name of the factor for the memo
+	FactorName string
+}
+
+func (rsr *UIMemoResponse) GetResponseText() string {
+	return rsr.Memo
+}
+
+func (rsr *UIMemoResponse) GetResponseId() string {
 	return rsr.Id
 }

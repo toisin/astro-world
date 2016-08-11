@@ -167,16 +167,6 @@ a.button {
   width: 350px;
 }
 
-
-.chat {
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  font-family: sans-serif;
-  font-size: 15px;
-}
-
 .researcher, .user {
   display: -webkit-flex;
   display: flex;
@@ -210,25 +200,25 @@ a.button {
   margin-top: 10px;
 }
 
-.message {
+.message, .form{
   padding: 5px 10px;
   margin: 5px;
-  border: 0;
+  margin-right: 20px;
   border-radius: 4px;
   position: relative;
   border: 1px solid #ddd;  
+}
+
+.form {
+  text-align: end;
 }
 
 .researcher .message {
   background: lightyellow;
 }
 
-.user .message {
+.user .message, .form  {
   background: mintcream;
-}
-
-.user {
-  align-self: flex-end;
 }
 
 .message:before {
@@ -241,7 +231,7 @@ a.button {
   -webkit-transform: rotateZ(45deg);    
 }
 
-.user .message:before {
+.user .message:before, .form:before {
   bottom: 8px;
   right: -6px;
   background: mintcream;
@@ -255,4 +245,14 @@ a.button {
   background: lightyellow;
   border-left: 1px solid #ddd;
   border-bottom:  1px solid #ddd;
+}
+
+textarea {
+  width: 300px;
+  height: 80px;
+}
+
+.mbox textarea {
+  width: 500px;
+  height: 80px;
 }

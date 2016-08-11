@@ -27,7 +27,7 @@ type Prompt interface {
 	ProcessResponse(string, *db.User, *UIUserData, appengine.Context)
 	initUIPromptDynamicText(*UIUserData, Response)
 	initDynamicResponseUIPrompt(*UIUserData)
-	initUIPrompt(uiUserData *UIUserData)
+	initUIPrompt(UiUserData *UIUserData)
 	initUIAction()
 	updateState(*UIUserData)
 }
@@ -79,12 +79,12 @@ func (cp *GenericPrompt) GetUIAction() UIAction {
 	return cp.currentUIAction
 }
 
-func (cp *GenericPrompt) initUIPrompt(uiUserData *UIUserData) {
+func (cp *GenericPrompt) initUIPrompt(UiUserData *UIUserData) {
 	pc := cp.promptConfig
 	if !pc.IsDynamicExpectedResponses {
 		cp.currentUIPrompt = NewUIBasicPrompt()
 		cp.currentUIPrompt.setPromptType(pc.PromptType)
-		cp.currentPrompt.initUIPromptDynamicText(uiUserData, nil)
+		cp.currentPrompt.initUIPromptDynamicText(UiUserData, nil)
 		cp.currentUIPrompt.setText(cp.promptDynamicText.String())
 		cp.currentUIPrompt.setId(pc.Id)
 		options := make([]*UIOption, len(pc.ExpectedResponses.Values))
@@ -94,7 +94,7 @@ func (cp *GenericPrompt) initUIPrompt(uiUserData *UIUserData) {
 		}
 		cp.currentUIPrompt.setOptions(options)
 	} else {
-		cp.currentPrompt.initDynamicResponseUIPrompt(uiUserData)
+		cp.currentPrompt.initDynamicResponseUIPrompt(UiUserData)
 	}
 }
 
@@ -102,12 +102,12 @@ func (cp *GenericPrompt) GetUIPrompt() UIPrompt {
 	return cp.currentUIPrompt
 }
 
-func (cp *GenericPrompt) init(p PromptConfig, uiUserData *UIUserData) {
+func (cp *GenericPrompt) init(p PromptConfig, UiUserData *UIUserData) {
 	cp.promptConfig = p
 	cp.expectedResponseHandler = cp.makeExpectedResponseHandler(p)
 	// invoking the initialization methods in the "subclass"
 	// in case if they have been overriden
-	cp.currentPrompt.initUIPrompt(uiUserData)
+	cp.currentPrompt.initUIPrompt(UiUserData)
 	cp.currentPrompt.initUIAction()
 }
 
@@ -118,7 +118,7 @@ func (cp *GenericPrompt) initUIAction() {
 	}
 }
 
-func (cp *GenericPrompt) processSimpleResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
+func (cp *GenericPrompt) processSimpleResponse(r string, u *db.User, UiUserData *UIUserData, c appengine.Context) {
 	if r != "" {
 		dec := json.NewDecoder(strings.NewReader(r))
 		for {
@@ -133,15 +133,79 @@ func (cp *GenericPrompt) processSimpleResponse(r string, u *db.User, uiUserData 
 			cp.response = &response
 		}
 		if cp.response != nil {
-			cp.nextPrompt = cp.expectedResponseHandler.generateNextPrompt(cp.response, uiUserData)
+			cp.nextPrompt = cp.expectedResponseHandler.generateNextPrompt(cp.response, UiUserData)
 		}
 	}
 }
 
-func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserData) Prompt {
+func (cp *GenericPrompt) updateStateCurrentFactor(UiUserData *UIUserData, fid string) {
+	cp.currentPrompt.updateState(UiUserData)
+	if fid != "" {
+		cp.state.setTargetFactor(
+			FactorState{
+				FactorName: factorConfigMap[fid].Name,
+				FactorId:   fid,
+				IsCausal:   factorConfigMap[fid].IsCausal})
+	}
+	UiUserData.State = cp.state
+}
+
+func (cp *GenericPrompt) updateStateCurrentFactorCausal(UiUserData *UIUserData, isCausalResponse string) {
+	cp.currentPrompt.updateState(UiUserData)
+	targetFactor := cp.state.GetTargetFactor()
+	if isCausalResponse == "true" {
+		targetFactor.IsCausal = true
+	} else if isCausalResponse == "false" {
+		targetFactor.IsCausal = false
+	}
+	cp.state.setTargetFactor(targetFactor)
+	UiUserData.State = cp.state
+}
+
+func (cp *GenericPrompt) updateMemo(UiUserData *UIUserData, r UIMemoResponse) {
+	cp.currentPrompt.updateState(UiUserData)
+	if cp.state != nil {
+		s := cp.state
+		s.setLastMemo(r)
+		cp.state = s
+	}
+	UiUserData.State = cp.state
+}
+
+func (cp *GenericPrompt) updatePriorBeliefs(UiUserData *UIUserData, r UIPriorBeliefResponse) {
+	causalFactors := []string{}
+	var hasCausal bool
+	var hasMultipleCausal bool
+	for i, v := range UiUserData.ContentFactors {
+		UiUserData.ContentFactors[i].IsBeliefCausal = r.CausalFactors[i].IsCausal
+		UiUserData.ContentFactors[i].BestLevelId = r.CausalFactors[i].BestLevelId
+		if r.CausalFactors[i].IsCausal {
+			causalFactors = append(causalFactors, v.Text)
+		}
+	}
+	cp.currentPrompt.updateState(UiUserData)
+	if len(causalFactors) > 0 {
+		hasCausal = true
+		if len(causalFactors) > 1 {
+			hasMultipleCausal = true
+		}
+	}
+
+	if cp.state != nil {
+		s := cp.state
+		s.setBeliefs(BeliefsState{
+			HasCausalFactors:         hasCausal,
+			CausalFactors:            causalFactors,
+			HasMultipleCausalFactors: hasMultipleCausal})
+		cp.state = s
+	}
+	UiUserData.State = cp.state
+}
+
+func (cp *GenericPrompt) generateFirstPromptInNextSequence(UiUserData *UIUserData) Prompt {
 	// TODO - Not the cleanest way to do this
 	// Reset ArchieveHistoryLength to let the server deal with setting the new value
-	uiUserData.ArchiveHistoryLength = -1
+	UiUserData.ArchiveHistoryLength = -1
 
 	phaseId := cp.promptConfig.PhaseId
 	currentPhase := GetPhase(phaseId)
@@ -172,7 +236,7 @@ func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserDat
 	}
 	nextPromptId = nextS.FirstPrompt.Id
 
-	return MakePrompt(nextPromptId, phaseId, uiUserData)
+	return MakePrompt(nextPromptId, phaseId, UiUserData)
 
 }
 
@@ -243,10 +307,10 @@ func (erh *StaticExpectedResponseHandler) init(p PromptConfig) {
 
 // Return the next prompt that maps to the expected response
 // If there is only one expected response, return that one regardless of the response id
-func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserData *UIUserData) Prompt {
+func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, UiUserData *UIUserData) Prompt {
 	var rid string
 	var p *PromptConfigRef
-	currentPhaseId := uiUserData.CurrentPhaseId
+	currentPhaseId := UiUserData.CurrentPhaseId
 
 	if len(erh.expectedResponseMap) == 1 {
 		// If there is only one expected response, use it regardless of the response
@@ -263,7 +327,7 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 			text := erh.currentPromptConfig.ExpectedResponses.StateTemplateRef
 			t := template.Must(template.New("expectedResponses").Parse(text))
 			var doc bytes.Buffer
-			err := t.Execute(&doc, uiUserData.State)
+			err := t.Execute(&doc, UiUserData.State)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error executing expectedResponses template: %s\n\n", err)
 				log.Println("executing expectedResponses template:", err)
@@ -289,10 +353,10 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 	// TODO - Not the cleanest way to do this
 	// Reset ArchieveHistoryLength to let the server deal with setting the new value
 	if p.PhaseId != currentPhaseId {
-		uiUserData.ArchiveHistoryLength = -1
+		UiUserData.ArchiveHistoryLength = -1
 	}
-	nextPrompt := MakePrompt(p.Id, p.PhaseId, uiUserData)
-	nextPrompt.initUIPromptDynamicText(uiUserData, r)
+	nextPrompt := MakePrompt(p.Id, p.PhaseId, UiUserData)
+	nextPrompt.initUIPromptDynamicText(UiUserData, r)
 
 	return nextPrompt
 }

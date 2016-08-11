@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"appengine"
+	"time"
 )
 
 // Prompt logics specific to Cov phase
@@ -18,24 +19,50 @@ type CovPrompt struct {
 	*GenericPrompt
 }
 
-func MakeCovPrompt(p PromptConfig, uiUserData *UIUserData) *CovPrompt {
+func MakeCovPrompt(p PromptConfig, UiUserData *UIUserData) *CovPrompt {
 	var n *CovPrompt
 	n = &CovPrompt{}
 	n.GenericPrompt = &GenericPrompt{}
 	n.GenericPrompt.currentPrompt = n
-	n.init(p, uiUserData)
+	n.init(p, UiUserData)
 	return n
 }
 
-func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
+func (cp *CovPrompt) ProcessResponse(r string, u *db.User, UiUserData *UIUserData, c appengine.Context) {
 	if cp.promptConfig.ResponseType == RESPONSE_END {
 		// Sequence has ended. Update remaining factors
-		uiUserData.State.(*CovPhaseState).updateRemainingFactors()
-		cp.nextPrompt = cp.generateFirstPromptInNextSequence(uiUserData)
+		UiUserData.State.(*CovPhaseState).updateRemainingFactors()
+		cp.nextPrompt = cp.generateFirstPromptInNextSequence(UiUserData)
 	} else if r != "" {
 		dec := json.NewDecoder(strings.NewReader(r))
 		pc := cp.promptConfig
 		switch pc.ResponseType {
+		case RESPONSE_MEMO:
+			for {
+				var memoResponse UIMemoResponse
+				if err := dec.Decode(&memoResponse); err == io.EOF {
+					break
+				} else if err != nil {
+					fmt.Fprintf(os.Stderr, "%s", err)
+					log.Fatal(err)
+					return
+				}
+				dbmemo := db.Memo{
+					FactorId: memoResponse.Id,
+					Memo:     memoResponse.Memo,
+					Evidence: memoResponse.Evidence,
+					PhaseId:  cp.GetPhaseId(),
+					Date:     time.Now(),
+				}
+				err := db.PutMemo(c, u.Username, dbmemo)
+				if err != nil {
+					fmt.Fprint(os.Stderr, "DB Error Adding Memo:"+err.Error()+"!\n\n")
+					return
+				}
+				cp.updateMemo(UiUserData, memoResponse)
+				cp.response = &memoResponse
+			}
+			break
 		case RESPONSE_PRIOR_BELIEF_FACTORS, RESPONSE_PRIOR_BELIEF_LEVELS:
 			for {
 				var beliefResponse UIPriorBeliefResponse
@@ -46,7 +73,7 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 					log.Fatal(err)
 					return
 				}
-				cp.updatePriorBeliefs(uiUserData, beliefResponse)
+				cp.updatePriorBeliefs(UiUserData, beliefResponse)
 				cp.response = &beliefResponse
 			}
 			break
@@ -60,9 +87,9 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 					log.Fatal(err)
 					return
 				}
-				uiUserData.CurrentFactorId = response.Id
-				u.CurrentFactorId = uiUserData.CurrentFactorId
-				cp.updateStateCurrentFactor(uiUserData, uiUserData.CurrentFactorId)
+				UiUserData.CurrentFactorId = response.Id
+				u.CurrentFactorId = UiUserData.CurrentFactorId
+				cp.updateStateCurrentFactor(UiUserData, UiUserData.CurrentFactorId)
 				cp.response = &response
 			}
 			break
@@ -76,8 +103,8 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 					log.Fatal(err)
 					return
 				}
-				cp.checkRecords(&recordsResponse, uiUserData.CurrentFactorId, c)
-				cp.updateStateRecords(uiUserData, recordsResponse)
+				cp.checkRecords(&recordsResponse, UiUserData.CurrentFactorId, c)
+				cp.updateStateRecords(UiUserData, recordsResponse)
 				cp.response = &recordsResponse
 			}
 			break
@@ -91,7 +118,7 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 					log.Fatal(err)
 					return
 				}
-				cp.updateStateCurrentFactorCausal(uiUserData, response.GetResponseId())
+				cp.updateStateCurrentFactorCausal(UiUserData, response.GetResponseId())
 				cp.response = &response
 			}
 			break
@@ -109,16 +136,16 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 			}
 		}
 		if cp.response != nil {
-			cp.nextPrompt = cp.expectedResponseHandler.generateNextPrompt(cp.response, uiUserData)
+			cp.nextPrompt = cp.expectedResponseHandler.generateNextPrompt(cp.response, UiUserData)
 		}
 	}
 }
 
-func (cp *CovPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
+func (cp *CovPrompt) initDynamicResponseUIPrompt(UiUserData *UIUserData) {
 	pc := cp.promptConfig
 	cp.currentUIPrompt = NewUIBasicPrompt()
 	cp.currentUIPrompt.setPromptType(pc.PromptType)
-	cp.currentPrompt.initUIPromptDynamicText(uiUserData, nil)
+	cp.currentPrompt.initUIPromptDynamicText(UiUserData, nil)
 	if cp.promptDynamicText != nil {
 		cp.currentUIPrompt.setText(cp.promptDynamicText.String())
 	}
@@ -128,7 +155,7 @@ func (cp *CovPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
 	for i := range pc.ExpectedResponses.Values {
 		switch pc.ExpectedResponses.Values[i].Id {
 		case EXPECTED_SPECIAL_CONTENT_REF:
-			c := uiUserData.State.(*CovPhaseState)
+			c := UiUserData.State.(*CovPhaseState)
 			for _, v := range c.RemainingFactorIds {
 				options = append(options, &UIOption{v, GetFactorConfig(v).Name})
 			}
@@ -139,20 +166,22 @@ func (cp *CovPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
 	cp.currentUIPrompt.setOptions(options)
 }
 
-func (cp *CovPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r Response) {
+func (cp *CovPrompt) initUIPromptDynamicText(UiUserData *UIUserData, r Response) {
 	if cp.promptDynamicText == nil {
 		p := &UIPromptDynamicText{}
 		p.previousResponse = r
 		p.promptConfig = cp.promptConfig
-		cp.updateState(uiUserData)
+		cp.updateState(UiUserData)
 		p.state = cp.state
 		cp.promptDynamicText = p
 	}
 }
 
 func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, currentFactorId string, c appengine.Context) {
+	rsr.NonVaryingFactorIds = make([]string, len(appConfig.CovPhase.ContentRef.Factors))
 	rsr.VaryingFactorIds = make([]string, len(appConfig.CovPhase.ContentRef.Factors))
 	rsr.VaryingFactorsCount = 0
+	nonVaryingFactorsCount := 0
 	var isTargetVarying = false
 
 	// Determine the type of record response
@@ -169,6 +198,9 @@ func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, currentFactorId 
 							rsr.VaryingFactorIds[rsr.VaryingFactorsCount] = rsr.RecordNoOne[i].FactorId
 							rsr.VaryingFactorsCount++
 						}
+					} else {
+						rsr.NonVaryingFactorIds[nonVaryingFactorsCount] = rsr.RecordNoOne[i].FactorId
+						nonVaryingFactorsCount++
 					}
 				}
 			}
@@ -184,6 +216,9 @@ func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, currentFactorId 
 					rsr.VaryingFactorIds[rsr.VaryingFactorsCount] = rsr.RecordNoTwo[j].FactorId
 					rsr.VaryingFactorsCount++
 				}
+			} else {
+				rsr.NonVaryingFactorIds[nonVaryingFactorsCount] = rsr.RecordNoTwo[j].FactorId
+				nonVaryingFactorsCount++
 			}
 		}
 	} else if rsr.UseDBRecordNoTwo && rsr.RecordNoOne != nil {
@@ -197,6 +232,9 @@ func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, currentFactorId 
 					rsr.VaryingFactorIds[rsr.VaryingFactorsCount] = rsr.RecordNoOne[j].FactorId
 					rsr.VaryingFactorsCount++
 				}
+			} else {
+				rsr.NonVaryingFactorIds[nonVaryingFactorsCount] = rsr.RecordNoOne[j].FactorId
+				nonVaryingFactorsCount++
 			}
 		}
 	} else {
@@ -259,65 +297,11 @@ func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, currentFactorId 
 	}
 }
 
-func (cp *CovPrompt) updatePriorBeliefs(uiUserData *UIUserData, r UIPriorBeliefResponse) {
-	causalFactors := []string{}
-	var hasCausal bool
-	var hasMultipleCausal bool
-	for i, v := range uiUserData.ContentFactors {
-		uiUserData.ContentFactors[i].IsBeliefCausal = r.CausalFactors[i].IsCausal
-		uiUserData.ContentFactors[i].BestLevelId = r.CausalFactors[i].BestLevelId
-		if r.CausalFactors[i].IsCausal {
-			causalFactors = append(causalFactors, v.Text)
-		}
-	}
-	cp.updateState(uiUserData)
-	if len(causalFactors) > 0 {
-		hasCausal = true
-		if len(causalFactors) > 1 {
-			hasMultipleCausal = true
-		}
-	}
-
-	if cp.state != nil {
-		s := cp.state.(*CovPhaseState)
-		s.Beliefs = BeliefsState{
-			HasCausalFactors:         hasCausal,
-			CausalFactors:            causalFactors,
-			HasMultipleCausalFactors: hasMultipleCausal}
-		cp.state = s
-	}
-	uiUserData.State = cp.state
-}
-
-func (cp *CovPrompt) updateStateCurrentFactor(uiUserData *UIUserData, fid string) {
-	cp.updateState(uiUserData)
-	if fid != "" {
-		cp.state.setTargetFactor(
-			FactorState{
-				FactorName: factorConfigMap[fid].Name,
-				FactorId:   fid,
-				IsCausal:   factorConfigMap[fid].IsCausal})
-	}
-	uiUserData.State = cp.state
-}
-
-func (cp *CovPrompt) updateStateCurrentFactorCausal(uiUserData *UIUserData, isCausalResponse string) {
-	cp.updateState(uiUserData)
-	targetFactor := cp.state.(*CovPhaseState).TargetFactor
-	if isCausalResponse == "true" {
-		targetFactor.IsCausal = true
-	} else if isCausalResponse == "false" {
-		targetFactor.IsCausal = false
-	}
-	cp.state.setTargetFactor(targetFactor)
-	uiUserData.State = cp.state
-}
-
 // This method should only update records select
 // Unless if no existing state, than create new one, otherwise, only
 // update records select
-func (cp *CovPrompt) updateStateRecords(uiUserData *UIUserData, r UIRecordsSelectResponse) {
-	cp.updateState(uiUserData)
+func (cp *CovPrompt) updateStateRecords(UiUserData *UIUserData, r UIRecordsSelectResponse) {
+	cp.updateState(UiUserData)
 	if cp.state != nil {
 		s := cp.state.(*CovPhaseState)
 		if r.RecordNoOne != nil {
@@ -329,16 +313,17 @@ func (cp *CovPrompt) updateStateRecords(uiUserData *UIUserData, r UIRecordsSelec
 		s.RecordSelectionsTypeId = r.GetResponseId()
 		s.VaryingFactorIds = r.VaryingFactorIds
 		s.VaryingFactorsCount = r.VaryingFactorsCount
+		s.NonVaryingFactorIds = r.NonVaryingFactorIds
 		cp.state = s
 	}
-	uiUserData.State = cp.state
+	UiUserData.State = cp.state
 }
 
-func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
-	if uiUserData.State != nil {
-		// if uiUserData already have a cp state, use that and update it
-		if uiUserData.State.GetPhaseId() == appConfig.CovPhase.Id {
-			cp.state = uiUserData.State.(*CovPhaseState)
+func (cp *CovPrompt) updateState(UiUserData *UIUserData) {
+	if UiUserData.State != nil {
+		// if UiUserData already have a cp state, use that and update it
+		if UiUserData.State.GetPhaseId() == appConfig.CovPhase.Id {
+			cp.state = UiUserData.State.(*CovPhaseState)
 		}
 	}
 	if cp.state == nil {
@@ -346,9 +331,9 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 		cps.initContents(appConfig.CovPhase.ContentRef.Factors)
 		cp.state = cps
 		cp.state.setPhaseId(appConfig.CovPhase.Id)
-		cp.state.setUsername(uiUserData.Username)
-		cp.state.setScreenname(uiUserData.Screenname)
-		fid := uiUserData.CurrentFactorId
+		cp.state.setUsername(UiUserData.Username)
+		cp.state.setScreenname(UiUserData.Screenname)
+		fid := UiUserData.CurrentFactorId
 		if fid != "" {
 			cp.state.setTargetFactor(
 				FactorState{
@@ -357,7 +342,7 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 					IsCausal:   factorConfigMap[fid].IsCausal})
 		}
 	}
-	uiUserData.State = cp.state
+	UiUserData.State = cp.state
 }
 
 func (cp *CovPrompt) createRecordStateFromDB(r db.Record, sf []*UISelectedFactor) *RecordState {
@@ -368,6 +353,7 @@ func (cp *CovPrompt) createRecordStateFromDB(r db.Record, sf []*UISelectedFactor
 		rs.LastName = r.Lastname
 		rs.RecordNo = r.RecordNo
 		rs.Performance = r.OutcomeLevel
+		rs.PerformanceLevel = GetOutcomeLevelOrder(r.OutcomeLevel)
 		rs.FactorLevels = make(map[string]FactorState)
 		for _, v := range sf {
 			rs.FactorLevels[v.FactorId] = CreateCovFactorState(v.FactorId, v.SelectedLevelId)

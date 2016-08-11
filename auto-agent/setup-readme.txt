@@ -53,14 +53,17 @@ jsx -w -x jsx jsx js
 
 
 ## Deploy local server to cloud
-cd ~/GitHub/astro-world/
+cd ~/src/github.com/toisin/
 # replace <app-name> with actual app name e.g. "premium-cipher-661"
+# e.g goapp deploy -oauth -application premium-cipher-661 auto-agent
 goapp deploy -oauth -application <app-name> auto-agent
 
 # app url
 # replace <app-name> with actual app name
+# e.g. http://premium-cipher-661.appspot.com/
 http://<app-name>.appspot.com/
 
 # app dashboard
 # replace <app-name> with actual app name
+# e.g. https://console.developers.google.com/project/apps~premium-cipher-661/appengine
 https://console.developers.google.com/project/apps~<app-name>/appengine

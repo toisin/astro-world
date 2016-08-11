@@ -4,7 +4,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -109,16 +108,16 @@ func (covH *ClearUserLogsDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 func (covH *GetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 
-	// Check if user has logged in (by simply providing a username in the query parameter for now
+	// Check if User has logged in (by simply providing a username in the query parameter for now
 	// because we are not checking password at the moment)
 	// If logged in, serve the requested static file (assuming all URL request
 	// without its own path handler is a request to a file in the static folder
 	// If not logged in, redirect to the parent index page for login
 	if r.URL.Query()["user"] != nil {
 
-		// Check to make sure that the provided user actually exists
+		// Check to make sure that the provided User actually exists
 		username := strings.ToLower(r.URL.Query()["user"][0])
-		u, _, err := GetUser(c, username)
+		u, _, err := db.GetUser(c, username)
 
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting User:"+err.Error()+"!\n\n")
@@ -154,8 +153,8 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query()["user"] != nil {
 		// Always handle username in lowercase
 		username := strings.ToLower(r.URL.Query()["user"][0])
-		// Query to see if user exists
-		u, k, err := GetUser(c, username)
+		// Query to see if User exists
+		u, k, err := db.GetUser(c, username)
 
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting User:"+err.Error()+"!\n\n")
@@ -165,31 +164,31 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		LogUserRequest(c, u, *r, true, "", "")
 
-		ud := MakeLoginUserData(u)
-		// // Store updated user in DB
-		// err = PutUser(c, ud.user, k)
+		ud := workflow.MakeLoginUserData(u)
+		// // Store updated User in DB
+		// err = db.PutUser(c, ud.User, k)
 		// if err != nil {
 		// 	fmt.Fprint(os.Stderr, "DB Error Put User:"+err.Error()+"!\n\n")
 		// 	return
 		// }
 
-		ud.uiUserData.History, err = GetHistory(c, username)
+		ud.UiUserData.History, err = db.GetHistory(c, username)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting list of messages:"+err.Error()+"!\n\n")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		ud.uiUserData.ArchiveHistoryLength = len(ud.uiUserData.History)
-		ud.user.ArchiveHistoryLength = len(ud.uiUserData.History)
+		ud.UiUserData.ArchiveHistoryLength = len(ud.UiUserData.History)
+		ud.User.ArchiveHistoryLength = len(ud.UiUserData.History)
 
-		// Store updated user in DB
-		err = PutUser(c, ud.user, k)
+		// Store updated User in DB
+		err = db.PutUser(c, ud.User, k)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Put User:"+err.Error()+"!\n\n")
 			return
 		}
 
-		s, err := stringify(ud.uiUserData)
+		s, err := workflow.Stringify(ud.UiUserData)
 		if err != nil {
 			fmt.Println("Error converting messages to json", err)
 		}
@@ -207,8 +206,8 @@ func (newuserH *NewUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		// Always handle username in lowercase
 		username := strings.ToLower(r.FormValue("user"))
 
-		// Query to see if user exists
-		u, _, err := GetUser(c, username)
+		// Query to see if User exists
+		u, _, err := db.GetUser(c, username)
 
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting User:"+err.Error()+"!\n\n")
@@ -217,7 +216,7 @@ func (newuserH *NewUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		}
 
 		if u.Username != "" {
-			http.Error(w, "Cannot create user. Username already exists!", 500)
+			http.Error(w, "Cannot create User. Username already exists!", 500)
 			return
 		}
 
@@ -237,9 +236,9 @@ func (newuserH *NewUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 
 		LogUserRequest(c, u, *r, false, "", "")
 
-		s, err := stringify(u)
+		s, err := workflow.Stringify(u)
 		if err != nil {
-			fmt.Println("Error converting user object to json", err)
+			fmt.Println("Error converting User object to json", err)
 		}
 		fmt.Fprint(w, string(s[:]))
 
@@ -295,8 +294,8 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Query to see if user exists
-		u, k, err := GetUser(c, username)
+		// Query to see if User exists
+		u, k, err := db.GetUser(c, username)
 
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting User:"+err.Error()+"!\n\n")
@@ -304,7 +303,7 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// First time user will have empty currentPhaseId & currentPromptId
+		// First time User will have empty currentPhaseId & currentPromptId
 		if u.CurrentPhaseId != "" {
 			if u.CurrentPhaseId != phaseId {
 				fmt.Fprint(os.Stderr, "Out of sync error! User info and DB are out of sync.\n\n. Revert to what's in the DB")
@@ -317,16 +316,16 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Process submitted answers
-		ud := MakeUserData(u)
-		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"), &ud.user, ud.uiUserData, c)
+		ud := workflow.MakeUserData(u)
+		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"), &ud.User, ud.UiUserData, c)
 
 		responseId := ud.CurrentPrompt.GetResponseId()
 		responseText := ud.CurrentPrompt.GetResponseText()
 
-		LogUserRequest(c, ud.user, *r, false, responseId, responseText)
+		LogUserRequest(c, ud.User, *r, false, responseId, responseText)
 
 		// Get the count of existing messages
-		rc, err := GetHistoryCount(c, username)
+		rc, err := db.GetHistoryCount(c, username)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting count of messages:"+err.Error()+"!\n\n")
 			return
@@ -378,7 +377,7 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ud.UpdateWithNextPrompt()
 
 		// Update history
-		ud.uiUserData.History, err = GetHistory(c, username)
+		ud.UiUserData.History, err = db.GetHistory(c, username)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting list of messages:"+err.Error()+"!\n\n")
 			return
@@ -386,25 +385,25 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// TODO cleanup
 		// // Mark previous messages as old history so they can be collapsed.
 		// if currentSequenceOrder != ud.CurrentPrompt.GetSequenceOrder() {
-		// 	ud.uiUserData.ArchiveHistoryLength = len(ud.uiUserData.History)
-		// 	ud.user.ArchiveHistoryLength = len(ud.uiUserData.History)
+		// 	ud.UiUserData.ArchiveHistoryLength = len(ud.UiUserData.History)
+		// 	ud.User.ArchiveHistoryLength = len(ud.UiUserData.History)
 		// }
 		// TODO - Not the cleanest way to do this
 		// Reset ArchieveHistoryLength whe UpdateWithNextPrompt
 		// then let the server deal with setting the new value
-		if ud.uiUserData.ArchiveHistoryLength < 0 {
-			ud.uiUserData.ArchiveHistoryLength = len(ud.uiUserData.History)
-			ud.user.ArchiveHistoryLength = len(ud.uiUserData.History)
+		if ud.UiUserData.ArchiveHistoryLength < 0 {
+			ud.UiUserData.ArchiveHistoryLength = len(ud.UiUserData.History)
+			ud.User.ArchiveHistoryLength = len(ud.UiUserData.History)
 		}
 
-		// Store updated user in DB
-		err = PutUser(c, ud.user, k)
+		// Store updated User in DB
+		err = db.PutUser(c, ud.User, k)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Put User:"+err.Error()+"!\n\n")
 			return
 		}
 
-		s, err := stringify(ud.uiUserData)
+		s, err := workflow.Stringify(ud.UiUserData)
 		if err != nil {
 			fmt.Println("Error converting messages to json", err)
 			return
@@ -412,45 +411,6 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, string(s[:]))
 	}
 
-}
-
-func PutUser(c appengine.Context, u db.User, key *datastore.Key) (err error) {
-	_, err = datastore.Put(c, key, &u)
-	return
-}
-
-func GetUser(c appengine.Context, username string) (u db.User, k *datastore.Key, err error) {
-	q := datastore.NewQuery("User").Ancestor(db.UserListKey(c)).
-		Filter("Username=", username)
-
-	var users []db.User
-	// To retrieve the results,
-	// you must execute the Query using its GetAll or Run methods.
-	ks, err := q.GetAll(c, &users)
-
-	if len(users) > 1 {
-		err = errors.New("Error getting history: More than one user found!")
-		return
-	} else if len(users) != 0 {
-		u = users[0]
-		k = ks[0]
-	}
-	return
-}
-
-func GetHistory(c appengine.Context, username string) (messages []*db.Message, err error) {
-	q := datastore.NewQuery("Message").Ancestor(db.UserHistoryKey(c, username)).Order("MessageNo").Limit(100)
-	// [END query]
-	// [START getall]
-	messages = make([]*db.Message, 0, 100)
-	_, err = q.GetAll(c, &messages)
-	return
-}
-
-func GetHistoryCount(c appengine.Context, username string) (rc int, err error) {
-	q := datastore.NewQuery("Message").Ancestor(db.UserHistoryKey(c, username)).Limit(100)
-	rc, err = q.Count(c)
-	return
 }
 
 func LogUserRequest(c appengine.Context, u db.User, r http.Request, isGetRequest bool, rid string, rtext string) {
@@ -494,11 +454,6 @@ func LogUserRequest(c appengine.Context, u db.User, r http.Request, isGetRequest
 	if err != nil {
 		fmt.Fprint(os.Stderr, "DB Error Adding UserLog:"+err.Error()+"!\n\n")
 	}
-}
-
-func stringify(v interface{}) (b []byte, err error) {
-	b, err = json.Marshal(v)
-	return
 }
 
 // DOC

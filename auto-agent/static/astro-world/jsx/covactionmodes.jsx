@@ -548,6 +548,8 @@ var RecordPerformance = React.createClass({
       var state = this.state;
       var user = this.props.user;
       var app = this.props.app;
+      var recordOneOnly = this.props.recordOneOnly;
+      var recordTwoOnly = this.props.recordTwoOnly;
       var hidePerformance = this.props.hidePerformance;
 
       var prompt = user.getPrompt();
@@ -601,88 +603,151 @@ var RecordPerformance = React.createClass({
               </div> : null;};
               
       var record1Details, record2Details
-      if (record1) {
+      if (record1 && !recordTwoOnly) {
         record1Details = recordDetails(record1);
       }
-      if (record2) {
+      if (record2 && !recordOneOnly) {
         record2Details = recordDetails(record2);
       }
       return <div className ="hbox">
                 {record1Details}
                 {record2Details}
               </div>
+  }
+});
 
-      // if (record1) {
-      //   return <div className="frame">
-      //             <table className="record">
-      //               <tbody>
-      //                 <tr>
-      //                   <td colSpan="3" className="robot">Record #{record1.RecordNo} <b>{record1.RecordName}</b></td>
-      //                   <td className="robot">Gender: ??</td>
-      //                 </tr>
-      //               </tbody>
-      //             </table>
-      //             <table className="recorddetails">
-      //               <tbody>
-      //               {factors}
-      //               </tbody>
-      //             </table>
-      //             {performance}
-      //           </div>;
-      // } else {
-      //   return <div></div>;
-      // }
-      // if (record1 && record2) {
-      //   return  <div className="frame">
-      //   <table className="record">
-      //     <tbody>
-      //       <tr>
-      //         <td colSpan="3" className="robot">Record #{record1.RecordNo} <b>{record1.RecordName}</b></td>
-      //         <td className="robot">Gender: ??</td>
-      //       </tr>
-      //     </tbody>
-      //   </table>
-      //   <table className="recorddetails">
-      //     <tbody>
-      //     <tr>
-      //       <td>Fitness</td>
-      //       <td><label className="dimmed"><img src="/img/excellent fitness.jpg"/><br/>
-      //       Excellent</label></td>
-      //       <td>&nbsp;</td>
-      //       <td><label><img src="/img/average fitness.jpg"/><br/>
-      //       Average</label></td>
-      //     </tr>
-      //     <tr>
-      //       <td>Parents health</td>
-      //       <td><label><img src="/img/excellent parents.jpg"/><br/>
-      //       Excellent</label></td>
-      //       <td>&nbsp;</td>
-      //       <td><label className="dimmed"><img src="/img/fair parents.jpg"/><br/>
-      //       Fair</label></td>
-      //     </tr>
-      //     <tr>
-      //       <td>Family size</td>
-      //       <td><label><img src="/img/large family.jpg"/><br/>
-      //       Large</label></td>
-      //       <td>&nbsp;</td>
-      //       <td><label className="dimmed"><img src="/img/small family.jpg"/><br/>
-      //       Small</label></td>
-      //     </tr>
-      //     <tr>
-      //       <td>Education</td>
-      //       <td><label className="dimmed"><img src="/img/college.jpg"/><br/>
-      //       College</label></td>
-      //       <td><label className="dimmed"><img src="/img/some college.jpg"/><br/>
-      //       Some College</label></td>
-      //       <td><label><img src="/img/no college.jpg"/><br/>
-      //       No College</label></td>
-      //     </tr>
-      //     </tbody>
-      //   </table>
-      //   <p className="performance-level">Performance Level:
-      //     <span className="grade">D</span>
-      //   </p>
-      //   </div>;
-      // }
+var MemoForm = React.createClass({
+  getInitialState: function() {
+    return {enabled: false};
+  },
+
+  isEnabled: function() {
+    return this.state.enabled;
+  },
+
+  handleChange: function(event) {
+    var form = document.getElementById("covactionForm");
+    var memo = form.elements["memo"];
+    var evidence = form.elements["evidence"];
+    if (memo.value && evidence.value) {
+      this.setState({enabled:true});
+    }
+    return;
+  },
+
+  handleEnter: function(event) {
+    if (!event.shiftKey) {
+      if (event.which == 13) {  // "Enter" key was pressed.
+        this.handleSubmit(event);
+      }
+    }
+  },
+
+  handleSubmit: function(event) {    
+    if (event) {
+      event.preventDefault();
+    }
+
+    var user = this.props.user;
+    var targetFactorName;
+    if (user.getState().TargetFactor) {
+      targetFactorName = user.getState().TargetFactor.FactorName;
+      targetFactorId = user.getState().TargetFactor.FactorId;
+    }
+    var onComplete = this.props.onComplete;
+    var e = document.getElementById("promptId");
+    var promptId = e ? e.value : "";
+    var e = document.getElementById("phaseId");
+    var phaseId = e ? e.value : "";
+    var form = document.getElementById("covactionForm");
+    var memo = form.elements["memo"];
+    var evidence = form.elements["evidence"];
+
+    var response = {};
+    response.memo = memo ? memo.value : "";
+    response.evidence = evidence ? evidence.value : "";
+    response.id = targetFactorId
+    response.factorName = targetFactorName
+    
+    jsonResponse = JSON.stringify(response);
+    user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
+  },
+
+  render: function() {
+    var state = this.state;
+    var user = this.props.user;
+    var app = this.props.app;
+    var prompt = user.getPrompt();
+
+    var promptId = prompt.PromptId;
+    var phaseId = user.getCurrentPhaseId();
+
+    var targetFactorName;
+    if (user.getState().TargetFactor) {
+      targetFactorName = user.getState().TargetFactor.FactorName;
+    }
+    var investigatingFactorHeading;
+    if (targetFactorName) {
+      investigatingFactorHeading = <h3>Investigating Factor: <b>{targetFactorName}</b></h3>;
+    }
+
+    return <div>
+            <div className="mbox">
+              <h3>Memo to the foundation</h3>
+              <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
+              <p>
+                  We recommend that you ask applicants about <u>{targetFactorName}</u> because &nbsp;
+                  <input type="text" name="memo" autofocus className="con" placeholder="it does/does not make a difference."/><br/>
+                  <br/>
+                  Our evidence for claiming this is:<br/>
+                  <textarea name="evidence" className="evid" onKeyDown={this.handleEnter} placeholder="Enter your answer here"></textarea>
+                  <br/>
+              </p>
+              <p>
+                <input type="hidden" id="promptId" value={promptId}/>
+                <input type="hidden" id="phaseId" value={phaseId}/>
+                <button type="submit" disabled={!this.isEnabled()} key={"MemoForm"}>Enter</button>
+              </p>
+              </form>
+            </div>
+            <div>
+              {investigatingFactorHeading}
+              <RecordPerformance user={user} app={app}/>
+            </div>
+           </div>;
+  }
+});
+
+var Memo = React.createClass({
+  getInitialState: function() {
+    return {};
+  },
+
+  render: function() {
+    var state = this.state;
+    var user = this.props.user;
+    var app = this.props.app;
+    var prompt = user.getPrompt();
+
+    var promptId = prompt.PromptId;
+    var phaseId = user.getCurrentPhaseId();
+
+    if (user.getState().LastMemo) {
+      memo = user.getState().LastMemo.Memo;
+      evidence = user.getState().LastMemo.Evidence;
+      fid = user.getState().LastMemo.Id;
+      fname = user.getState().LastMemo.FactorName;
+    }
+
+    return <div className="mbox">
+              <h3>Memo to the foundation</h3>
+              <p>
+                  We recommend that you ask applicants about <u>{targetFactorName}</u> because {memo}<br/>
+                  <br/>
+                  Our evidence for claiming this is:<br/>
+                  <u>{evidence}</u>
+                  <br/>
+              </p>
+            </div>;
   }
 });

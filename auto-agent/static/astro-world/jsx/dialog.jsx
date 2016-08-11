@@ -109,7 +109,7 @@ var Title = React.createClass({
     var human = user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
     var welcomeText = this.props.welcomeText;
     return  <div className="researcher">
-              <div className="name">Researcher</div>
+              <div className="name">{DisplayText[MSG_ROBOT]}</div>
               <div className="message">
                 Hello {human}.<br/>
                 {welcomeText}<br/>
@@ -142,7 +142,7 @@ var MessageText = React.createClass({
                   <div className="message">{message.Text}</div>
                 </div>;
       } else if (message.Mtype == MSG_HUMAN) {
-        return  <div className="human">
+        return  <div className="user">
                   <div className="name">{human}</div>
                   <div className="message">{message.Text}</div>
                 </div>;
@@ -189,9 +189,9 @@ var Message = React.createClass({
 
   triggerDelay: function() {
     var d = DELAY_PROMPT_TIME_SHORT;
-    if (this.props.texts[this.state.count].length > LONG_PROMPT_SIZE) {
+    if (this.props.texts[this.state.count - 1].length > LONG_PROMPT_SIZE) {
       d = DELAY_PROMPT_TIME_LONG;
-    } else if (this.props.texts[this.state.count].length < REALLYSHORT_PROMPT_SIZE) {
+    } else if (this.props.texts[this.state.count - 1].length < REALLYSHORT_PROMPT_SIZE) {
       d = DELAY_PROMPT_TIME_REALLY_SHORT;
     }
     this.state.interval = window.setInterval(this.unTriggerDelay, d);
@@ -220,7 +220,7 @@ var Message = React.createClass({
           var message = {};
           message.Mtype = mtype;
           message.Text = text;
-          return  <div className="chat" key={i}>
+          return  <div key={i}>
                     <MessageText message={message} user={user}/>
                   </div>;
         })
@@ -265,20 +265,20 @@ var Prompt = React.createClass({
       case UI_PROMPT_TEXT:
       case UI_PROMPT_MC:
       case UI_PROMPT_STRAIGHT_THROUGH:
-        return  <div className="chat" key={promptId+user.getHistory().length}>
+        return  <div key={promptId+user.getHistory().length}>
                   <Message texts={texts} mtype={MSG_ROBOT} app={app} user={user}/>
-                  <div className="human">
+                  <div className="user">
                     <div className="name">{human}</div>
                     <Input user={user} prompt={prompt} onComplete={onComplete} app={app}/>
                   </div>
                 </div>;    
       default:
-        return  <div className="chat" key={promptId+user.getHistory().length}>
+        return  <div key={promptId+user.getHistory().length}>
                   <Message texts={texts} mtype={MSG_ROBOT} app={app} user={user}/>
                 </div>;
       }
     }
-    return  <div className="chat" key={promptId+user.getHistory().length}>
+    return  <div key={promptId+user.getHistory().length}>
               <Message texts={texts} delay={true} mtype={MSG_ROBOT} app={app} user={user} onComplete={this.showInput}/>
             </div>;
   },
