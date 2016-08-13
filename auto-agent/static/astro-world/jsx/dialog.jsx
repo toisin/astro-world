@@ -45,13 +45,13 @@ var Dialog = React.createClass({
     var welcomeText = this.state.welcomeText;
 
     if ((!prompt) || (Object.keys(prompt).length == 0)) {
-        return  <div className="dialog">
+        return  <div>
                   <Title user={user} welcomeText={welcomeText}/>
                   <OldHistory user={user} oldHistory={oldHistory}/>
                   {messages}
                 </div>;
     } else {
-        return  <div className="dialog">
+        return  <div>
                   <Title user={user} welcomeText={welcomeText}/>
                   <OldHistory user={user} oldHistory={oldHistory}/>
                   {messages}
@@ -167,7 +167,8 @@ var Message = React.createClass({
     if ((this.props.delay) && !this.state.complete) {
       if (this.state.count < texts.length) {
         this.triggerDelay();
-      } else {
+      }
+      if (this.state.count == 2 || this.state.count == texts.length) {
         this.state.complete = true;
         this.setState(this.state);
         // This should only be necessary if delay is turned on
@@ -188,6 +189,9 @@ var Message = React.createClass({
   },
 
   triggerDelay: function() {
+    if (this.state.count >= this.props.texts.length) {
+      return
+    }
     var d = DELAY_PROMPT_TIME_SHORT;
     if (this.props.texts[this.state.count - 1].length > LONG_PROMPT_SIZE) {
       d = DELAY_PROMPT_TIME_LONG;

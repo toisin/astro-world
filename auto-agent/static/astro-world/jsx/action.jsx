@@ -24,9 +24,9 @@ var Action = React.createClass({
     // debugger;
     switch (user.getCurrentPhaseId()) {
       case PHASE_COV:
-        return  <div className="action"><CovAction user={user} onComplete={this.changeState} app={app}/></div>;
+        return  <div><CovAction user={user} onComplete={this.changeState} app={app}/></div>;
       case PHASE_CHART:
-        return  <div className="action"><ChartAction user={user} onComplete={this.changeState} app={app}/></div>;
+        return  <div><ChartAction user={user} onComplete={this.changeState} app={app}/></div>;
       // case "chart":
       //   return <div></div>
       // case "prediction":

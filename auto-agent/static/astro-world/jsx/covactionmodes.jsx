@@ -429,7 +429,7 @@ var RecordSelection = React.createClass({
                 <tbody>
                 <tr>
                   <td>&nbsp;</td>
-                  <td colSpan="3" className="question">First Record</td>
+                  <td colSpan="3" className="recordTitle">First Record</td>
                 </tr>
                 {recordOneFactors}
                 </tbody>
@@ -450,7 +450,7 @@ var RecordSelection = React.createClass({
                 <tbody>
                 <tr>
                   <td>&nbsp;</td>
-                  <td colSpan="3" className="question">First Record</td>
+                  <td colSpan="3" className="recordTitle">First Record</td>
                 </tr>
                 {recordOneFactors}
                 </tbody>
@@ -461,7 +461,7 @@ var RecordSelection = React.createClass({
               <tbody>
               <tr>
                 <td>&nbsp;</td>
-                <td colSpan="3" className="question">Second Record</td>
+                <td colSpan="3" className="recordTitle">Second Record</td>
               </tr>
               {recordTwoFactors}
               </tbody>
@@ -482,7 +482,7 @@ var RecordSelection = React.createClass({
                   <tbody>
                   <tr>
                     <td>&nbsp;</td>
-                    <td colSpan="3" className="question">Second Record</td>
+                    <td colSpan="3" className="recordTitle">Second Record</td>
                   </tr>
                   </tbody>
                 </table>

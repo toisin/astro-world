@@ -32,12 +32,13 @@ var App = React.createClass({
 
     if (!actionReady) {
       return  <div className="content">
-                  <Dialog user={user} app={this}/>
+                  <div className="dialog"><Dialog user={user} app={this}/></div>
+                  <div className="action"></div>
               </div>;
     } else {
       return  <div className="content">
-                  <Dialog user={user} app={this}/>
-                  <Action user={user} app={this}/>
+                  <div className="dialog"><Dialog user={user} app={this}/></div>
+                  <div className="action"><Action user={user} app={this}/></div>
               </div>;
     }
   }
