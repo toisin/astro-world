@@ -1,4 +1,5 @@
 /** @jsx React.DOM */
+"use strict"
 
 // npm install -g react-tools
 // jsx -w -x jsx public/js public/js
@@ -12,7 +13,7 @@ var App = React.createClass({
     // In cases when the dialog is ongoing and no UI action is needed
     // No need to re-render the action frame. This allows the last 
     // action UI to be present
-    action = user.getAction()
+    var action = user.getAction()
     if (action) {
       if (!this.state.actionReady && (action.UIActionModeId != UIACTION_INACTIVE)) {
         this.state.actionReady = true;

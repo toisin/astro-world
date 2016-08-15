@@ -1,4 +1,5 @@
 /** @jsx React.DOM */
+"use strict"
 
 // npm install -g react-tools
 // jsx -w -x jsx public/js public/js
@@ -20,7 +21,7 @@ var CovAction = React.createClass({
 
     var investigatingFactorHeading
     if (user.getState().TargetFactor) {
-     investigatingFactorHeading = user.getState().TargetFactor.FactorId != "" ? <h3>Investigating Factor: <b>{user.getState().TargetFactor.FactorName}</b></h3> : null;
+     investigatingFactorHeading = user.getState().TargetFactor.FactorId != "" ? <h3 className="recordHeading">Investigating Factor: <b>{user.getState().TargetFactor.FactorName}</b></h3> : null;
     }
 
     if (action) {

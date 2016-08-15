@@ -49,6 +49,7 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, UiUserData *UIUserDat
 				}
 				dbmemo := db.Memo{
 					FactorId: memoResponse.Id,
+					Ask:      memoResponse.Ask,
 					Memo:     memoResponse.Memo,
 					Evidence: memoResponse.Evidence,
 					PhaseId:  cp.GetPhaseId(),
@@ -188,6 +189,10 @@ func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, currentFactorId 
 	if rsr.RecordNoOne != nil && rsr.RecordNoTwo != nil {
 		// Two records selected from the screen
 		// For each factor, check if the two records have different levels
+
+		// Force clean up the state to make sure there are no left over of old state info
+		cp.state.(*CovPhaseState).RecordNoOne = nil
+		cp.state.(*CovPhaseState).RecordNoTwo = nil
 		for i := range rsr.RecordNoOne {
 			for j := range rsr.RecordNoTwo {
 				if rsr.RecordNoOne[i].FactorId == rsr.RecordNoTwo[j].FactorId {
@@ -208,6 +213,9 @@ func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, currentFactorId 
 	} else if rsr.UseDBRecordNoOne && rsr.RecordNoTwo != nil {
 		// One record selected from the screen, compare it with the previously selected one
 		r := cp.state.(*CovPhaseState).RecordNoOne
+
+		// Force clean up the state to make sure there are no left over of old state info
+		cp.state.(*CovPhaseState).RecordNoTwo = nil
 		for j := range rsr.RecordNoTwo {
 			if r.FactorLevels[rsr.RecordNoTwo[j].FactorId].SelectedLevelId != rsr.RecordNoTwo[j].SelectedLevelId {
 				if rsr.RecordNoTwo[j].FactorId == currentFactorId {
@@ -224,6 +232,9 @@ func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, currentFactorId 
 	} else if rsr.UseDBRecordNoTwo && rsr.RecordNoOne != nil {
 		// One record selected from the screen, compare it with the previously selected one
 		r := cp.state.(*CovPhaseState).RecordNoTwo
+
+		// Force clean up the state to make sure there are no left over of old state info
+		cp.state.(*CovPhaseState).RecordNoOne = nil
 		for j := range rsr.RecordNoOne {
 			if r.FactorLevels[rsr.RecordNoOne[j].FactorId].SelectedLevelId != rsr.RecordNoOne[j].SelectedLevelId {
 				if rsr.RecordNoOne[j].FactorId == currentFactorId {

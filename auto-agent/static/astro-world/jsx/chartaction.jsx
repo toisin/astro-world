@@ -1,4 +1,5 @@
 /** @jsx React.DOM */
+"use strict"
 
 // npm install -g react-tools
 // jsx -w -x jsx public/js public/js

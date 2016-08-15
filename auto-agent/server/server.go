@@ -171,15 +171,15 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// 	fmt.Fprint(os.Stderr, "DB Error Put User:"+err.Error()+"!\n\n")
 		// 	return
 		// }
-
-		ud.UiUserData.History, err = db.GetHistory(c, username)
+		var count int
+		ud.UiUserData.History, count, err = db.GetHistory(c, username)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting list of messages:"+err.Error()+"!\n\n")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		ud.UiUserData.ArchiveHistoryLength = len(ud.UiUserData.History)
-		ud.User.ArchiveHistoryLength = len(ud.UiUserData.History)
+		ud.UiUserData.ArchiveHistoryLength = count
+		ud.User.ArchiveHistoryLength = count
 
 		// Store updated User in DB
 		err = db.PutUser(c, ud.User, k)
@@ -187,6 +187,8 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(os.Stderr, "DB Error Put User:"+err.Error()+"!\n\n")
 			return
 		}
+
+		// NewSession(*ud.UiUserData, username)
 
 		s, err := workflow.Stringify(ud.UiUserData)
 		if err != nil {
@@ -377,23 +379,18 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ud.UpdateWithNextPrompt()
 
 		// Update history
-		ud.UiUserData.History, err = db.GetHistory(c, username)
+		var count int
+		ud.UiUserData.History, count, err = db.GetHistory(c, username)
 		if err != nil {
 			fmt.Fprint(os.Stderr, "DB Error Getting list of messages:"+err.Error()+"!\n\n")
 			return
 		}
-		// TODO cleanup
-		// // Mark previous messages as old history so they can be collapsed.
-		// if currentSequenceOrder != ud.CurrentPrompt.GetSequenceOrder() {
-		// 	ud.UiUserData.ArchiveHistoryLength = len(ud.UiUserData.History)
-		// 	ud.User.ArchiveHistoryLength = len(ud.UiUserData.History)
-		// }
 		// TODO - Not the cleanest way to do this
 		// Reset ArchieveHistoryLength whe UpdateWithNextPrompt
 		// then let the server deal with setting the new value
 		if ud.UiUserData.ArchiveHistoryLength < 0 {
-			ud.UiUserData.ArchiveHistoryLength = len(ud.UiUserData.History)
-			ud.User.ArchiveHistoryLength = len(ud.UiUserData.History)
+			ud.UiUserData.ArchiveHistoryLength = count
+			ud.User.ArchiveHistoryLength = count
 		}
 
 		// Store updated User in DB
@@ -620,6 +617,25 @@ func ClearAllUsersDB(c appengine.Context) {
 	// To retrieve the results,
 	// you must execute the Query using its GetAll or Run methods.
 	ks, err = q.GetAll(c, &ms)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Getting All Messages:"+err.Error()+"!\n\n")
+		log.Fatal(err)
+		return
+	}
+
+	err = datastore.DeleteMulti(c, ks)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Deleting All Messages:"+err.Error()+"!\n\n")
+		log.Fatal(err)
+		return
+	}
+
+	q = datastore.NewQuery("Memo")
+
+	var mes []db.Memo
+	// To retrieve the results,
+	// you must execute the Query using its GetAll or Run methods.
+	ks, err = q.GetAll(c, &mes)
 	if err != nil {
 		fmt.Fprint(os.Stderr, "DB Error Getting All Messages:"+err.Error()+"!\n\n")
 		log.Fatal(err)

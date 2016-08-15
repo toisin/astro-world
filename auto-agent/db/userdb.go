@@ -11,8 +11,9 @@ import (
 
 const (
 	// Message Type: Constants for Message.Mtype
-	ROBOT = "robot"
-	HUMAN = "student"
+	ROBOT               = "robot"
+	HUMAN               = "student"
+	MESSAGE_COUNT_LIMIT = 100
 )
 
 type User struct {
@@ -30,6 +31,7 @@ type User struct {
 type Memo struct {
 	Id       string
 	FactorId string
+	Ask      string
 	Memo     string
 	Evidence string
 	PhaseId  string
@@ -96,18 +98,27 @@ func GetUser(c appengine.Context, username string) (u User, k *datastore.Key, er
 	return
 }
 
-func GetHistory(c appengine.Context, username string) (messages []*Message, err error) {
-	q := datastore.NewQuery("Message").Ancestor(UserHistoryKey(c, username)).Order("MessageNo").Limit(100)
+func GetHistory(c appengine.Context, username string) (messages []*Message, count int, err error) {
+	var offset int
+	count, err = GetHistoryCount(c, username)
+	if err != nil {
+		return
+	}
+
+	if count > MESSAGE_COUNT_LIMIT {
+		offset = count - MESSAGE_COUNT_LIMIT
+	}
+	q := datastore.NewQuery("Message").Ancestor(UserHistoryKey(c, username)).Order("MessageNo").Offset(offset)
 	// [END query]
 	// [START getall]
-	messages = make([]*Message, 0, 100)
+	messages = make([]*Message, 0, MESSAGE_COUNT_LIMIT)
 	_, err = q.GetAll(c, &messages)
 	return
 }
 
-func GetHistoryCount(c appengine.Context, username string) (rc int, err error) {
-	q := datastore.NewQuery("Message").Ancestor(UserHistoryKey(c, username)).Limit(100)
-	rc, err = q.Count(c)
+func GetHistoryCount(c appengine.Context, username string) (count int, err error) {
+	q := datastore.NewQuery("Message").Ancestor(UserHistoryKey(c, username))
+	count, err = q.Count(c)
 	return
 }
 

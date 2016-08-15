@@ -154,16 +154,22 @@ type RecordState struct {
 	// "familysize"
 }
 
+// For workflow.json to reference
+// as state variable using go template
+// (Used by StateEntities.TargetFactor & CovPhaseState.RecordState)
+//
 // This type is used in multiple contexts.
 // Not all members may be relevant.
 type FactorState struct {
-	FactorName      string
-	FactorId        string
-	SelectedLevel   string // Level name
-	SelectedLevelId string // Level id
-	OppositeLevel   string // Level name
-	OppositeLevelId string // Level id
-	IsCausal        bool
+	FactorName       string
+	FactorId         string
+	SelectedLevel    string // Level name
+	SelectedLevelId  string // Level id
+	OppositeLevel    string // Level name
+	OppositeLevelId  string // Level id
+	IsCausal         bool
+	IsConcludeCausal bool
+	HasConclusion    bool
 }
 
 // Implements workflow.StateEntities
@@ -175,12 +181,17 @@ func (c *ChartPhaseState) GetPhaseId() string {
 	return appConfig.ChartPhase.Id
 }
 
+// For jsx to reference all factors
+// configured for the particular phase
+// in the workflow.json
+// (Used byUIUserData.ContentFactors)
 type UIFactor struct {
 	FactorId       string
 	Text           string
 	Levels         []*UIFactorOption
 	IsBeliefCausal bool
 	BestLevelId    string
+	IsCausal       bool
 }
 
 type UIFactorOption struct {
@@ -213,6 +224,7 @@ func MakeUIUserData(u db.User) *UIUserData {
 		uiUserData.ContentFactors[i] = &UIFactor{
 			FactorId: f.Id,
 			Text:     f.Name,
+			IsCausal: f.IsCausal,
 		}
 		uiUserData.ContentFactors[i].Levels = make([]*UIFactorOption, len(f.Levels))
 		for j := range f.Levels {
@@ -266,14 +278,16 @@ func (rsr *UIRecordsSelectResponse) GetResponseId() string {
 	return rsr.Id
 }
 
+// For Prior belief screen UI jsx
+// (Used by UIPriorBeliefResponse.BeliefFactors)
 type UIPriorBeliefFactor struct {
-	FactorId    string
-	IsCausal    bool
-	BestLevelId string
+	FactorId       string
+	IsBeliefCausal bool
+	BestLevelId    string
 }
 
 type UIPriorBeliefResponse struct {
-	CausalFactors []*UIPriorBeliefFactor
+	BeliefFactors []*UIPriorBeliefFactor
 	Id            string
 }
 
@@ -282,15 +296,15 @@ func (rsr *UIPriorBeliefResponse) GetResponseText() string {
 	count := 0
 	totalcausal := 0
 
-	for _, v := range rsr.CausalFactors {
+	for _, v := range rsr.BeliefFactors {
 		// quickly count number of causal
-		if v.IsCausal {
+		if v.IsBeliefCausal {
 			totalcausal++
 		}
 	}
 
-	for _, v := range rsr.CausalFactors {
-		if v.IsCausal {
+	for _, v := range rsr.BeliefFactors {
+		if v.IsBeliefCausal {
 			factorName := GetFactorConfig(v.FactorId).Name
 			if count == 0 {
 				responseText = factorName
@@ -313,6 +327,7 @@ func (rsr *UIPriorBeliefResponse) GetResponseId() string {
 }
 
 type UIMemoResponse struct {
+	Ask        string
 	Memo       string
 	Evidence   string
 	Id         string // Name of the factor for the memo

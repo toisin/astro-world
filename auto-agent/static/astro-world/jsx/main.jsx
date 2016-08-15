@@ -1,4 +1,5 @@
 /** @jsx React.DOM */
+"use strict"
 
 // npm install -g react-tools
 // jsx -w -x jsx public/js public/js
@@ -20,7 +21,7 @@ if (!username) {
   // React.renderComponent(<App variableModels={variableModels} user={user}/>,
   //                   document.body);
 
-  user.loadAllUserData(callback = function() {
+  user.loadAllUserData(function() {
                          React.render(
                            <App user={user}/>,
                          document.body);});

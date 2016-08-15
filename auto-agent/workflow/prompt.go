@@ -141,6 +141,7 @@ func (cp *GenericPrompt) processSimpleResponse(r string, u *db.User, UiUserData 
 func (cp *GenericPrompt) updateStateCurrentFactor(UiUserData *UIUserData, fid string) {
 	cp.currentPrompt.updateState(UiUserData)
 	if fid != "" {
+		// Overwrite what was in the state previously in updateState()
 		cp.state.setTargetFactor(
 			FactorState{
 				FactorName: factorConfigMap[fid].Name,
@@ -154,9 +155,11 @@ func (cp *GenericPrompt) updateStateCurrentFactorCausal(UiUserData *UIUserData, 
 	cp.currentPrompt.updateState(UiUserData)
 	targetFactor := cp.state.GetTargetFactor()
 	if isCausalResponse == "true" {
-		targetFactor.IsCausal = true
+		targetFactor.IsConcludeCausal = true
+		targetFactor.HasConclusion = true
 	} else if isCausalResponse == "false" {
-		targetFactor.IsCausal = false
+		targetFactor.IsConcludeCausal = false
+		targetFactor.HasConclusion = true
 	}
 	cp.state.setTargetFactor(targetFactor)
 	UiUserData.State = cp.state
@@ -177,9 +180,9 @@ func (cp *GenericPrompt) updatePriorBeliefs(UiUserData *UIUserData, r UIPriorBel
 	var hasCausal bool
 	var hasMultipleCausal bool
 	for i, v := range UiUserData.ContentFactors {
-		UiUserData.ContentFactors[i].IsBeliefCausal = r.CausalFactors[i].IsCausal
-		UiUserData.ContentFactors[i].BestLevelId = r.CausalFactors[i].BestLevelId
-		if r.CausalFactors[i].IsCausal {
+		UiUserData.ContentFactors[i].IsBeliefCausal = r.BeliefFactors[i].IsBeliefCausal
+		UiUserData.ContentFactors[i].BestLevelId = r.BeliefFactors[i].BestLevelId
+		if r.BeliefFactors[i].IsBeliefCausal {
 			causalFactors = append(causalFactors, v.Text)
 		}
 	}
@@ -328,6 +331,7 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, UiUserD
 			t := template.Must(template.New("expectedResponses").Parse(text))
 			var doc bytes.Buffer
 			err := t.Execute(&doc, UiUserData.State)
+
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error executing expectedResponses template: %s\n\n", err)
 				log.Println("executing expectedResponses template:", err)
@@ -462,17 +466,3 @@ func NewUIBasicAction() *UIBasicAction {
 func (ps *UIBasicAction) setUIActionModeId(s string) {
 	ps.UIActionModeId = s
 }
-
-// // TODO Remove - not needed, make always available through UIUserData
-// type UIRecordAction struct {
-// 	UIActionModeId string
-// 	Factors        []*UIFactor
-// }
-
-// func NewUIRecordAction() *UIRecordAction {
-// 	return &UIRecordAction{}
-// }
-
-// func (ps *UIRecordAction) setUIActionModeId(s string) {
-// 	ps.UIActionModeId = s
-// }

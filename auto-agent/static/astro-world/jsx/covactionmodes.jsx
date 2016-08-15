@@ -1,4 +1,5 @@
 /** @jsx React.DOM */
+"use strict"
 
 // npm install -g react-tools
 // jsx -w -x jsx public/js public/js
@@ -32,7 +33,7 @@ var SelectTargetFactor = React.createClass({
     var text, id;
 
     var options = user.getPrompt().Options;
-    for (i = 0; i < options.length; i++) {
+    for (var i = 0; i < options.length; i++) {
       if (options[i].ResponseId == value) {
         text = options[i].Text;
         id = value;
@@ -43,7 +44,7 @@ var SelectTargetFactor = React.createClass({
     var response = {};
     response.text = text;
     response.id = id;
-    jsonResponse = JSON.stringify(response);
+    var jsonResponse = JSON.stringify(response);
     user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
   },
 
@@ -68,6 +69,7 @@ var SelectTargetFactor = React.createClass({
                 <div className="frame">
                     <table>
                       <tbody>
+                      <tr><td className="question">Select the factor to investigate</td></tr>
                       <tr>
                         <td>{prompt.Text}</td>
                       </tr>
@@ -116,7 +118,7 @@ var PriorBeliefFactors = React.createClass({
         var fid = form.elements[factor.FactorId];
         var f = {};
         f.FactorId = factor.FactorId;
-        f.IsCausal = fid.value == "true" ? true : false;
+        f.IsBeliefCausal = fid.value == "true" ? true : false;
         return f;
       });
     return selectedFactors;
@@ -140,9 +142,9 @@ var PriorBeliefFactors = React.createClass({
     var f = document.getElementById("covactionForm");
 
     var response = {};
-    response.CausalFactors = this.getSelectedFactors();;
+    response.BeliefFactors = this.getSelectedFactors();
 
-    jsonResponse = JSON.stringify(response);
+    var jsonResponse = JSON.stringify(response);
     user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
   },
 
@@ -158,7 +160,7 @@ var PriorBeliefFactors = React.createClass({
         var factorId = factor.FactorId;
 
         return <tr  key={i}>
-                <td>{factor.Text}</td>
+                <td className="factorNameFront">{factor.Text}</td>
                 <td><label>
                   <input type="radio" name={factorId} value={true}><br/>Yes</input>
                 </label></td>
@@ -175,8 +177,7 @@ var PriorBeliefFactors = React.createClass({
             <table>
               <tbody>
               <tr>
-                <td>&nbsp;</td>
-                <td colSpan="3" className="question">Does it make a difference? (Select "Yes" or "No")</td>
+                <td colSpan="4" className="question">Select "Yes" for factor that you think makes a difference.</td>
               </tr>
               {factors}
               </tbody>
@@ -228,7 +229,7 @@ var PriorBeliefLevels = React.createClass({
         var f = {};
         f.FactorId = factor.FactorId;
         f.BestLevelId = fid ? fid.value : "";
-        f.IsCausal = factor.IsBeliefCausal;
+        f.IsBeliefCausal = factor.IsBeliefCausal;
         return f;
       });
     return selectedFactors;
@@ -252,9 +253,9 @@ var PriorBeliefLevels = React.createClass({
     var f = document.getElementById("covactionForm");
 
     var response = {};
-    response.CausalFactors = this.getSelectedFactors();;
+    response.BeliefFactors = this.getSelectedFactors();
 
-    jsonResponse = JSON.stringify(response);
+    var jsonResponse = JSON.stringify(response);
     user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
   },
 
@@ -276,7 +277,7 @@ var PriorBeliefLevels = React.createClass({
             });
 
           return <tr key={i}>
-                  <td>{factor.Text}</td>
+                  <td className="factorNameFront">{factor.Text}</td>
                   {levels}
                 </tr>;
         } else {
@@ -284,14 +285,12 @@ var PriorBeliefLevels = React.createClass({
         }
       });
 
-
     return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
       <div className ="hbox">
         <div className="frame">
             <table>
               <tbody>
               <tr>
-                <td>&nbsp;</td>
                 <td colSpan="3" className="question">Choose the level of the factor that you think would be best for performance.</td>
               </tr>
               {factors}
@@ -344,7 +343,7 @@ var RecordSelection = React.createClass({
     var selectedFactors;
     if (!comparePrevious) {
       selectedFactors = this.getSelectedFactors("1");
-      for (i=0; i < selectedFactors.length; i++) {
+      for (var i = 0; i < selectedFactors.length; i++) {
         if (selectedFactors[i].SelectedLevelId == "") {
           return;
         }
@@ -352,7 +351,7 @@ var RecordSelection = React.createClass({
     }
     if (doubleRecord) {
       selectedFactors = this.getSelectedFactors("2");
-      for (i=0; i < selectedFactors.length; i++) {
+      for (var i = 0; i < selectedFactors.length; i++) {
         if (selectedFactors[i].SelectedLevelId == "") {
           return;
         }
@@ -394,7 +393,7 @@ var RecordSelection = React.createClass({
     if (r2selectedFactors && (r2selectedFactors.length > 0)) {
       response.RecordNoTwo = r2selectedFactors;    
     }
-    jsonResponse = JSON.stringify(response);
+    var jsonResponse = JSON.stringify(response);
     user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
   },
 
@@ -425,11 +424,10 @@ var RecordSelection = React.createClass({
       return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
         <div className ="hbox">
           <div className="frame">
-              <table>
+              <table className="record">
                 <tbody>
                 <tr>
-                  <td>&nbsp;</td>
-                  <td colSpan="3" className="recordTitle">First Record</td>
+                  <td colSpan="4" className="recordTitle">First Record</td>
                 </tr>
                 {recordOneFactors}
                 </tbody>
@@ -446,22 +444,20 @@ var RecordSelection = React.createClass({
       return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
         <div className ="hbox">
           <div className="frame">
-              <table>
+              <table className="record">
                 <tbody>
                 <tr>
-                  <td>&nbsp;</td>
-                  <td colSpan="3" className="recordTitle">First Record</td>
+                  <td colSpan="4" className="recordTitle">First Record</td>
                 </tr>
                 {recordOneFactors}
                 </tbody>
               </table>
           </div>
           <div className="frame">
-            <table>
+            <table className="record">
               <tbody>
               <tr>
-                <td>&nbsp;</td>
-                <td colSpan="3" className="recordTitle">Second Record</td>
+                <td colSpan="4" className="recordTitle">Second Record</td>
               </tr>
               {recordTwoFactors}
               </tbody>
@@ -481,13 +477,8 @@ var RecordSelection = React.createClass({
                 <table className="record">
                   <tbody>
                   <tr>
-                    <td>&nbsp;</td>
-                    <td colSpan="3" className="recordTitle">Second Record</td>
+                    <td colSpan="4" className="recordTitle">Second Record</td>
                   </tr>
-                  </tbody>
-                </table>
-                <table className="recorddetails">
-                  <tbody>
                     {recordTwoFactors}
                   </tbody>
                 </table>
@@ -498,7 +489,7 @@ var RecordSelection = React.createClass({
                 </p>
                 </form>
               </div>
-              <RecordPerformance user={user} app={app}/>
+              <RecordPerformance user={user} app={app} recordOneOnly/>
             </div>;
     }
   }
@@ -510,16 +501,29 @@ var FactorSelection = React.createClass({
     var factor = this.props.factor;
     var record = this.props.record;
 
+    var size = factor.Levels.length;
+    if (size == 2) {
+      factor.Levels[2]=factor.Levels[1];
+      factor.Levels[1]="_";
+    }
+
     var levels = factor.Levels.map(
       function(level, i) {
-        return <FactorLevelSelection factor={factor} level={level} key={i} record={record}/>;
+        if (level == "_") {
+          return <td>&nbsp;</td>;
+        }
+        return <FactorLevelSelection factor={factor} level={level} key={i} record={record} size={size}/>;        
       });
 
 
-    return <tr>
-            <td>{factor.Text}</td>
-            {levels}
-          </tr>;
+    return <tbody>
+            <tr>
+              <td colSpan="3" className="factorNameRow">{factor.Text}</td>
+            </tr>
+            <tr>
+              {levels}
+            </tr>
+          </tbody>;
   }
 });
 
@@ -582,7 +586,7 @@ var RecordPerformance = React.createClass({
               });
 
             return <tr key={i}>
-                    <td>{factor.Text}</td>
+                    <td className="factorNameFront">{factor.Text}</td>
                     {levels}
                   </tr>;
           });
@@ -590,13 +594,9 @@ var RecordPerformance = React.createClass({
                 <table className="record">
                   <tbody>
                     <tr>
-                      <td colSpan="3" className="robot">Record #{r.RecordNo} <b>{r.RecordName}</b></td>
+                      <td colSpan="4" className="robot">Record #{r.RecordNo} <b>{r.RecordName}</b></td>
                     </tr>
-                  </tbody>
-                </table>
-                <table className="recorddetails">
-                  <tbody>
-                  {factors}
+                    {factors}
                   </tbody>
                 </table>
                 {performance(r)}
@@ -649,7 +649,7 @@ var MemoForm = React.createClass({
     }
 
     var user = this.props.user;
-    var targetFactorName;
+    var targetFactorName, targetFactorId;
     if (user.getState().TargetFactor) {
       targetFactorName = user.getState().TargetFactor.FactorName;
       targetFactorId = user.getState().TargetFactor.FactorId;
@@ -660,16 +660,18 @@ var MemoForm = React.createClass({
     var e = document.getElementById("phaseId");
     var phaseId = e ? e.value : "";
     var form = document.getElementById("covactionForm");
+    var ask = form.elements["ask"];
     var memo = form.elements["memo"];
     var evidence = form.elements["evidence"];
 
     var response = {};
-    response.memo = memo ? memo.value : "";
-    response.evidence = evidence ? evidence.value : "";
-    response.id = targetFactorId
-    response.factorName = targetFactorName
+    response.Ask = ask ? ask.value : "";
+    response.Memo = memo ? memo.value : "";
+    response.Evidence = evidence ? evidence.value : "";
+    response.Id = targetFactorId
+    response.FactorName = targetFactorName
     
-    jsonResponse = JSON.stringify(response);
+    var jsonResponse = JSON.stringify(response);
     user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
   },
 
@@ -696,8 +698,10 @@ var MemoForm = React.createClass({
               <h3>Memo to the foundation</h3>
               <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
               <p>
-                  We recommend that you ask applicants about <u>{targetFactorName}</u> because &nbsp;
-                  <input type="text" name="memo" autofocus className="con" placeholder="it does/does not make a difference."/><br/>
+                  We recommend that you &nbsp;
+                  <input type="text" name="ask" size="20" autofocus className="con" placeholder="Enter ask/do not ask"/> &nbsp;
+                  applicants about <u>{targetFactorName}</u> because &nbsp;
+                  <input type="text" name="memo" autofocus className="con" placeholder="Enter if it does/does not make a difference."/><br/>
                   <br/>
                   Our evidence for claiming this is:<br/>
                   <textarea name="evidence" className="evid" onKeyDown={this.handleEnter} placeholder="Enter your answer here"></textarea>
@@ -728,21 +732,27 @@ var Memo = React.createClass({
     var user = this.props.user;
     var app = this.props.app;
     var prompt = user.getPrompt();
+    var targetFactorName, targetFactorId;
+    if (user.getState().TargetFactor) {
+      targetFactorName = user.getState().TargetFactor.FactorName;
+      targetFactorId = user.getState().TargetFactor.FactorId;
+    }
+
 
     var promptId = prompt.PromptId;
     var phaseId = user.getCurrentPhaseId();
+    var ask, memo, evidence;
 
     if (user.getState().LastMemo) {
+      ask = user.getState().LastMemo.Ask;
       memo = user.getState().LastMemo.Memo;
       evidence = user.getState().LastMemo.Evidence;
-      fid = user.getState().LastMemo.Id;
-      fname = user.getState().LastMemo.FactorName;
     }
 
     return <div className="mbox">
               <h3>Memo to the foundation</h3>
               <p>
-                  We recommend that you ask applicants about <u>{targetFactorName}</u> because {memo}<br/>
+                  We recommend that you <u>{ask}</u> applicants about <u>{targetFactorName}</u> because <u>{memo}</u><br/>
                   <br/>
                   Our evidence for claiming this is:<br/>
                   <u>{evidence}</u>

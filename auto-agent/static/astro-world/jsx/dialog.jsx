@@ -1,4 +1,5 @@
 /** @jsx React.DOM */
+"use strict"
 
 // npm install -g react-tools
 // jsx -w -x jsx public/js public/js
@@ -10,7 +11,7 @@ DisplayText[MSG_ROBOT] = 'Researcher';
 
 var Dialog = React.createClass({
   getInitialState: function() {
-    state = {mode: 0}
+    var state = {mode: 0}
     var user = this.props.user;
     var history = user.getHistory() ? user.getHistory() : {};
     state.isNewUser = history.length == 0;
@@ -32,9 +33,18 @@ var Dialog = React.createClass({
     var state = this.state;
     var user = this.props.user;
     var app = this.props.app;
-    var oldHistoryLength = user.getArchiveHistoryLength();
-    var oldHistory = user.getHistory() ? user.getHistory().slice(0, oldHistoryLength) : {};
-    var newHistory = user.getHistory() ? user.getHistory().slice(oldHistoryLength) : {};
+    var history = user.getHistory() ? user.getHistory() : {};
+    var oldHistoryLength;
+    var oldHistory, newHistory;
+    if (user.getArchiveHistoryLength() <= MESSAGE_COUNT_LIMIT) {
+      oldHistoryLength = user.getArchiveHistoryLength();
+      oldHistory = history.slice(0, oldHistoryLength);
+      newHistory = history.slice(oldHistoryLength);
+    } else {
+      oldHistoryLength = user.getArchiveHistoryLength() - history[0].MessageNo + 1;
+      oldHistory = user.getHistory() ? user.getHistory().slice(0, oldHistoryLength) : {};
+      newHistory = user.getHistory() ? user.getHistory().slice(oldHistoryLength) : {};
+    }
     var messages = newHistory.map(
         function(message, i) {
           return <div key={i}>
@@ -219,7 +229,7 @@ var Message = React.createClass({
       lastCount = this.state.count;
     }
 
-    messages = texts.slice(0, lastCount).map(
+    var messages = texts.slice(0, lastCount).map(
         function(text, i) {
           var message = {};
           message.Mtype = mtype;
@@ -294,7 +304,7 @@ var PromptOption = React.createClass({
     var option = this.props.option;
       return  <label>
                 <input type="radio" name="dialoginput" value={option.ResponseId}/>
-                {option.Text}&nbsp;
+                {option.Text}&nbsp;&nbsp;&nbsp;
               </label>
   },
 });
@@ -364,7 +374,7 @@ var Input = React.createClass({
 
     switch (user.CurrentUIPrompt.PromptType) {
     case UI_PROMPT_MC:
-      for (i = 0; i < options.length; i++) {
+      for (var i = 0; i < options.length; i++) {
         if (options[i].ResponseId == value) {
           text = options[i].Text;
           id = value;
@@ -374,7 +384,6 @@ var Input = React.createClass({
       break;
     case UI_PROMPT_TEXT:
       text = value;
-      id = options[0].ResponseId
       break;
     case UI_PROMPT_ENTER_TO_CONTINUE:
     case UI_PROMPT_STRAIGHT_THROUGH:
@@ -386,7 +395,7 @@ var Input = React.createClass({
     var response = {};
     response.text = text;
     response.id = id;
-    jsonResponse = JSON.stringify(response);
+    var jsonResponse = JSON.stringify(response);
     user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
   },
 

@@ -1,7 +1,10 @@
 /** @jsx React.DOM */
+"use strict"
 
 // npm install -g react-tools
 // jsx -w -x jsx public/js public/js
+
+var MESSAGE_COUNT_LIMIT = 100;
 
 var DELAY_PROMPT_TIME_REALLY_SHORT = 500;
 var DELAY_PROMPT_TIME_SHORT = 1000;
