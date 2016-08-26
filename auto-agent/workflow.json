@@ -242,7 +242,7 @@
           "ExpectedResponses": {
             "Values": [
               {
-                "Id": "CONTENT_REF",
+                "Id": "CONTENT_FACTOR_REF",
                 "NextPrompt": {
                   "Id": "one or two records",
                   "Text": [

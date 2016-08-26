@@ -25,12 +25,14 @@ type StateEntities interface {
 	setUsername(string)
 	setScreenname(string)
 	setTargetFactor(FactorState)
+	setRemainingFactorIds([]string)
 	setBeliefs(BeliefsState)
 	setLastMemo(UIMemoResponse)
 	GetPhaseId() string
 	GetBeliefs() BeliefsState
 	isContentCompleted() bool
 	GetTargetFactor() FactorState
+	GetRemainingFactorIds() []string
 	GetLastMemo() UIMemoResponse
 }
 
@@ -67,6 +69,11 @@ func (c *GenericState) GetTargetFactor() FactorState {
 	return c.TargetFactor
 }
 
+// Not applicable to all phases
+func (c *GenericState) GetRemainingFactorIds() []string {
+	return c.RemainingFactorIds
+}
+
 func (c *GenericState) setPhaseId(s string) {
 	c.PhaseId = s
 }
@@ -82,6 +89,11 @@ func (c *GenericState) setScreenname(s string) {
 // Not applicable to all phases
 func (c *GenericState) setTargetFactor(t FactorState) {
 	c.TargetFactor = t
+}
+
+// Not applicable to all phases
+func (c *GenericState) setRemainingFactorIds(ss []string) {
+	c.RemainingFactorIds = ss
 }
 
 func (c *GenericState) setBeliefs(s BeliefsState) {

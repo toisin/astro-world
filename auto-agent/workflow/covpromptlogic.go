@@ -142,42 +142,6 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, UiUserData *UIUserDat
 	}
 }
 
-func (cp *CovPrompt) initDynamicResponseUIPrompt(UiUserData *UIUserData) {
-	pc := cp.promptConfig
-	cp.currentUIPrompt = NewUIBasicPrompt()
-	cp.currentUIPrompt.setPromptType(pc.PromptType)
-	cp.currentPrompt.initUIPromptDynamicText(UiUserData, nil)
-	if cp.promptDynamicText != nil {
-		cp.currentUIPrompt.setText(cp.promptDynamicText.String())
-	}
-	cp.currentUIPrompt.setId(pc.Id)
-
-	options := []*UIOption{}
-	for i := range pc.ExpectedResponses.Values {
-		switch pc.ExpectedResponses.Values[i].Id {
-		case EXPECTED_SPECIAL_CONTENT_REF:
-			c := UiUserData.State.(*CovPhaseState)
-			for _, v := range c.RemainingFactorIds {
-				options = append(options, &UIOption{v, GetFactorConfig(v).Name})
-			}
-		default:
-			options = append(options, &UIOption{pc.ExpectedResponses.Values[i].Id, pc.ExpectedResponses.Values[i].Text})
-		}
-	}
-	cp.currentUIPrompt.setOptions(options)
-}
-
-func (cp *CovPrompt) initUIPromptDynamicText(UiUserData *UIUserData, r Response) {
-	if cp.promptDynamicText == nil {
-		p := &UIPromptDynamicText{}
-		p.previousResponse = r
-		p.promptConfig = cp.promptConfig
-		cp.updateState(UiUserData)
-		p.state = cp.state
-		cp.promptDynamicText = p
-	}
-}
-
 func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, currentFactorId string, c appengine.Context) {
 	rsr.NonVaryingFactorIds = make([]string, len(appConfig.CovPhase.ContentRef.Factors))
 	rsr.VaryingFactorIds = make([]string, len(appConfig.CovPhase.ContentRef.Factors))
