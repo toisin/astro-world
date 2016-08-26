@@ -14,6 +14,10 @@ body {
   font-family: 'Raleway', sans-serif;
 }
 
+.main {
+  height: 100%;
+}
+
 .content {
   display: flex;
   height: 100%;
@@ -207,7 +211,6 @@ body {
   border: 1px solid #ddd;
   padding: 5px;
   display: inline-block;
-  background: ;
 }
 
 .action .frame > * {

@@ -132,12 +132,12 @@ var Title = React.createClass({
 // Render each message
 var MessageText = React.createClass({
   componentDidMount: function() {
-    var e = React.findDOMNode(this);
+    var e = ReactDOM.findDOMNode(this);
     e.scrollIntoView();
   },
     
   componentDidUpdate: function(prevProps, prevState) {
-    var e = React.findDOMNode(this);
+    var e = ReactDOM.findDOMNode(this);
     e.scrollIntoView();
   },
 
@@ -221,6 +221,7 @@ var Message = React.createClass({
     var texts = this.props.texts;
     var delay = this.props.delay;
     var mtype = this.props.mtype;
+    var user = this.props.user;
     var lastCount;
 
     if (!delay) {
@@ -333,13 +334,27 @@ var Input = React.createClass({
   },
 
   handleChange: function(event) {
-    this.setState({enabled:true});
+    var user = this.props.user;
+    var f = document.getElementById("dialogForm");
+    var e = f.elements['dialoginput'];
+    var value = e ? e.value : "";
+    switch (user.CurrentUIPrompt.PromptType) {
+    case UI_PROMPT_TEXT:
+      if (value.trim() != "") {
+        this.setState({enabled:true});
+      }
+      break;
+    default:
+        this.setState({enabled:true});
+    }
   },
 
   handleEnter: function(event) {
-    if (!event.shiftKey) {
-      if (event.which == 13) {  // "Enter" key was pressed.
-        this.handleSubmit(event);
+    if (this.state.enabled) {
+      if (!event.shiftKey) {
+        if (event.which == 13) {  // "Enter" key was pressed.
+          this.handleSubmit(event);
+        }
       }
     }
   },
@@ -384,6 +399,7 @@ var Input = React.createClass({
       break;
     case UI_PROMPT_TEXT:
       text = value;
+      id = value;
       break;
     case UI_PROMPT_ENTER_TO_CONTINUE:
     case UI_PROMPT_STRAIGHT_THROUGH:

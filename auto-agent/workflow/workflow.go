@@ -211,7 +211,8 @@ func GetFirstPhase() *PhaseConfig {
 
 func MakeFirstPrompt(uiUserData *UIUserData) Prompt {
 	// Hardcoding the first prompt is the first prompt of CovPrompt
-	p := MakePrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.CovPhase.Id, uiUserData)
+	// p := MakePrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.CovPhase.Id, uiUserData)
+	p := MakePrompt(appConfig.ChartPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.ChartPhase.Id, uiUserData)
 	return p
 }
 

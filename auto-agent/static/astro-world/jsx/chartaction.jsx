@@ -15,12 +15,14 @@ var ChartAction = React.createClass({
     var state = this.state;
     var user = this.props.user;
     var app = this.props.app;
+    var prompt = user.getPrompt();
     var action = user.getAction();
+    var onComplete = this.props.onComplete;
 
     if (action) {
       switch (action.UIActionModeId) {
-        case "NEW_TARGET_FACTOR":
-          return  <SelectTargetFactor user={user} onComplete={app.changeState} app={app}/>;
+        case "ALL_RECORDS":
+          return  <Chart user={user} onComplete={onComplete} app={app}/>;
         default:
           return <div></div>;
       }

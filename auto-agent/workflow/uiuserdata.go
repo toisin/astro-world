@@ -118,6 +118,22 @@ func (c *GenericState) getRemainingFactorIds() []string {
 }
 
 // Implements workflow.StateEntities
+type ChartPhaseState struct {
+	GenericState
+}
+
+func (c *ChartPhaseState) GetPhaseId() string {
+	return appConfig.ChartPhase.Id
+}
+
+func (c *ChartPhaseState) initContents(factors []Factor) {
+	c.RemainingFactorIds = make([]string, len(factors))
+	for i, v := range factors {
+		c.RemainingFactorIds[i] = v.Id
+	}
+}
+
+// Implements workflow.StateEntities
 type CovPhaseState struct {
 	GenericState
 	RecordNoOne            *RecordState
@@ -170,15 +186,6 @@ type FactorState struct {
 	IsCausal         bool
 	IsConcludeCausal bool
 	HasConclusion    bool
-}
-
-// Implements workflow.StateEntities
-type ChartPhaseState struct {
-	GenericState
-}
-
-func (c *ChartPhaseState) GetPhaseId() string {
-	return appConfig.ChartPhase.Id
 }
 
 // For jsx to reference all factors

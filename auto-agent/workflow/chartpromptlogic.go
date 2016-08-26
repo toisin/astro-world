@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"appengine"
+	"time"
 )
 
 // Prompt logics specific to Chart phase
@@ -18,20 +19,51 @@ type ChartPrompt struct {
 	*GenericPrompt
 }
 
-func MakeChartPrompt(p PromptConfig, uiUserData *UIUserData) *ChartPrompt {
+func MakeChartPrompt(p PromptConfig, UiUserData *UIUserData) *ChartPrompt {
 	var n *ChartPrompt
 	n = &ChartPrompt{}
 	n.GenericPrompt = &GenericPrompt{}
 	n.GenericPrompt.currentPrompt = n
-	n.init(p, uiUserData)
+	n.init(p, UiUserData)
 	return n
 }
 
-func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
-	if r != "" {
+func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, UiUserData *UIUserData, c appengine.Context) {
+	if cp.promptConfig.ResponseType == RESPONSE_END {
+		// Sequence has ended. Update remaining factors
+		UiUserData.State.(*ChartPhaseState).updateRemainingFactors()
+		cp.nextPrompt = cp.generateFirstPromptInNextSequence(UiUserData)
+	} else if r != "" {
 		dec := json.NewDecoder(strings.NewReader(r))
 		pc := cp.promptConfig
 		switch pc.ResponseType {
+		case RESPONSE_MEMO:
+			for {
+				var memoResponse UIMemoResponse
+				if err := dec.Decode(&memoResponse); err == io.EOF {
+					break
+				} else if err != nil {
+					fmt.Fprintf(os.Stderr, "%s", err)
+					log.Fatal(err)
+					return
+				}
+				dbmemo := db.Memo{
+					FactorId: memoResponse.Id,
+					Ask:      memoResponse.Ask,
+					Memo:     memoResponse.Memo,
+					Evidence: memoResponse.Evidence,
+					PhaseId:  cp.GetPhaseId(),
+					Date:     time.Now(),
+				}
+				err := db.PutMemo(c, u.Username, dbmemo)
+				if err != nil {
+					fmt.Fprint(os.Stderr, "DB Error Adding Memo:"+err.Error()+"!\n\n")
+					return
+				}
+				cp.updateMemo(UiUserData, memoResponse)
+				cp.response = &memoResponse
+			}
+			break
 		case RESPONSE_SELECT_TARGET_FACTOR:
 			for {
 				var response SimpleResponse
@@ -42,9 +74,23 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserD
 					log.Fatal(err)
 					return
 				}
-				uiUserData.CurrentFactorId = response.Id
-				u.CurrentFactorId = uiUserData.CurrentFactorId
-				cp.updateStateCurrentFactor(uiUserData, uiUserData.CurrentFactorId)
+				UiUserData.CurrentFactorId = response.Id
+				u.CurrentFactorId = UiUserData.CurrentFactorId
+				cp.updateStateCurrentFactor(UiUserData, UiUserData.CurrentFactorId)
+				cp.response = &response
+			}
+			break
+		case RESPONSE_CAUSAL_CONCLUSION:
+			for {
+				var response SimpleResponse
+				if err := dec.Decode(&response); err == io.EOF {
+					break
+				} else if err != nil {
+					fmt.Fprintf(os.Stderr, "%s", err)
+					log.Fatal(err)
+					return
+				}
+				cp.updateStateCurrentFactorCausal(UiUserData, response.GetResponseId())
 				cp.response = &response
 			}
 			break
@@ -62,25 +108,29 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserD
 			}
 		}
 		if cp.response != nil {
-			cp.nextPrompt = cp.expectedResponseHandler.generateNextPrompt(cp.response, uiUserData)
+			cp.nextPrompt = cp.expectedResponseHandler.generateNextPrompt(cp.response, UiUserData)
 		}
 	}
 }
 
-//TODO - cleanup copied from CovPrompt
-func (cp *ChartPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
+func (cp *ChartPrompt) initDynamicResponseUIPrompt(UiUserData *UIUserData) {
 	pc := cp.promptConfig
 	cp.currentUIPrompt = NewUIBasicPrompt()
 	cp.currentUIPrompt.setPromptType(pc.PromptType)
-	cp.currentPrompt.initUIPromptDynamicText(uiUserData, nil)
-	cp.currentUIPrompt.setText(cp.promptDynamicText.String())
+	cp.currentPrompt.initUIPromptDynamicText(UiUserData, nil)
+	if cp.promptDynamicText != nil {
+		cp.currentUIPrompt.setText(cp.promptDynamicText.String())
+	}
 	cp.currentUIPrompt.setId(pc.Id)
 
 	options := []*UIOption{}
 	for i := range pc.ExpectedResponses.Values {
 		switch pc.ExpectedResponses.Values[i].Id {
 		case EXPECTED_SPECIAL_CONTENT_REF:
-			options = append(options, &UIOption{pc.ExpectedResponses.Values[i].Id, pc.ExpectedResponses.Values[i].Text})
+			c := UiUserData.State.(*ChartPhaseState)
+			for _, v := range c.RemainingFactorIds {
+				options = append(options, &UIOption{v, GetFactorConfig(v).Name})
+			}
 		default:
 			options = append(options, &UIOption{pc.ExpectedResponses.Values[i].Id, pc.ExpectedResponses.Values[i].Text})
 		}
@@ -88,48 +138,39 @@ func (cp *ChartPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
 	cp.currentUIPrompt.setOptions(options)
 }
 
-func (cp *ChartPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r Response) {
-	p := &UIPromptDynamicText{}
-	p.previousResponse = r
-	p.promptConfig = cp.promptConfig
-	cp.updateState(uiUserData)
-	p.state = cp.state
-	cp.promptDynamicText = p
-}
-
-func (cp *ChartPrompt) updateStateCurrentFactor(uiUserData *UIUserData, fid string) {
-	cp.updateState(uiUserData)
-	if fid != "" {
-		cp.state.setTargetFactor(
-			FactorState{
-				FactorName: factorConfigMap[fid].Name,
-				FactorId:   fid,
-				IsCausal:   factorConfigMap[fid].IsCausal})
+func (cp *ChartPrompt) initUIPromptDynamicText(UiUserData *UIUserData, r Response) {
+	if cp.promptDynamicText == nil {
+		p := &UIPromptDynamicText{}
+		p.previousResponse = r
+		p.promptConfig = cp.promptConfig
+		cp.updateState(UiUserData)
+		p.state = cp.state
+		cp.promptDynamicText = p
 	}
-	uiUserData.State = cp.state
 }
 
-func (cp *ChartPrompt) updateState(uiUserData *UIUserData) {
-	if uiUserData.State != nil {
-		// if uiUserData already have a cp state, use that and update it
-		if uiUserData.State.GetPhaseId() == appConfig.ChartPhase.Id {
-			cp.state = uiUserData.State.(*ChartPhaseState)
+func (cp *ChartPrompt) updateState(UiUserData *UIUserData) {
+	if UiUserData.State != nil {
+		// if UiUserData already have a cp state, use that and update it
+		if UiUserData.State.GetPhaseId() == appConfig.ChartPhase.Id {
+			cp.state = UiUserData.State.(*ChartPhaseState)
 		}
 	}
 	if cp.state == nil {
-		cp.state = &ChartPhaseState{}
+		cps := &ChartPhaseState{}
+		cps.initContents(appConfig.ChartPhase.ContentRef.Factors)
+		cp.state = cps
 		cp.state.setPhaseId(appConfig.ChartPhase.Id)
-		cp.state.setUsername(uiUserData.Username)
-		cp.state.setScreenname(uiUserData.Screenname)
-		fid := uiUserData.CurrentFactorId
+		cp.state.setUsername(UiUserData.Username)
+		cp.state.setScreenname(UiUserData.Screenname)
+		fid := UiUserData.CurrentFactorId
 		if fid != "" {
 			cp.state.setTargetFactor(
 				FactorState{
 					FactorName: factorConfigMap[fid].Name,
 					FactorId:   fid,
 					IsCausal:   factorConfigMap[fid].IsCausal})
-
 		}
 	}
-	uiUserData.State = cp.state
+	UiUserData.State = cp.state
 }

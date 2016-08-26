@@ -9,7 +9,8 @@ var App = React.createClass({
     return {mode: 0, actionReady: false};
   },
 
-  showAction(){
+  showAction: function() {
+    var user = this.props.user;
     // In cases when the dialog is ongoing and no UI action is needed
     // No need to re-render the action frame. This allows the last 
     // action UI to be present
@@ -22,7 +23,7 @@ var App = React.createClass({
     this.setState(this.state);
   },
 
-  changeState(){
+  changeState: function() {
     this.setState({mode: 0, actionReady: false});
   },
 

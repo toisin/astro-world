@@ -92,7 +92,7 @@ var FactorPromptOption = React.createClass({
   render: function() {
     var option = this.props.option;
       return <tr><td><label>
-              <input type="radio" name="covactioninput" value={option.ResponseId}><br/>{option.Text}</input></label></td></tr>;
+              <input type="radio" name="covactioninput" value={option.ResponseId}/><br/>{option.Text}</label></td></tr>;
   },
 });
 
@@ -162,10 +162,10 @@ var PriorBeliefFactors = React.createClass({
         return <tr  key={i}>
                 <td className="factorNameFront">{factor.Text}</td>
                 <td><label>
-                  <input type="radio" name={factorId} value={true}><br/>Yes</input>
+                  <input type="radio" name={factorId} value={true}/><br/>Yes
                 </label></td>
                 <td><label>
-                  <input type="radio" name={factorId} value={false}><br/>No</input>
+                  <input type="radio" name={factorId} value={false}/><br/>No
                 </label></td>
               </tr>;
       });
@@ -201,7 +201,7 @@ var FactorLevelPriorBeliefSelection = React.createClass({
     var factorId = factor.FactorId;
 
     return <td><label>
-            <input type="radio" name={factorId} value={level.FactorLevelId}><img src={imgPath}/><br/>{level.Text}</input>
+            <input type="radio" name={factorId} value={level.FactorLevelId}/><img src={imgPath}/><br/>{level.Text}
           </label></td>;
   }
 });
@@ -537,7 +537,7 @@ var FactorLevelSelection = React.createClass({
     var factorId = factor.FactorId+record;
 
     return <td><label>
-            <input type="radio" name={factorId} value={level.FactorLevelId}><img src={imgPath}/><br/>{level.Text}</input></label></td>;
+            <input type="radio" name={factorId} value={level.FactorLevelId}/><img src={imgPath}/><br/>{level.Text}</label></td>;
   }
 });
 

@@ -12,23 +12,23 @@ function getQueryStringValue (key) {
 // Begin side-effect
 var username = getQueryStringValue("user");
 
-if (!username) {
-  window.location = "index.html";
-} else {
+function main() {
+  if (!username) {
+    window.location = "index.html";
+    return;
+  } else {
 
-  var user = new User(username);
+    var user = new User(username);
 
-  // React.renderComponent(<App variableModels={variableModels} user={user}/>,
-  //                   document.body);
+    // React.renderComponent(<App variableModels={variableModels} user={user}/>,
+    //                   document.body);
 
-  user.loadAllUserData(function() {
-                         React.render(
-                           <App user={user}/>,
-                         document.body);});
+    user.loadAllUserData(function() {
+                           ReactDOM.render(
+                             <App user={user}/>,
+                           document.getElementById('main'));});
+  }
 }
 
-// TODO
-// window.onbeforeunload = function() {
-//   return "";
-// };
+main();
 
