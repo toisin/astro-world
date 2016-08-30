@@ -326,24 +326,3 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 	}
 	uiUserData.State = cp.state
 }
-
-// func (cp *CovPrompt) createRSForSelectedFactorsFromDB(r db.Record, sf []*UISelectedFactor) *RecordState {
-// 	rs := &RecordState{}
-// 	if sf != nil && len(sf) != 0 {
-// 		rs.RecordName = r.Firstname + " " + r.Lastname
-// 		rs.FirstName = r.Firstname
-// 		rs.LastName = r.Lastname
-// 		rs.RecordNo = r.RecordNo
-// 		rs.Performance = r.OutcomeLevel
-// 		rs.PerformanceLevel = GetOutcomeLevelOrder(r.OutcomeLevel)
-// 		rs.FactorLevels = make(map[string]FactorState)
-// 		for _, v := range sf {
-// 			rs.FactorLevels[v.FactorId] = CreateCovFactorState(v.FactorId, v.SelectedLevelId)
-// 		}
-// 	} else {
-// 		rs.RecordName = ""
-// 		rs.RecordNo = ""
-// 		rs.FactorLevels = make(map[string]FactorState)
-// 	}
-// 	return rs
-// }

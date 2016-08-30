@@ -95,33 +95,22 @@ var Chart = React.createClass({
   }
 });
 
-var Diamond = React.createClass({
+function Diamond(props) {
+  var h = rectSize / 2;
 
-  getInitialState: function() {
-    return {mode: 0, toggleOn: false};
-  },
+  var toggleToolbox = function() {
+    props.onDiamondClick(props.col, props.grade, props.rIndex, true);
+  };
 
-  toggleToolbox: function() {
-    var props = this.props;
-
-    this.state.toggleOn = this.state.toggleOn ? false : true;
-    props.onDiamondClick(props.col, props.grade, props.rIndex, this.state.toggleOn);
-    this.setState(this.state);
-  },
-
-  render: function() {
-    var props = this.props;
-    var h = rectSize / 2;
-    if (props.allowToolbox) {
-      return <rect onClick={this.toggleToolbox} width={rectSize} height={rectSize}
-        transform={`translate(${props.x},${props.y}) rotate(45) translate(-${h},-${h})`}
-        style={{stroke: 'green', fill: 'green'}}/>
-    }
-    return <rect width={rectSize} height={rectSize}
+  if (props.allowToolbox) {
+    return <rect onClick={toggleToolbox} width={rectSize} height={rectSize}
       transform={`translate(${props.x},${props.y}) rotate(45) translate(-${h},-${h})`}
       style={{stroke: 'green', fill: 'green'}}/>
   }
-});
+  return <rect width={rectSize} height={rectSize}
+    transform={`translate(${props.x},${props.y}) rotate(45) translate(-${h},-${h})`}
+    style={{stroke: 'green', fill: 'green'}}/>
+}
 
 function Diamonds(props) {
   var size = rectSize * spacingFactor;
