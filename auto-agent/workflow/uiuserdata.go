@@ -20,6 +20,36 @@ type UIUserData struct {
 	ArchiveHistoryLength int
 }
 
+func (uiUserData *UIUserData) initPhase(pId string) {
+	if pId != "" && uiUserData.CurrentPhaseId != pId {
+		uiUserData.CurrentPhaseId = pId
+
+		uiUserData.ContentFactors = make([]*UIFactor, len(GetPhase(uiUserData.CurrentPhaseId).ContentRef.Factors))
+		for i, v := range GetPhase(uiUserData.CurrentPhaseId).ContentRef.Factors {
+			f := GetFactorConfig(v.Id)
+			uiUserData.ContentFactors[i] = &UIFactor{
+				FactorId: f.Id,
+				Text:     f.Name,
+				IsCausal: f.IsCausal,
+			}
+			uiUserData.ContentFactors[i].Levels = make([]*UIFactorOption, len(f.Levels))
+			for j := range f.Levels {
+				uiUserData.ContentFactors[i].Levels[j] = &UIFactorOption{
+					FactorLevelId: f.Levels[j].Id,
+					Text:          f.Levels[j].Name,
+					ImgPath:       f.Levels[j].ImgPath,
+				}
+			}
+		}
+	}
+}
+
+func (uiUserData *UIUserData) initPrompt(currentPrompt Prompt) {
+	uiUserData.initPhase(currentPrompt.GetPhaseId())
+	uiUserData.CurrentUIAction = currentPrompt.GetUIAction()
+	uiUserData.CurrentUIPrompt = currentPrompt.GetUIPrompt()
+}
+
 type StateEntities interface {
 	setPhaseId(string)
 	setUsername(string)
@@ -148,8 +178,8 @@ func (c *ChartPhaseState) initContents(factors []Factor) {
 // Implements workflow.StateEntities
 type CovPhaseState struct {
 	GenericState
-	RecordNoOne            *RecordState
-	RecordNoTwo            *RecordState
+	RecordNoOne            RecordState
+	RecordNoTwo            RecordState
 	RecordSelectionsTypeId string
 	VaryingFactorIds       []string
 	VaryingFactorsCount    int
@@ -200,10 +230,15 @@ type FactorState struct {
 	HasConclusion    bool
 }
 
+func (fs *FactorState) String() string {
+	s := fs.FactorId + ":" + fs.SelectedLevelId
+	return s
+}
+
 // For jsx to reference all factors
 // configured for the particular phase
 // in the workflow.json
-// (Used byUIUserData.ContentFactors)
+// (Used by UIUserData.ContentFactors)
 type UIFactor struct {
 	FactorId       string
 	Text           string
@@ -226,7 +261,6 @@ func MakeUIUserData(u db.User) *UIUserData {
 	uiUserData.Username = u.Username
 	uiUserData.Screenname = u.Screenname
 	uiUserData.CurrentFactorId = u.CurrentFactorId
-	uiUserData.CurrentPhaseId = u.CurrentPhaseId
 
 	if u.UIState != nil {
 		s, err := UnstringifyState(u.UIState, u.CurrentPhaseId)
@@ -237,23 +271,8 @@ func MakeUIUserData(u db.User) *UIUserData {
 		uiUserData.State = s
 	}
 
-	uiUserData.ContentFactors = make([]*UIFactor, len(appConfig.CovPhase.ContentRef.Factors))
-	for i, v := range appConfig.CovPhase.ContentRef.Factors {
-		f := GetFactorConfig(v.Id)
-		uiUserData.ContentFactors[i] = &UIFactor{
-			FactorId: f.Id,
-			Text:     f.Name,
-			IsCausal: f.IsCausal,
-		}
-		uiUserData.ContentFactors[i].Levels = make([]*UIFactorOption, len(f.Levels))
-		for j := range f.Levels {
-			uiUserData.ContentFactors[i].Levels[j] = &UIFactorOption{
-				FactorLevelId: f.Levels[j].Id,
-				Text:          f.Levels[j].Name,
-				ImgPath:       f.Levels[j].ImgPath,
-			}
-		}
-	}
+	uiUserData.initPhase(uiUserData.CurrentPhaseId)
+
 	return uiUserData
 }
 
@@ -359,4 +378,58 @@ func (rsr *UIMemoResponse) GetResponseText() string {
 
 func (rsr *UIMemoResponse) GetResponseId() string {
 	return rsr.Id
+}
+
+type Performance struct {
+	Grade   string
+	Records map[string][]RecordState
+}
+
+func GetAllPerformanceRecords(records []db.Record) []Performance {
+	// e.g. pd[0].Grade = A
+	//      pd[0].["all"] = { .. all of records with A performance .. }
+	//      pd[0].["fitness:average"] = { .. all of records with
+	//  																	fitness = average and have A performance .. }
+	pd := make([]Performance, len(appConfig.Content.OutcomeVariable.Levels))
+	// e.g. counts[0]["all"] = number of records with A performance
+	//      counts[0]["fitness:average"] = number of records with
+	//	  																 fitness = average and have A performance
+	counts := make([]map[string]int, len(appConfig.Content.OutcomeVariable.Levels))
+
+	for _, v := range records {
+		pData := &pd[v.OutcomeLevelOrder]
+		if pData.Records == nil {
+			pData.Grade = v.OutcomeLevel
+			pData.Records = make(map[string][]RecordState)
+			counts[v.OutcomeLevelOrder] = make(map[string]int)
+		}
+		r := CreateRecordStateFromDB(v)
+		for _, w := range r.FactorLevels {
+			if pData.Records[w.String()] == nil {
+				pData.Records[w.String()] = make([]RecordState, 40)
+			} else {
+				pData.Records[w.String()][counts[v.OutcomeLevelOrder][w.String()]] = r
+				counts[v.OutcomeLevelOrder][w.String()]++
+			}
+		}
+		if pData.Records["all"] == nil {
+			pData.Records["all"] = make([]RecordState, 40)
+		} else {
+			pData.Records["all"][counts[v.OutcomeLevelOrder]["all"]] = r
+			counts[v.OutcomeLevelOrder]["all"]++
+		}
+	}
+	for i := range pd {
+		// In the case when no records had a certain performance level
+		// Add the grade for completing. appConfig.Content.OutcomeVariable.Levels[i].Name should be
+		// the same as OutcomeLevel from a record
+		if pd[i].Grade == "" {
+			pd[i].Grade = appConfig.Content.OutcomeVariable.Levels[i].Name
+			pd[i].Records = make(map[string][]RecordState)
+		}
+		for k, _ := range pd[i].Records {
+			pd[i].Records[k] = pd[i].Records[k][0 : counts[i][k]+1]
+		}
+	}
+	return pd
 }

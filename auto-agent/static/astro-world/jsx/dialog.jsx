@@ -188,6 +188,13 @@ var Message = React.createClass({
         }
       }
     }
+    // // TODO This should not be needed because everything should have been rendered.
+    // } else {
+    //   this.state.complete = true;
+    //   if (this.props.onComplete) {
+    //       this.props.onComplete();
+    //   }
+    // }
   },
 
   componentDidMount: function() {

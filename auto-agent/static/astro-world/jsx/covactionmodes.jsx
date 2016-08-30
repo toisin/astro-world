@@ -281,7 +281,7 @@ var PriorBeliefLevels = React.createClass({
                   {levels}
                 </tr>;
         } else {
-          return "";
+          return null;
         }
       });
 
@@ -377,22 +377,35 @@ var RecordSelection = React.createClass({
 
     var response = {};
 
-    var r1selectedFactors
-    if (!comparePrevious) {
+    // !doubleRecord && !comparePrevious:
+    // Set response.RecordNoOne
+
+    // doubleRecord && !comparePrevious:
+    // Set response.RecordNoOne and response.RecordNoTwo 
+
+    // doubleRecord && comparePrevious:
+    // Set response.UseDBRecordNoOne and response.RecordNoTwo
+
+    // !doubleRecord && comparePrevious:
+    // Not used
+
+    var r1selectedFactors, r2selectedFactors;
+    response.UseDBRecordNoOne = false;
+    response.UseDBRecordNoTwo = false;
+
+    if (!doubleRecord && !comparePrevious) {
       r1selectedFactors = this.getSelectedFactors("1");
+    } else if (doubleRecord && !comparePrevious) {
+      r1selectedFactors = this.getSelectedFactors("1");
+      r2selectedFactors = this.getSelectedFactors("2");
     } else {
       response.UseDBRecordNoOne = true;
+      r2selectedFactors = this.getSelectedFactors("2");      
     }
-    var r2selectedFactors
-    if (doubleRecord) {
-      r2selectedFactors = this.getSelectedFactors("2");
-    }
-    if (r1selectedFactors && (r1selectedFactors.length > 0)) {
-      response.RecordNoOne = r1selectedFactors;
-    }
-    if (r2selectedFactors && (r2selectedFactors.length > 0)) {
-      response.RecordNoTwo = r2selectedFactors;    
-    }
+
+    response.RecordNoOne = r1selectedFactors;
+    response.RecordNoTwo = r2selectedFactors;    
+
     var jsonResponse = JSON.stringify(response);
     user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
   },
@@ -408,7 +421,7 @@ var RecordSelection = React.createClass({
 
     var promptId = prompt.PromptId;
     var phaseId = user.getCurrentPhaseId();
-    var recordOneFactors = {}
+    var recordOneFactors, recordTwoFactors = null;
     if (!comparePrevious) {
       recordOneFactors = factors.map(
         function(factor, i) {
@@ -510,20 +523,15 @@ var FactorSelection = React.createClass({
     var levels = factor.Levels.map(
       function(level, i) {
         if (level == "_") {
-          return <td>&nbsp;</td>;
+          return <td key={i}>&nbsp;</td>;
         }
         return <FactorLevelSelection factor={factor} level={level} key={i} record={record} size={size}/>;        
       });
 
 
-    return <tbody>
-            <tr>
-              <td colSpan="3" className="factorNameRow">{factor.Text}</td>
-            </tr>
-            <tr>
-              {levels}
-            </tr>
-          </tbody>;
+    return  <tr>
+              <td colSpan="3" className="factorLevelRow"><label className="factorNameRow">{factor.Text}</label><table style={{width:'100%'}}><tbody><tr>{levels}</tr></tbody></table></td>
+            </tr>;
   }
 });
 
@@ -536,7 +544,7 @@ var FactorLevelSelection = React.createClass({
     var imgPath = "/img/"+level.ImgPath;
     var factorId = factor.FactorId+record;
 
-    return <td><label>
+    return <td style={{width:'33%'}}><label>
             <input type="radio" name={factorId} value={level.FactorLevelId}/><img src={imgPath}/><br/>{level.Text}</label></td>;
   }
 });
@@ -559,8 +567,8 @@ var RecordPerformance = React.createClass({
       var prompt = user.getPrompt();
       var promptId = prompt.PromptId;
       var phaseId = user.getCurrentPhaseId();
-      var record1 = user.getState().RecordNoOne;
-      var record2 = user.getState().RecordNoTwo;
+      var record1 = user.getState().RecordNoOne && user.getState().RecordNoOne.RecordNo ? user.getState().RecordNoOne:null;
+      var record2 = user.getState().RecordNoTwo && user.getState().RecordNoTwo.RecordNo ? user.getState().RecordNoTwo:null;
 
       var performance = function(r) {
         return !hidePerformance ? <p className="performance-level">Performance Level:
@@ -574,12 +582,19 @@ var RecordPerformance = React.createClass({
             var selectedf = r.FactorLevels[fid];
             var SelectedLevelName = selectedf.SelectedLevel;
 
+            var size = factor.Levels.length;
+            if (size == 2) {
+              factor.Levels[2]=factor.Levels[1];
+              factor.Levels[1]="_";
+            }
             var levels = factor.Levels.map(
               function(level, j) {
-                var imgPath = "/img/"+level.ImgPath;
-                if (level.Text == SelectedLevelName) {
-                  return <td key={j}><label>
-                      <img src={imgPath}/><br/>{level.Text}</label></td>;
+                if (level.ImgPath) {
+                  var imgPath = "/img/"+level.ImgPath;
+                  if (level.Text == SelectedLevelName) {
+                    return <td key={j}><label>
+                        <img src={imgPath}/><br/>{level.Text}</label></td>;
+                  }
                 }
                 return <td key={j}><label className="dimmed">
                       <img src={imgPath}/><br/>{level.Text}</label></td>;

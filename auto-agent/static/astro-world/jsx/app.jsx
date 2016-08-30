@@ -10,6 +10,7 @@ var App = React.createClass({
   },
 
   showAction: function() {
+    var self = this;
     var user = this.props.user;
     // In cases when the dialog is ongoing and no UI action is needed
     // No need to re-render the action frame. This allows the last 
@@ -17,6 +18,21 @@ var App = React.createClass({
     var action = user.getAction()
     if (action) {
       if (!this.state.actionReady && (action.UIActionModeId != UIACTION_INACTIVE)) {
+        switch (user.getCurrentPhaseId()) {
+        case PHASE_CHART:
+          if (!user.AllPerformanceRecords) {
+            var performanceRecordsPromise = user.loadAllPerformanceRecords();
+            performanceRecordsPromise.then(
+              function(){
+                self.state.actionReady = true;
+                self.setState(self.state)
+              },
+              function(error) {
+                console.error("Failed to all performance records!", error);
+              });
+            return;
+          }
+        }
         this.state.actionReady = true;
       }
     }

@@ -39,13 +39,13 @@ function User(name) {
   this.ContentFactors = [];
   this.State = {};
   this.ArchiveHistoryLength = 0;
+  // this.AllPerformanceRecords = {};
 }
 
 User.prototype = {
 
   loadAllUserData: function(renderCallback) {
-    var self = this;
-    var historyPromise = self.loadHistory();
+    var historyPromise = this.loadHistory();
 
     historyPromise.then(renderCallback, function(error) {
                                                console.error("Failed to load history!", error);
@@ -88,16 +88,23 @@ User.prototype = {
     return this.ArchiveHistoryLength;
   },
 
+  getAllPerformanceRecords: function() {
+    return this.AllPerformanceRecords;
+  },
+
   updateUser: function(j) {
-    var self = this;
-    self.Screenname = j.Screenname;
-    self.History = j.History;
-    self.CurrentUIPrompt = j.CurrentUIPrompt;
-    self.CurrentUIAction = j.CurrentUIAction;
-    self.CurrentPhaseId = j.CurrentPhaseId;
-    self.ContentFactors = j.ContentFactors;
-    self.State = j.State;
-    self.ArchiveHistoryLength = j.ArchiveHistoryLength;
+    this.Screenname = j.Screenname;
+    this.History = j.History;
+    this.CurrentUIPrompt = j.CurrentUIPrompt;
+    this.CurrentUIAction = j.CurrentUIAction;
+    this.CurrentPhaseId = j.CurrentPhaseId;
+    this.ContentFactors = j.ContentFactors;
+    this.State = j.State;
+    this.ArchiveHistoryLength = j.ArchiveHistoryLength;
+  },
+
+  updateAllPerformanceRecords: function(j) {
+    this.AllPerformanceRecords = j;
   },
 
   loadHistory: function() {
@@ -119,20 +126,39 @@ User.prototype = {
      return promise;
   },
 
+  loadAllPerformanceRecords: function() {
+    var self = this;
+    var promise = new Promise(function(resolve, reject) {
+      var recordsReq = new XMLHttpRequest();
+      recordsReq.onload = function() {
+        self.updateAllPerformanceRecords(JSON.parse(recordsReq.responseText));
+        resolve();
+      };
+      recordsReq.onerror = function() {
+        reject(Error("It broke"));
+      };
+      recordsReq.open('GET', 'records?user='+self.Username);
+      recordsReq.send(null);
+
+     });
+
+     return promise;
+  },
+
 
   //After submitting the response
   //Update user with new history etc.
   submitResponse: function(promptId, phaseId, jsonResponse, renderCallback) {
     var self = this;
     // var text = value;
-    var question = self.CurrentUIPrompt.Texts;
+    var question = this.CurrentUIPrompt.Texts;
     var jsonQuestion = JSON.stringify(question); // Turns the texts array into json
-    var phaseId = self.CurrentPhaseId;
-    var promptId = self.CurrentUIPrompt.PromptId;
+    var phaseId = this.CurrentPhaseId;
+    var promptId = this.CurrentUIPrompt.PromptId;
 
     var formData = new FormData();
 
-    formData.append("user", self.Username);
+    formData.append("user", this.Username);
     formData.append("questionText", jsonQuestion);
     formData.append("promptId", promptId);
     formData.append("phaseId", phaseId);
@@ -155,120 +181,6 @@ User.prototype = {
                                                console.error("Failed to submit a response!", error);
                                            });
   },
-
-  // passing in self because otherwise, the scope can be screwed up if
-  //     this is called from Promise
-  // loadUserChallengeData: function() {
-  //   var self = this;
-  //   var promise = new Promise(function(resolve, reject) {
-  //     var challengeReq = new XMLHttpRequest();
-  //     challengeReq.onload = function() {
-  //       //self.results = JSON.parse(challengeReq.responseText);
-  //       resolve(self);
-  //     };
-  //     challengeReq.onerror = function() {
-  //       reject(Error("It broke"));
-  //     };
-  //     challengeReq.open('GET', '/userchallenge/' + self.username + '/findallchallenges');
-  //     challengeReq.send(null);
-
-  //   });
-
-  //   return promise;
-  // },
-
-  // passing in self because otherwise, the scope can be screwed up if
-  //     this is called from Promise
-  // loadUserResultData: function() {
-  //   var self = this;
-  //   var promise = new Promise(function(resolve, reject) {
-  //     var resultsReq = new XMLHttpRequest();
-  //     resultsReq.onload = function() {
-  //       debugger;
-  //       self.results = JSON.parse(resultsReq.responseText);
-  //       resolve();
-  //     };
-  //     resultsReq.onerror = function() {
-  //       reject(Error("It broke"));
-  //     };
-  //     resultsReq.open('GET', '/usercart/' + self.username + '/findallcarts');
-  //     resultsReq.send(null);
-
-  //   });
-
-  //   return promise;
-  // },
-
-  // DELETE:Replaced by loadUserResultData using Promise
-  // getUserData: function(username, callback) {
-  //   var self = this;
-  //   var xhr = new XMLHttpRequest();
-  //   xhr.onload = function() {
-  //     self.results = JSON.parse(xhr.responseText);
-  //     callback();
-  //   };
-  //   xhr.open('GET', '/usercart/' + this.username + '/findallcarts');
-  //   xhr.send(null);
-  // },
-
-  // updateCart: function(result) {
-  //   if (this.oldCart == null) {
-  //     this.oldCart = result;
-  //     return;
-  //   }
-  //   var latestCart = this.oldCart;
-  //   if (this.newCart != null) {
-  //     latestCart = this.newCart;
-  //   }
-  //   var ivnames = variableModels.iVariables.map(function(iv) {
-  //     return iv.name;
-  //   });
-  //   for (var i = 0; i < ivnames.length; i++) {
-  //     if (result[ivnames[i]] != latestCart[ivnames[i]]) {
-  //       this.oldCart = latestCart;
-  //       this.newCart = result;
-  //       return;
-  //     }
-  //   }
-  // },
-
-  // addResult: function(result, renderCallback) {
-  //   var self = this;
-    
-  //   self.updateCart(result);
-
-  //   var addCartPromise = new Promise(function(resolve, reject) {
-  //     var xhr = new XMLHttpRequest();
-  //     xhr.onload = function() {
-  //       resolve(self);
-  //     };
-  //     xhr.error = function() {
-  //       reject();
-  //     }; 
-  //     xhr.open('POST', '/usercart/' + self.username + '/addcartdata');
-  //     xhr.setRequestHeader('Content-Type', 'application/json');
-  //     xhr.send(JSON.stringify(result));
-  //   });
-
-  //   var loadUserCartPromise = addCartPromise.then(function() {
-  //     self.loadUserResultData();
-  //   });
-
-  //   loadUserCartPromise.then(renderCallback);
-  // },
-
-  // enterChallenge: function(renderCallback) {
-  //   // if (!this.currentChallenge) {
-  //   //   // if the user data are empty, receive it
-  //   //   this.loadAllUserData(renderCallback);
-  //   // } else {
-  //     renderCallback();
-  //   // }
-  // }
-
-
-
-
 };
 
 

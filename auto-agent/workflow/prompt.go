@@ -95,6 +95,9 @@ func (cp *GenericPrompt) init(p PromptConfig, uiUserData *UIUserData) {
 	// in case if they have been overriden
 	cp.currentPrompt.initUIPrompt(uiUserData)
 	cp.currentPrompt.initUIAction()
+
+	// update UserData with latest prompt & Ui related members
+	uiUserData.initPrompt(cp.currentPrompt)
 }
 
 func (cp *GenericPrompt) initUIAction() {
@@ -153,14 +156,14 @@ func (cp *GenericPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
 	cp.currentUIPrompt.setOptions(options)
 }
 
-func (cp *GenericPrompt) initUIPromptDynamicText(UiUserData *UIUserData, r Response) {
+func (cp *GenericPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r Response) {
 	if cp.promptDynamicText == nil {
 		p := &UIPromptDynamicText{}
 		p.previousResponse = r
 		p.promptConfig = cp.promptConfig
 		// invoking the initialization methods in the "subclass"
 		// in case if they have been overriden
-		cp.currentPrompt.updateState(UiUserData)
+		cp.currentPrompt.updateState(uiUserData)
 		p.state = cp.state
 		cp.promptDynamicText = p
 	}

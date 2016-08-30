@@ -47,11 +47,6 @@ func makeAllUserData(u db.User, isNewLogin bool) *UserData {
 		ud.CurrentPrompt = MakePrompt(promptId, phaseId, ud.UiUserData)
 	}
 
-	// update UserData with latest prompt & Ui related members
-	ud.UiUserData.CurrentUIAction = ud.CurrentPrompt.GetUIAction()
-	ud.UiUserData.CurrentPhaseId = ud.CurrentPrompt.GetPhaseId()
-	ud.UiUserData.CurrentUIPrompt = ud.CurrentPrompt.GetUIPrompt()
-
 	return ud
 }
 

@@ -11,27 +11,36 @@ import (
 	"time"
 )
 
+// Currently hardcoded only 5 factors possible
+// TODO extend to allow more and maybe fix it at no more than 10
 type Record struct {
-	RecordNo     string
-	ID           string
-	Firstname    string
-	Lastname     string
-	FactorId0    string
-	FactorId1    string
-	FactorId2    string
-	FactorId3    string
-	FactorId4    string
-	FactorLevel0 string
-	FactorLevel1 string
-	FactorLevel2 string
-	FactorLevel3 string
-	FactorLevel4 string
-	OutcomeLevel string
+	RecordNo          string
+	ID                string
+	Firstname         string
+	Lastname          string
+	FactorId0         string
+	FactorId1         string
+	FactorId2         string
+	FactorId3         string
+	FactorId4         string
+	FactorLevel0      string
+	FactorLevel1      string
+	FactorLevel2      string
+	FactorLevel3      string
+	FactorLevel4      string
+	OutcomeLevel      string
+	OutcomeLevelOrder int
 }
 
 // RecordKey returns the key used for all records.
 func RecordKey(c appengine.Context, appname string) *datastore.Key {
 	return datastore.NewKey(c, "Records", appname, 0, nil)
+}
+
+func GetAllRecords(c appengine.Context) (records []Record, ks []*datastore.Key, err error) {
+	q := datastore.NewQuery("Record")
+	ks, err = q.GetAll(c, &records)
+	return
 }
 
 func GetRecord(c appengine.Context, factorLevels []string) (r Record, k *datastore.Key, err error) {

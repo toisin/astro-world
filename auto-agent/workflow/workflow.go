@@ -7,6 +7,8 @@ import (
 	"io"
 	"log"
 	"os"
+
+	"db"
 	// "strings"
 )
 
@@ -251,7 +253,47 @@ func GetFactorConfig(factorId string) Factor {
 	return factorConfigMap[factorId]
 }
 
-func CreateCovFactorState(factorId string, selectedLevelId string) FactorState {
+func CreateRecordStateFromDB(r db.Record) RecordState {
+	rs := RecordState{}
+	if r.RecordNo != "" {
+		rs.RecordName = r.Firstname + " " + r.Lastname
+		rs.FirstName = r.Firstname
+		rs.LastName = r.Lastname
+		rs.RecordNo = r.RecordNo
+		rs.Performance = r.OutcomeLevel
+		rs.PerformanceLevel = r.OutcomeLevelOrder
+		rs.FactorLevels = make(map[string]FactorState)
+
+		var factorId, selectedLevelId string
+		for i := 0; i < len(contentConfig.Factors); i++ {
+			switch i {
+			case 0:
+				factorId = r.FactorId0
+				selectedLevelId = r.FactorLevel0
+			case 1:
+				factorId = r.FactorId1
+				selectedLevelId = r.FactorLevel1
+			case 2:
+				factorId = r.FactorId2
+				selectedLevelId = r.FactorLevel2
+			case 3:
+				factorId = r.FactorId3
+				selectedLevelId = r.FactorLevel3
+			case 4:
+				factorId = r.FactorId4
+				selectedLevelId = r.FactorLevel4
+			}
+			rs.FactorLevels[factorId] = CreateSelectedLevelFactorState(factorId, selectedLevelId)
+		}
+	} else {
+		rs.RecordName = ""
+		rs.RecordNo = ""
+		rs.FactorLevels = make(map[string]FactorState)
+	}
+	return rs
+}
+
+func CreateSelectedLevelFactorState(factorId string, selectedLevelId string) FactorState {
 	f := GetFactorConfig(factorId)
 	allLevels := f.Levels
 	var selectedLevel string

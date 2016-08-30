@@ -30,6 +30,7 @@ func init() {
 	http.Handle(COV_STATIC, &StaticHandler{})
 	http.Handle(COV_REACT_STATIC, &StaticHandler{})
 	http.Handle(COV_HISTORY, &HistoryHandler{})
+	http.Handle(COV_RECORDS, &RecordsHandler{})
 	http.Handle(COV_NEWUSER, &NewUserHandler{})
 	http.Handle(COV_GETUSER, &GetUserHandler{})
 	http.Handle(COV_SENDRESPONSE, &ResponseHandler{})
@@ -63,6 +64,7 @@ const COV = "/astro-world/"
 const COV_STATIC = "/astro-world/js/"
 const COV_REACT_STATIC = "/astro-world/react-js/"
 const COV_HISTORY = "/astro-world/history"
+const COV_RECORDS = "/astro-world/records"
 const COV_NEWUSER = "/astro-world/newuser"
 const COV_GETUSER = "/astro-world/getuser"
 const COV_SENDRESPONSE = "/astro-world/sendresponse"
@@ -73,6 +75,7 @@ const CLEARUSERLOGS_REQUEST = "/astro-world/clearUserLogsDB"
 
 type GetHandler StaticHandler
 type HistoryHandler StaticHandler
+type RecordsHandler StaticHandler
 type ResponseHandler StaticHandler
 type NewUserHandler StaticHandler
 type GetUserHandler StaticHandler
@@ -199,6 +202,25 @@ func (covH *HistoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 		fmt.Fprint(os.Stderr, "Error: username not provided for getting history!\n\n")
 	}
+}
+
+func (covH *RecordsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+
+	records, _, err := db.GetAllRecords(c)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Getting All Records:"+err.Error()+"!\n\n")
+		log.Fatal(err)
+		return
+	}
+
+	ps := workflow.GetAllPerformanceRecords(records)
+
+	s, err := workflow.Stringify(ps)
+	if err != nil {
+		fmt.Println("Error converting messages to json", err)
+	}
+	fmt.Fprint(w, string(s[:]))
 }
 
 func (newuserH *NewUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -521,21 +543,23 @@ func ImportRecordsDB(c appengine.Context) {
 				factorLevels[i] = arecord[v]
 			}
 			outcomeLevel := arecord[outcomeColIndex]
+			outcomeLevelOrder := workflow.GetOutcomeLevelOrder(outcomeLevel)
 			records[ri] = db.Record{
-				RecordNo:     recordNo,
-				Firstname:    firstname,
-				Lastname:     lastname,
-				FactorId0:    factorIds[0],
-				FactorId1:    factorIds[1],
-				FactorId2:    factorIds[2],
-				FactorId3:    factorIds[3],
-				FactorId4:    factorIds[4],
-				FactorLevel0: factorLevels[0],
-				FactorLevel1: factorLevels[1],
-				FactorLevel2: factorLevels[2],
-				FactorLevel3: factorLevels[3],
-				FactorLevel4: factorLevels[4],
-				OutcomeLevel: outcomeLevel,
+				RecordNo:          recordNo,
+				Firstname:         firstname,
+				Lastname:          lastname,
+				FactorId0:         factorIds[0],
+				FactorId1:         factorIds[1],
+				FactorId2:         factorIds[2],
+				FactorId3:         factorIds[3],
+				FactorId4:         factorIds[4],
+				FactorLevel0:      factorLevels[0],
+				FactorLevel1:      factorLevels[1],
+				FactorLevel2:      factorLevels[2],
+				FactorLevel3:      factorLevels[3],
+				FactorLevel4:      factorLevels[4],
+				OutcomeLevel:      outcomeLevel,
+				OutcomeLevelOrder: outcomeLevelOrder,
 			}
 			keys[ri] = datastore.NewIncompleteKey(c, "Record", db.RecordKey(c, APP_NAME))
 			ri++
