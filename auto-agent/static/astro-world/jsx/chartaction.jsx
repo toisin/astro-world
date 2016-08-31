@@ -23,8 +23,10 @@ var ChartAction = React.createClass({
       switch (action.UIActionModeId) {
         case "NEW_TARGET_FACTOR":
           return  <ChartSelectTargetFactor user={user} onComplete={onComplete} app={app}/>;
-        case "ALL_RECORDS":
+        case "ALL_RECORDS_ALLOW_TOOLBOX":
           return  <Chart user={user} allowToolbox onComplete={onComplete} app={app}/>;
+        case "ALL_RECORDS":
+          return  <Chart user={user} onComplete={onComplete} app={app}/>;
         case "TARGET_FACTOR_RECORDS":
           return  <Chart user={user} showTargetFactorRecords onComplete={onComplete} app={app}/>;
         default:

@@ -6,9 +6,12 @@
 
 var MESSAGE_COUNT_LIMIT = 100;
 
-var DELAY_PROMPT_TIME_REALLY_SHORT = 500;
-var DELAY_PROMPT_TIME_SHORT = 1000;
-var DELAY_PROMPT_TIME_LONG = 5000;
+// var DELAY_PROMPT_TIME_REALLY_SHORT = 500;
+// var DELAY_PROMPT_TIME_SHORT = 1000;
+// var DELAY_PROMPT_TIME_LONG = 5000;
+var DELAY_PROMPT_TIME_REALLY_SHORT = 50;
+var DELAY_PROMPT_TIME_SHORT = 100;
+var DELAY_PROMPT_TIME_LONG = 500;
 var LONG_PROMPT_SIZE = 150;
 var REALLYSHORT_PROMPT_SIZE = 50;
 
@@ -36,7 +39,7 @@ function User(name) {
   this.CurrentPhaseId = "";
   this.CurrentUIPrompt = {};
   this.CurrentUIAction = {};
-  this.ContentFactors = [];
+  this.ContentFactors = {};
   this.State = {};
   this.ArchiveHistoryLength = 0;
   // this.AllPerformanceRecords = {};

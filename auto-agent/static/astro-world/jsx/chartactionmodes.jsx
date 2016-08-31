@@ -5,7 +5,8 @@
 // jsx -w -x jsx public/js public/js
 
 const rectSize = 8;
-const toolBoxSize = 100;
+const toolBoxSizeHeight = 200;
+const toolBoxSizeWidth = 250;
 const spacingFactor = 2.2;
 const rowHeight = 100;
 const elementsPerRow = 5;
@@ -67,10 +68,11 @@ var Chart = React.createClass({
       var targetFactorId;
       if (user.getState().TargetFactor) {
         targetFactorId = user.getState().TargetFactor.FactorId;
-        for (var i = 0; i < factors.length; i++) {
-          if (factors[i].FactorId == targetFactorId) {
-            for (var colIndex = 0; colIndex < factors[i].Levels.length; colIndex++) {
-              colFilters[colIndex] = targetFactorId + ":" + factors[i].Levels[colIndex].FactorLevelId;
+        var fkey = Object.keys(factors)
+        for (var i = 0; i < fkey.length; i++) {
+          if (factors[fkey[i]].FactorId == targetFactorId) {
+            for (var colIndex = 0; colIndex < factors[fkey[i]].Levels.length; colIndex++) {
+              colFilters[colIndex] = targetFactorId + ":" + factors[fkey[i]].Levels[colIndex].FactorLevelId;
             }
             break;
           }
@@ -90,7 +92,7 @@ var Chart = React.createClass({
       }
     }
     return  <div>
-              <Graph data={data} allowToolbox={this.props.allowToolbox} yTitle="Performance" xTitle="All" yLabels={performanceLabels}/>
+              <Graph user={user} colFilters={colFilters} data={data} allowToolbox={this.props.allowToolbox} yTitle="Performance" xTitle="All" yLabels={performanceLabels}/>
             </div>;
   }
 });
@@ -124,7 +126,7 @@ function Diamonds(props) {
     let x = i % ePerRow;
     diamonds.push(<Diamond x={x * size} y={y * size} allowToolbox={props.allowToolbox} onDiamondClick={props.onDiamondClick} col={props.col} grade={props.grade} rIndex={i} key={i}/>);
   }
-  return <g transform={`translate(${size / 2},${size / 2})`}>{diamonds}</g>;
+  return <g transform={`translate(${size / 2}, -${size / 2}) scale(1, -1)`}>{diamonds}</g>;
 }
 
 function Column(props) {
@@ -136,9 +138,9 @@ function Column(props) {
     ePerRow = elementsPerRow * 2;
   }
   const x = (colWidth - ePerRow * rectSize * spacingFactor) / 2;
-  return <g transform={`translate(${x},${props.rcount.length * rowHeight}) scale(1,-1)`}>{
+  return <g transform={`translate(${x},${0})`}>{
     props.rcount.map((count, i) =>
-      <g transform={`translate(0,${totalHeight - (i + 1) * rowHeight})`} key={i}>
+      <g transform={`translate(0,${(i+1) * rowHeight})`} key={i}>
         <Diamonds singleColumn={props.singleColumn} allowToolbox={props.allowToolbox} onDiamondClick={props.onDiamondClick} count={props.rcount[i]} col={props.col} grade={i}/>
       </g>)
     }</g>;
@@ -159,23 +161,34 @@ function Toolbox(props) {
   var x = props.toolboxIndex % ePerRow * size;
   var y = Math.floor(props.toolboxIndex / ePerRow) * size;
   var h = rectSize / 2;
-  
+
+  var allRecords = props.user.getAllPerformanceRecords()
+  var record = allRecords[props.toolboxGrade].Records[props.colFilters[props.toolboxCol]][props.toolboxIndex];
+
   var toggleToolbox = function(){
     props.onDiamondClick(props.toolboxCol, props.toolboxGrade, props.toolboxIndex, false)
   }
 
   return  <g transform={`translate(${props.toolboxCol * colWidth}, 0)`}>
-            <g transform={`translate(${colX},${rcount.length * rowHeight}) scale(1,-1)`}>
-              <g transform={`translate(0,${totalHeight - (props.toolboxGrade + 1) * rowHeight})`}>
-                <g transform={`translate(${size / 2},${size / 2})`}>
+            <g transform={`translate(${colX},0)`}>
+              <g transform={`translate(0,${(props.toolboxGrade+1) * rowHeight})`}>
+                <g transform={`translate(${size / 2}, -${size / 2}) scale(1, -1)`}>
                  <rect width={rectSize+2} height={rectSize+2}
                     transform={`translate(${x},${y}) rotate(45) translate(-${h},-${h})`}
                     style={{stroke: 'black', fill: 'darkgreen'}}/>
                 </g>
-                <g transform={`translate(${size * 2},${size / 2})`}>
-                  <rect onClick={toggleToolbox} width={toolBoxSize} height={toolBoxSize}
-                    transform={`translate(${x},${y}) translate(-${h*3},0)`}
+                <g transform={`translate(${size / 2}, -${size / 2}) scale(1, -1)`}>
+                  <rect onClick={toggleToolbox} width={toolBoxSizeWidth} height={toolBoxSizeHeight}
+                    transform={`translate(${x},${y}) translate(${h*3},0)`}
                     style={{stroke: 'white', fill: 'lightgrey'}}/>
+                  <g transform={`translate(${x + (toolBoxSizeWidth+h*3)/2}, ${y+columnLabelHeight}) scale(1, -1)`}>
+                    {
+                      Object.keys(record.FactorLevels).map((l, i) =>
+                        <text x={0} y={-columnLabelHeight*(i+1)} textAnchor='middle' className='axis-label' key={i}>{record.FactorLevels[l].FactorName}: {record.FactorLevels[l].SelectedLevel}</text>)
+                    }
+                    <text x={0} y={-columnLabelHeight*(Object.keys(record.FactorLevels).length+2)} textAnchor='middle' className='axis-title' key={Object.keys(record.FactorLevels).length}>Record #{record.RecordNo} {record.RecordName}</text>
+                    <text x={0} y={0} textAnchor='middle' className='axis-title' key={Object.keys(record.FactorLevels).length+1}>Performance: {record.Performance}</text>
+                  </g>
                 </g>
               </g>
             </g>
@@ -225,7 +238,7 @@ var Graph = React.createClass({
     if (col == this.state.toolboxCol &&
       grade == this.state.toolboxGrade &&
       index == this.state.toolboxIndex) {
-      this.state.showToolbox = this.state.showToolbox ? false : true;
+      this.state.showToolbox = false;
     } else {
       this.state.showToolbox = show;
     }
@@ -244,6 +257,7 @@ var Graph = React.createClass({
   render: function() {
     var props = this.props;
     var singleColumn = props.data.length > 1 ? false : true;
+    var drawingAreaH, drawingAreaW; 
     var colWidth = columnWidth;
     if (singleColumn) {
       colWidth = columnWidth * 2;
@@ -261,12 +275,20 @@ var Graph = React.createClass({
     var toolbox
     if (this.state.showToolbox) {
       var key = "k"+this.state.toolboxCol+":"+this.state.toolboxGrade+":"+this.state.toolboxIndex;
-      toolbox = <Toolbox singleColumn={singleColumn} onDiamondClick={this.toggleToolbox} toolboxCol={this.state.toolboxCol} toolboxGrade={this.state.toolboxGrade} toolboxIndex={this.state.toolboxIndex} data={props.data} key={key}/>
+      toolbox = <Toolbox user={props.user} colFilters={props.colFilters} singleColumn={singleColumn} onDiamondClick={this.toggleToolbox} toolboxCol={this.state.toolboxCol} toolboxGrade={this.state.toolboxGrade} toolboxIndex={this.state.toolboxIndex} data={props.data} key={key}/>
+    }
+
+    if (props.allowToolbox) {
+      drawingAreaW = "100%";
+      drawingAreaH = paddingBottom + props.yLabels.length * rowHeight + paddingTop;
+    } else {
+      drawingAreaW = paddingLeft + props.data.length * colWidth + paddingRight;
+      drawingAreaH = paddingBottom + props.yLabels.length * rowHeight + paddingTop;
     }
 
     return <svg className='graph'style={{
-        width: paddingLeft + props.data.length * colWidth + paddingRight,
-        height: paddingBottom + props.yLabels.length * rowHeight + paddingTop,
+        width: drawingAreaW,
+        height: drawingAreaH,
       }}>
       <g transform={`translate(${paddingLeft}, ${paddingTop})`}>
         {rowBackground}

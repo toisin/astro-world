@@ -113,14 +113,23 @@ var PriorBeliefFactors = React.createClass({
     var user = this.props.user;
     var prompt = user.getPrompt();
     var form = document.getElementById("covactionForm");
-    var selectedFactors = user.getContentFactors().map(
-      function(factor, i) {
+
+    var factorOrder = [];
+    var tempfactors = Object.keys(user.getContentFactors()).map(
+      function(fkey, i) {
+        var factor = user.getContentFactors()[fkey];
+        factorOrder[i] = factor.Order;
         var fid = form.elements[factor.FactorId];
         var f = {};
         f.FactorId = factor.FactorId;
         f.IsBeliefCausal = fid.value == "true" ? true : false;
         return f;
       });
+
+    var selectedFactors = [];
+    for (var i = 0; i < tempfactors.length; i++) {
+      selectedFactors[factorOrder[i]] = tempfactors[i];
+    }
     return selectedFactors;
   },
 
@@ -155,9 +164,12 @@ var PriorBeliefFactors = React.createClass({
     var promptId = prompt.PromptId;
     var phaseId = user.getCurrentPhaseId();
 
-    var factors = user.getContentFactors().map(
-      function(factor, i) {
+    var factorOrder = [];
+    var tempfactors = Object.keys(user.getContentFactors()).map(
+      function(fkey, i) {
+        var factor = user.getContentFactors()[fkey];
         var factorId = factor.FactorId;
+        factorOrder[i] = factor.Order;
 
         return <tr  key={i}>
                 <td className="factorNameFront">{factor.Text}</td>
@@ -170,6 +182,10 @@ var PriorBeliefFactors = React.createClass({
               </tr>;
       });
 
+    var factors = [];
+    for (var i = 0; i < tempfactors.length; i++) {
+      factors[factorOrder[i]] = tempfactors[i];
+    }
 
     return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
       <div className ="hbox">
@@ -223,8 +239,12 @@ var PriorBeliefLevels = React.createClass({
     var user = this.props.user;
     var prompt = user.getPrompt();
     var form = document.getElementById("covactionForm");
-    var selectedFactors = user.getContentFactors().map(
-      function(factor, i) {
+
+    var factorOrder = [];
+    var tempfactors = Object.keys(user.getContentFactors()).map(
+      function(fkey, i) {
+        var factor = user.getContentFactors()[fkey];
+        factorOrder[i] = factor.Order;
         var fid = form.elements[factor.FactorId];
         var f = {};
         f.FactorId = factor.FactorId;
@@ -232,6 +252,11 @@ var PriorBeliefLevels = React.createClass({
         f.IsBeliefCausal = factor.IsBeliefCausal;
         return f;
       });
+
+    var selectedFactors = [];
+    for (var i = 0; i < tempfactors.length; i++) {
+      selectedFactors[factorOrder[i]] = tempfactors[i];
+    }
     return selectedFactors;
   },
 
@@ -266,10 +291,13 @@ var PriorBeliefLevels = React.createClass({
     var promptId = prompt.PromptId;
     var phaseId = user.getCurrentPhaseId();
 
-    var factors = user.getContentFactors().map(
-      function(factor, i) {
+    var factorOrder = [];
+    var tempfactors = Object.keys(user.getContentFactors()).map(
+      function(fkey, i) {
+        var factor = user.getContentFactors()[fkey];
         if (factor.IsBeliefCausal) {
           var factorId = factor.FactorId;
+          factorOrder[i] = factor.Order;
 
           var levels = factor.Levels.map(
             function(level, j) {
@@ -284,6 +312,10 @@ var PriorBeliefLevels = React.createClass({
           return null;
         }
       });
+    var factors = [];
+    for (var i = 0; i < tempfactors.length; i++) {
+      factors[factorOrder[i]] = tempfactors[i];
+    }
 
     return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
       <div className ="hbox">
@@ -323,8 +355,12 @@ var RecordSelection = React.createClass({
     var user = this.props.user;
     var prompt = user.getPrompt();
     var form = document.getElementById("covactionForm");
-    var selectedFactors = user.getContentFactors().map(
-      function(factor, i) {
+
+    var factorOrder = [];
+    var tempfactors = Object.keys(user.getContentFactors()).map(
+      function(fkey, i) {
+        var factor = user.getContentFactors()[fkey];
+        factorOrder[i] = factor.Order;
         var fid = form.elements[factor.FactorId+record];
         if (fid) {
           var f = {};
@@ -333,6 +369,11 @@ var RecordSelection = React.createClass({
           return f;
         }
       });
+
+    var selectedFactors = [];
+    for (var i = 0; i < tempfactors.length; i++) {
+      selectedFactors[factorOrder[i]] = tempfactors[i];
+    }
     return selectedFactors;
   },
 
@@ -422,16 +463,30 @@ var RecordSelection = React.createClass({
     var promptId = prompt.PromptId;
     var phaseId = user.getCurrentPhaseId();
     var recordOneFactors, recordTwoFactors = null;
+    var factorOrder = [];
+
     if (!comparePrevious) {
-      recordOneFactors = factors.map(
-        function(factor, i) {
+      var tempfactors = Object.keys(factors).map(
+        function(fkey, i) {
+          var factor = factors[fkey];
+          factorOrder[i] = factor.Order;
           return <FactorSelection factor={factor} key={i} record="1"/>;
         });
+      recordOneFactors = [];
+      for (var i = 0; i < tempfactors.length; i++) {
+        recordOneFactors[factorOrder[i]] = tempfactors[i];
+      }
     }
-    var recordTwoFactors = factors.map(
-      function(factor, i) {
+    var tempfactors = Object.keys(factors).map(
+      function(fkey, i) {
+        var factor = factors[fkey];
+        factorOrder[i] = factor.Order;
         return <FactorSelection factor={factor} key={i} record="2"/>;
       });
+      recordTwoFactors = [];
+      for (var i = 0; i < tempfactors.length; i++) {
+        recordTwoFactors[factorOrder[i]] = tempfactors[i];
+      }
 
     if (!doubleRecord) {
       return <form id="covactionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
@@ -576,8 +631,11 @@ var RecordPerformance = React.createClass({
                   </p> : null;};
 
       var recordDetails = function(r) {
-        var factors = user.getContentFactors().map(
-          function(factor, i) {
+        var factorOrder = [];
+        var tempfactors = Object.keys(user.getContentFactors()).map(
+          function(fkey, i) {
+            var factor = user.getContentFactors()[fkey];
+            factorOrder[i] = factor.Order;
             var fid = factor.FactorId;
             var selectedf = r.FactorLevels[fid];
             var SelectedLevelName = selectedf.SelectedLevel;
@@ -605,6 +663,11 @@ var RecordPerformance = React.createClass({
                     {levels}
                   </tr>;
           });
+        var factors = [];
+        for (var i = 0; i < tempfactors.length; i++) {
+          factors[factorOrder[i]] = tempfactors[i];
+        }
+
         return r ? <div className="frame" key={r.RecordNo}>
                 <table className="record">
                   <tbody>

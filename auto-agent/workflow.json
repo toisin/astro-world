@@ -1339,7 +1339,7 @@
                   ],
                   "PromptType": "ENTER_TO_CONTINUE",
                   "ResponseType": "Basic",
-                    "UIActionModeId": "NO_UIACTION",
+                  "UIActionModeId": "NO_UIACTION",
                   "ExpectedResponses": {
                     "Values": [
                       {
@@ -1359,25 +1359,42 @@
                                 "NextPrompt": {
                                   "Id": "intro highlight one record",
                                   "Text": [
-                                    "Great. Now, let me show you one of the diamonds.",
-                                    "See here, Record #2. What is the performance level of Record #2?"
+                                    "Great. Now, let's look at the chart more closely. Can you click on one of the diamonds that has a B performance?"
                                   ],
-                                  "PromptType": "Text",
-                                  "ResponseType": "Basic",
-                                  "UIActionModeId": "ALL_RECORDS",
+                                  "PromptType": "NO_INPUT",
+                                  "ResponseType": "CHART_RECORD",
+                                  "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
                                   "ExpectedResponses": {
+                                    "StateTemplateRef": "{{.Record.Performance}}",
                                     "Values": [
                                       {
-                                        "Id": "c",
-                                        "Text": "C",
+                                        "Id": "b",
                                         "NextPrompt": {
-                                          "Id": "intro highlight one record education",
+                                          "Id": "intro highlight one record",
                                           "Text": [
-                                            "That's right. Just like all the cases you have looked at before. You can see the levels of this person's fitness, parents' health, and other factors. What is the education level of this applicant?"
+                                            "You got it. You selected Record #{{.Record.RecordNo}}. Just like all the cases you have looked at before. You can see the levels of this person's fitness, parents' health, and other factors. What is the education level of this applicant?"
                                           ],
                                           "PromptType": "Text",
-                                          "ResponseType": "COMPLETE",
-                                          "UIActionModeId": "ALL_RECORDS"
+                                          "ResponseType": "MC",
+                                          "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
+                                          "IsDynamicExpectedResponses": true,
+                                          "ExpectedResponses": {
+                                            "StateTemplateRef": "{{.Record.FactorLevels.education.SelectedLevel}}",
+                                            "Values": [
+                                              {
+                                                "Id": "MATCH_TEMPLATE_REF",
+                                                "NextPrompt": {
+                                                  "Id": "intro highlight one record education",
+                                                  "Text": [
+                                                    "That's right. Just like all the cases you have looked at before. You can see the levels of this person's fitness, parents' health, and other factors. What is the education level of this applicant?"
+                                                  ],
+                                                  "PromptType": "Text",
+                                                  "ResponseType": "COMPLETE",
+                                                  "UIActionModeId": "ALL_RECORDS"
+                                                }
+                                              }
+                                            ]
+                                          }
                                         }
                                       },
                                       {
@@ -1408,7 +1425,7 @@
           }
         }
       },
-      { 
+      {
         "RepeatOverContent": true,
         "FirstPrompt": {
           "Id": "Select target factor",
@@ -1430,10 +1447,10 @@
                   ],
                   "PromptType": "ENTER_TO_CONTINUE",
                   "ResponseType": "COMPLETE",
-                  "UIActionModeId": "TARGET_FACTOR_RECORDS"  
+                  "UIActionModeId": "TARGET_FACTOR_RECORDS"
                 }
               }
-              ]
+            ]
           }
         }
       }

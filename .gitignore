@@ -1,4 +1,5 @@
 *.pid
+*.DS_Store
 
 /auto-agent/static/astro-world/js/*
 /auto-agent/static/astro-world/js/.*

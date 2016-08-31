@@ -35,6 +35,7 @@ const (
 	RESPONSE_BASIC                = "Basic"
 	RESPONSE_END                  = "COMPLETE"
 	RESPONSE_RECORD               = "RECORD"
+	RESPONSE_CHART_RECORD         = "CHART_RECORD"
 	RESPONSE_MEMO                 = "MEMO"
 	RESPONSE_CAUSAL_CONCLUSION    = "CAUSAL_CONCLUSION"
 	RESPONSE_SELECT_TARGET_FACTOR = "SELECT_TARGET_FACTOR"
@@ -43,6 +44,7 @@ const (
 	RESPONSE_SYSTEM_GENERATED     = "SYSTEM_GENERATED" // For when a submit is triggered by the system
 
 	EXPECTED_CONTENT_FACTOR_REF = "CONTENT_FACTOR_REF"
+	EXPECTED_MATCH_TEMPLATE_REF = "MATCH_TEMPLATE_REF"
 	EXPECTED_ANY_RESPONSE       = "ANY_RESPONSE"
 
 	UIACTION_INACTIVE = "NO_UIACTION"
@@ -213,8 +215,8 @@ func GetFirstPhase() *PhaseConfig {
 
 func MakeFirstPrompt(uiUserData *UIUserData) Prompt {
 	// Hardcoding the first prompt is the first prompt of CovPrompt
-	// p := MakePrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.CovPhase.Id, uiUserData)
-	p := MakePrompt(appConfig.ChartPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.ChartPhase.Id, uiUserData)
+	p := MakePrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.CovPhase.Id, uiUserData)
+	// p := MakePrompt(appConfig.ChartPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.ChartPhase.Id, uiUserData)
 	return p
 }
 

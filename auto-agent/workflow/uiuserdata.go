@@ -16,7 +16,7 @@ type UIUserData struct {
 	CurrentUIPrompt      UIPrompt
 	CurrentUIAction      UIAction
 	State                StateEntities
-	ContentFactors       []*UIFactor
+	ContentFactors       map[string]*UIFactor
 	ArchiveHistoryLength int
 }
 
@@ -24,17 +24,18 @@ func (uiUserData *UIUserData) initPhase(pId string) {
 	if pId != "" && uiUserData.CurrentPhaseId != pId {
 		uiUserData.CurrentPhaseId = pId
 
-		uiUserData.ContentFactors = make([]*UIFactor, len(GetPhase(uiUserData.CurrentPhaseId).ContentRef.Factors))
+		uiUserData.ContentFactors = make(map[string]*UIFactor, len(GetPhase(uiUserData.CurrentPhaseId).ContentRef.Factors))
 		for i, v := range GetPhase(uiUserData.CurrentPhaseId).ContentRef.Factors {
 			f := GetFactorConfig(v.Id)
-			uiUserData.ContentFactors[i] = &UIFactor{
+			uiUserData.ContentFactors[f.Id] = &UIFactor{
 				FactorId: f.Id,
 				Text:     f.Name,
 				IsCausal: f.IsCausal,
+				Order:    i,
 			}
-			uiUserData.ContentFactors[i].Levels = make([]*UIFactorOption, len(f.Levels))
+			uiUserData.ContentFactors[f.Id].Levels = make([]*UIFactorOption, len(f.Levels))
 			for j := range f.Levels {
-				uiUserData.ContentFactors[i].Levels[j] = &UIFactorOption{
+				uiUserData.ContentFactors[f.Id].Levels[j] = &UIFactorOption{
 					FactorLevelId: f.Levels[j].Id,
 					Text:          f.Levels[j].Name,
 					ImgPath:       f.Levels[j].ImgPath,
@@ -246,6 +247,7 @@ type UIFactor struct {
 	IsBeliefCausal bool
 	BestLevelId    string
 	IsCausal       bool
+	Order          int
 }
 
 type UIFactorOption struct {
@@ -407,17 +409,15 @@ func GetAllPerformanceRecords(records []db.Record) []Performance {
 		for _, w := range r.FactorLevels {
 			if pData.Records[w.String()] == nil {
 				pData.Records[w.String()] = make([]RecordState, 40)
-			} else {
-				pData.Records[w.String()][counts[v.OutcomeLevelOrder][w.String()]] = r
-				counts[v.OutcomeLevelOrder][w.String()]++
 			}
+			pData.Records[w.String()][counts[v.OutcomeLevelOrder][w.String()]] = r
+			counts[v.OutcomeLevelOrder][w.String()]++
 		}
 		if pData.Records["all"] == nil {
 			pData.Records["all"] = make([]RecordState, 40)
-		} else {
-			pData.Records["all"][counts[v.OutcomeLevelOrder]["all"]] = r
-			counts[v.OutcomeLevelOrder]["all"]++
 		}
+		pData.Records["all"][counts[v.OutcomeLevelOrder]["all"]] = r
+		counts[v.OutcomeLevelOrder]["all"]++
 	}
 	for i := range pd {
 		// In the case when no records had a certain performance level
@@ -428,7 +428,7 @@ func GetAllPerformanceRecords(records []db.Record) []Performance {
 			pd[i].Records = make(map[string][]RecordState)
 		}
 		for k, _ := range pd[i].Records {
-			pd[i].Records[k] = pd[i].Records[k][0 : counts[i][k]+1]
+			pd[i].Records[k] = pd[i].Records[k][0:counts[i][k]]
 		}
 	}
 	return pd
