@@ -46,6 +46,8 @@ var Chart = React.createClass({
     var user = this.props.user;
     var app = this.props.app;
 
+    var recordsToShow = this.props.recordsToShow;
+
     var xTitle = "";
     var yLabels, xLabels = [];
     var performanceLabels = [{
@@ -111,7 +113,7 @@ var Chart = React.createClass({
       }
     }
     return  <div>
-              <Graph user={user} app={app} colFilters={colFilters} data={data} allowToolboxToggle={this.props.allowToolbox} yTitle="Performance" xTitle={xTitle} yLabels={performanceLabels}/>
+              <Graph singleColumn={this.props.singleColumn} user={user} app={app} colFilters={colFilters} data={data} allowToolboxToggle={this.props.allowToolbox} yTitle="Performance" xTitle={xTitle} yLabels={performanceLabels} recordsToShow={recordsToShow}/>
             </div>;
   }
 });
@@ -271,7 +273,7 @@ var Graph = React.createClass({
       this.state.toolboxGrade = grade;
       this.state.toolboxIndex = index;
 
-      var allRecords = this.props.user.getAllPerformanceRecords()
+      var allRecords = this.props.user.getAllPerformanceRecords();
       var record = allRecords[grade].Records[this.props.colFilters[col]][index];
 
       this.state.record = record;
@@ -300,13 +302,15 @@ var Graph = React.createClass({
 
   render: function() {
     var props = this.props;
-    var singleColumn = props.data.length > 1 ? false : true;
+//    var singleColumn = props.data.length > 1 ? false : true;
+    var singleColumn = props.singleColumn; // letting the parent element have more control
     var drawingAreaH, drawingAreaW; 
     var colWidth = columnWidth;
+    var showToolbox = this.state.showToolbox;
     if (singleColumn) {
       colWidth = columnWidth * 2;
     }
-    var allowToolboxToggle = props.allowToolboxToggle && !this.state.showToolbox;
+    var allowToolboxToggle = props.allowToolboxToggle && !showToolbox;
     const labels = props.data.map(v => v.label);
     const columns = props.data.map((v, i) => <g transform={`translate(${i * colWidth}, 0)`} key={i}>
       <Column singleColumn={singleColumn} onDiamondClick={this.toggleToolbox} allowToolboxToggle={allowToolboxToggle} rcount={v.rcount} col={i}/>
@@ -317,13 +321,35 @@ var Graph = React.createClass({
         fill={rowColors[i % rowColors.length]} key={i}/>
     });
 
-    var toolbox
-    if (this.state.showToolbox) {
+    var records
+    if (showToolbox) {
+      // This is when tool box was toggled on, which triggered a change of state
       var key = "k"+this.state.toolboxCol+":"+this.state.toolboxGrade+":"+this.state.toolboxIndex;
-      toolbox = <Toolbox user={props.user} colFilters={props.colFilters} singleColumn={singleColumn} onDiamondClick={this.toggleToolbox} toolboxCol={this.state.toolboxCol} toolboxGrade={this.state.toolboxGrade} toolboxIndex={this.state.toolboxIndex} data={props.data} record={this.state.record} key={key}/>
+      var toolbox = <Toolbox user={props.user} colFilters={props.colFilters} singleColumn={singleColumn} toolboxCol={this.state.toolboxCol} toolboxGrade={this.state.toolboxGrade} toolboxIndex={this.state.toolboxIndex} data={props.data} record={this.state.record} key={key}/>
+      records = [toolbox];
+    } else if (props.recordsToShow && props.recordsToShow.length > 0) {
+      showToolbox = true;
+      var allRecords = this.props.user.getAllPerformanceRecords();
+      // This is when the properties of the Graph says to draw showing two records explicitly
+      records = props.recordsToShow.map(function(r, i) {
+        for (var j=0; j < allRecords[r.grade].Records[r.filter].length; j++) {
+          var record = allRecords[r.grade].Records[r.filter][j];
+          if (r.no == record.RecordNo) {
+            var col
+            for (var jj=0; jj<props.colFilters.length; jj++) {
+              if (r.filter == props.colFilters[jj]) {
+                col = jj;
+                break
+              }
+            }
+            var key = "k"+r.filter+":"+r.grade+":"+j;
+            return <Toolbox user={props.user} colFilters={props.colFilters} singleColumn={singleColumn} toolboxCol={col} toolboxGrade={r.grade} toolboxIndex={j} data={props.data} record={record} key={key}/>
+          }
+        }
+      });
     }
 
-    if (this.state.showToolbox) {
+    if (showToolbox) {
       drawingAreaW = "100%";
       drawingAreaH = paddingBottom + props.yLabels.length * rowHeight + paddingTop;
     } else {
@@ -342,7 +368,7 @@ var Graph = React.createClass({
         <g transform={`translate(0,${props.data[0].rcount.length * rowHeight})`}>
           <XAxis labels={labels} title={props.xTitle} singleColumn={singleColumn}/>
         </g>
-        {toolbox}
+        {records}
       </g>
     </svg>;
   },

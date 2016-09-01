@@ -159,7 +159,7 @@
             "CheckStateTemplateRef": "{{.Beliefs.HasCausalFactors}}",
             "Values": [
               {
-                "Id": "false",
+                "Id": "ANY_RESPONSE",
                 "NextPromptRef": {
                   "Id": "end prior beliefs"
                 }
@@ -1371,6 +1371,86 @@
                                     "CheckStateTemplateRef": "{{.Record.Performance}}",
                                     "Values": [
                                       {
+                                        "Id": "ANY_RESPONSE",
+                                        "NextPrompt": {
+                                          "Id": "intro highlight one record y-axis",
+                                          "Text": [
+                                            "Ok, try looking to the left side of the chart, what performance level is this record on?"
+                                          ],
+                                          "PromptType": "MC",
+                                          "ResponseType": "Basic",
+                                          "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
+                                          "ExpectedResponses": {
+                                            "DynamicOptionsTemplateRef": {
+                                              "Ids": "[\"A\",\"B\",\"C\",\"D\",\"E\"]",
+                                              "Texts": "[\"A\",\"B\",\"C\",\"D\",\"E\"]"
+                                            },
+                                            "Values": [
+                                              {
+                                                "Id": "ANY_RESPONSE",
+                                                "NextPrompt": {
+                                                  "Id": "intro highlight one record explain",
+                                                  "Text": [
+                                                    "You selected Record #{{.Record.RecordNo}} with performance {{.Record.Performance}}. Just like all the cases you have looked at before. You can see the levels of this person's fitness, parents' health, and other factors. Can you tell me what the education level of this applicant is?"
+                                                  ],
+                                                  "PromptType": "MC",
+                                                  "ResponseType": "Basic",
+                                                  "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
+                                                  "ExpectedResponses": {
+                                                    "DynamicOptionsTemplateRef": {
+                                                      "Ids": "[{{range $i, $v := .ContentFactors.education.Levels}}{{if gt $i  0}},{{end}}\"{{$v.FactorLevelId}}\"{{end}}]",
+                                                      "Texts": "[{{range $i, $v := .ContentFactors.education.Levels}}{{if gt $i  0}},{{end}}\"{{$v.Text}}\"{{end}}]"
+                                                    },
+                                                    "Values": [
+                                                      {
+                                                        "Id": "ANY_RESPONSE",
+                                                        "NextPrompt": {
+                                                          "Id": "intro highlight one record explain everything",
+                                                          "Text": [
+                                                            "Record #{{.Record.RecordNo}} with performance {{.Record.Performance}} has {{.Record.FactorLevels.education.SelectedLevel}} for Education. What did you see this person's level of Fitness is?"
+                                                          ],
+                                                          "PromptType": "Text",
+                                                          "ResponseType": "Basic",
+                                                          "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
+                                                          "ExpectedResponses": {
+                                                            "Values": [
+                                                              {
+                                                                "Id": "ANY_RESPONSE",
+                                                                "NextPromptRef": {
+                                                                  "Id": "intro fitness only"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "Id": "selected level",
+                                                        "IdValueTemplateRef": [
+                                                          "{{.Record.FactorLevels.education.SelectedLevelId}}"
+                                                        ],
+                                                        "NextPromptRef": {
+                                                          "Id": "intro fitness only"
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "Id": "selected performance",
+                                                "IdValueTemplateRef": [
+                                                  "{{.Record.Performance}}"
+                                                ],
+                                                "NextPromptRef": {
+                                                  "Id": "intro highlight one record"
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      },
+                                      {
                                         "Id": "b",
                                         "NextPrompt": {
                                           "Id": "intro highlight one record",
@@ -1387,6 +1467,51 @@
                                             },
                                             "Values": [
                                               {
+                                                "Id": "ANY_RESPONSE",
+                                                "NextPrompt": {
+                                                  "Id": "intro highlight one record education wrong",
+                                                  "Text": [
+                                                    "Seems like you are having trouble finding the information. Let's try a different one."
+                                                  ],
+                                                  "PromptType":"STRAIGHT_THROUGH",
+                                                  "ResponseType":"Basic",
+                                                  "UIActionModeId": "ALL_RECORDS",
+                                                  "ExpectedResponses": {
+                                                    "CheckStateTemplateRef": "{{.Record.Performance}}",
+                                                    "Values": [
+                                                      {
+                                                        "Id": "ANY_RESPONSE",
+                                                        "NextPrompt": {
+                                                          "Id": "intro highlight one record try another record",
+                                                          "Text": ["Can you click on one of the diamonds that has a C performance?"],
+                                                          "PromptType": "NO_INPUT",
+                                                          "ResponseType": "CHART_RECORD",
+                                                          "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
+                                                          "ExpectedResponses": {
+                                                            "CheckStateTemplateRef": "{{.Record.Performance}}",
+                                                            "Values": [
+                                                              {
+                                                                "Id": "ANY_RESPONSE",
+                                                                "NextPromptRef": {
+                                                                  "Id": "intro highlight one record y-axis"
+                                                                }
+                                                              },
+                                                              {
+                                                                "Id": "c",
+                                                                "NextPromptRef": {
+                                                                  "Id": "intro highlight one record"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                          
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              },
+                                              {
                                                 "Id": "selected level",
                                                 "IdValueTemplateRef": [
                                                   "{{.Record.FactorLevels.education.SelectedLevelId}}"
@@ -1401,6 +1526,28 @@
                                                   "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
                                                   "ExpectedResponses": {
                                                     "Values": [
+                                                      {
+                                                        "Id": "ANY_RESPONSE",
+                                                        "NextPrompt": {
+                                                          "Id": "intro fitness only average wrong",
+                                                          "Text": [
+                                                            "Look at the bottom of the chart. What level of fitness does it say?"
+                                                          ],
+                                                          "PromptType": "Text",
+                                                          "ResponseType": "Basic",
+                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
+                                                          "ExpectedResponses": {
+                                                            "Values": [
+                                                              {
+                                                                "Id": "ANY_RESPONSE",
+                                                                "NextPromptRef": {
+                                                                  "Id": "intro fitness only why diff performance"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
                                                       {
                                                         "Id": "average",
                                                         "IdValueTemplateRef": [
@@ -1430,33 +1577,55 @@
                                                                 "NextPrompt": {
                                                                   "Id": "intro fitness only explain diff performance",
                                                                   "Text": [
-                                                                    "Good. Because may be other things are also making a difference."
+                                                                    "Good. Because may be other things are also making a difference. Let's make sure we understand what's going on here.",
+                                                                    "Take a look at the two records shown here. What are their fitness levels?"
                                                                   ],
-                                                                  "PromptType": "ENTER_TO_CONTINUE",
+                                                                  "PromptType": "Text",
                                                                   "ResponseType": "COMPLETE",
-                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS"
+                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS"
                                                                 }
-                                                              }
-                                                            ]
-                                                          }
-                                                        }
-                                                      },
-                                                      {
-                                                        "Id": "ANY_RESPONSE",
-                                                        "NextPrompt": {
-                                                          "Id": "intro fitness only average wrong",
-                                                          "Text": [
-                                                            "Look at the bottom of the chart. What level of fitness does it say?"
-                                                          ],
-                                                          "PromptType": "Text",
-                                                          "ResponseType": "Basic",
-                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
-                                                          "ExpectedResponses": {
-                                                            "Values": [
+                                                              },
                                                               {
-                                                                "Id": "ANY_RESPONSE",
-                                                                "NextPromptRef": {
-                                                                  "Id": "intro fitness only why diff performance"
+                                                                "Id": "NOT_SURE_RESPONSE",
+                                                                "IdValueTemplateRef": [
+                                                                  "not sure",
+                                                                  "don't know",
+                                                                  "dont know",
+                                                                  "dnt know",
+                                                                  "hmm",
+                                                                  "do not know"
+                                                                ],
+                                                                "IdNotValueTemplateRef": [
+                                                                  "maybe",
+                                                                  "may be",
+                                                                  "think",
+                                                                  "could be",
+                                                                  "it is",
+                                                                  "other",
+                                                                  "factor",
+                                                                  "factors",
+                                                                  "education",
+                                                                  "health",
+                                                                  "climate"
+                                                                ],
+                                                                "NextPrompt": {
+                                                                  "Id": "intro fitness only why again diff performance",
+                                                                  "Text": [
+                                                                    "Seems like you are not sure? That's ok. So we know that they all have average fitness but that they still have different performance. What could be the reason why these people have different performance?"
+                                                                  ],
+                                                                  "PromptType": "Text",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPromptRef": {
+                                                                          "Id": "intro fitness only explain diff performance"
+                                                                        }
+                                                                      }
+                                                                      ]
+                                                                  }
                                                                 }
                                                               }
                                                             ]
@@ -1479,131 +1648,6 @@
                                                                 "Id": "ANY_RESPONSE",
                                                                 "NextPromptRef": {
                                                                   "Id": "intro fitness only why diff performance"
-                                                                }
-                                                              }
-                                                            ]
-                                                          }
-                                                        }
-                                                      }
-                                                    ]
-                                                  }
-                                                }
-                                              },
-                                              {
-                                                "Id": "ANY_RESPONSE",
-                                                "NextPrompt": {
-                                                  "Id": "intro highlight one record education wrong",
-                                                  "Text": [
-                                                    "Seems like you are having trouble finding the information. Let's try a different one."
-                                                  ],
-                                                  "PromptType":"STRAIGHT_THROUGH",
-                                                  "ResponseType":"Basic",
-                                                  "UIActionModeId": "ALL_RECORDS",
-                                                  "ExpectedResponses": {
-                                                    "CheckStateTemplateRef": "{{.Record.Performance}}",
-                                                    "Values": [
-                                                      {
-                                                        "Id": "ANY_RESPONSE",
-                                                        "NextPrompt": {
-                                                          "Id": "intro highlight one record try another record",
-                                                          "Text": ["Can you click on one of the diamonds that has a C performance?"],
-                                                          "PromptType": "NO_INPUT",
-                                                          "ResponseType": "CHART_RECORD",
-                                                          "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
-                                                          "ExpectedResponses": {
-                                                            "CheckStateTemplateRef": "{{.Record.Performance}}",
-                                                            "Values": [
-                                                              {
-                                                                "Id": "c",
-                                                                "NextPromptRef": {
-                                                                  "Id": "intro highlight one record"
-                                                                }
-                                                              },
-                                                              {
-                                                                "Id": "ANY_RESPONSE",
-                                                                "NextPromptRef": {
-                                                                  "Id": "intro highlight one record y-axis"
-                                                                }
-                                                              }
-                                                            ]
-                                                          }
-                                                          
-                                                        }
-                                                      }
-                                                    ]
-                                                  }
-                                                }
-                                              }
-                                            ]
-                                          }
-                                        }
-                                      },
-                                      {
-                                        "Id": "ANY_RESPONSE",
-                                        "NextPrompt": {
-                                          "Id": "intro highlight one record y-axis",
-                                          "Text": [
-                                            "Ok, try looking to the left side of the chart, what performance level is this record on?"
-                                          ],
-                                          "PromptType": "MC",
-                                          "ResponseType": "Basic",
-                                          "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
-                                          "ExpectedResponses": {
-                                            "DynamicOptionsTemplateRef": {
-                                              "Ids": "[\"A\",\"B\",\"C\",\"D\",\"E\"]",
-                                              "Texts": "[\"A\",\"B\",\"C\",\"D\",\"E\"]"
-                                            },
-                                            "Values": [
-                                              {
-                                                "Id": "selected performance",
-                                                "IdValueTemplateRef": [
-                                                  "{{.Record.Performance}}"
-                                                ],
-                                                "NextPromptRef": {
-                                                  "Id": "intro highlight one record"
-                                                }
-                                              },
-                                              {
-                                                "Id": "ANY_RESPONSE",
-                                                "NextPrompt": {
-                                                  "Id": "intro highlight one record explain",
-                                                  "Text": [
-                                                    "You selected Record #{{.Record.RecordNo}} with performance {{.Record.Performance}}. Just like all the cases you have looked at before. You can see the levels of this person's fitness, parents' health, and other factors. Can you tell me what the education level of this applicant is?"
-                                                  ],
-                                                  "PromptType": "MC",
-                                                  "ResponseType": "Basic",
-                                                  "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
-                                                  "ExpectedResponses": {
-                                                    "DynamicOptionsTemplateRef": {
-                                                      "Ids": "[{{range $i, $v := .ContentFactors.education.Levels}}{{if gt $i  0}},{{end}}\"{{$v.FactorLevelId}}\"{{end}}]",
-                                                      "Texts": "[{{range $i, $v := .ContentFactors.education.Levels}}{{if gt $i  0}},{{end}}\"{{$v.Text}}\"{{end}}]"
-                                                    },
-                                                    "Values": [
-                                                      {
-                                                        "Id": "selected level",
-                                                        "IdValueTemplateRef": [
-                                                          "{{.Record.FactorLevels.education.SelectedLevelId}}"
-                                                        ],
-                                                        "NextPromptRef": {
-                                                          "Id": "intro fitness only"
-                                                        }
-                                                      },
-                                                      {
-                                                        "Id": "ANY_RESPONSE",
-                                                        "NextPrompt": {
-                                                          "Id": "intro highlight one record explain everything",
-                                                          "Text": [
-                                                            "Record #{{.Record.RecordNo}} with performance {{.Record.Performance}} has {{.Record.FactorLevels.education.SelectedLevel}} for Education. What did you see this person's level of Fitness is?"
-                                                          ],
-                                                          "PromptType": "Text",
-                                                          "ResponseType": "Basic",
-                                                          "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
-                                                          "ExpectedResponses": {
-                                                            "Values": [
-                                                              {
-                                                                "Id": "ANY_RESPONSE",
-                                                                "NextPromptRef": {
-                                                                  "Id": "intro fitness only"
                                                                 }
                                                               }
                                                             ]

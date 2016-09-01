@@ -47,6 +47,7 @@ const (
 	EXPECTED_MATCH_TEMPLATE_REF = "MATCH_TEMPLATE_REF"
 	EXPECTED_ANY_RESPONSE       = "ANY_RESPONSE"
 	EXPECTED_UNCLEAR_RESPONSE   = "UNCLEAR_RESPONSE"
+	EXPECTED_NOT_SURE_RESPONSE  = "NOT_SURE_RESPONSE" // This is currently used in the json but not checked by the server
 
 	UIACTION_INACTIVE = "NO_UIACTION"
 	// ***TODO MUST FIX!!! server cannot be shut down when json is mulformed
