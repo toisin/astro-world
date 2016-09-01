@@ -11,7 +11,7 @@ DisplayText[MSG_ROBOT] = 'Researcher';
 
 var Dialog = React.createClass({
   getInitialState: function() {
-    var state = {mode: 0}
+    var state = {mode: 0, UIAction:""}
     var user = this.props.user;
     var history = user.getHistory() ? user.getHistory() : {};
     state.isNewUser = history.length == 0;
@@ -21,7 +21,12 @@ var Dialog = React.createClass({
 
   changeState: function() {
     var app = this.props.app;
-    app.changeState();
+    if (this.props.user.getAction().UIActionModeId != this.state.UIAction) {
+      this.state.UIAction = this.props.user.getAction().UIActionModeId;
+      app.changeState();
+    } else {
+      this.setState(this.state);
+    }
   },
 
   showAction: function() {

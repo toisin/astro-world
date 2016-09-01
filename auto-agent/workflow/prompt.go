@@ -109,7 +109,7 @@ func (cp *GenericPrompt) initUIAction() {
 
 func (cp *GenericPrompt) initUIPrompt(uiUserData *UIUserData) {
 	pc := cp.promptConfig
-	if !pc.IsDynamicExpectedResponses {
+	if pc.ExpectedResponses.DynamicOptionsTemplateRef.Ids == "" {
 		cp.currentUIPrompt = NewUIBasicPrompt()
 		cp.currentUIPrompt.setPromptType(pc.PromptType)
 		// invoking the initialization methods in the "subclass"
@@ -130,6 +130,12 @@ func (cp *GenericPrompt) initUIPrompt(uiUserData *UIUserData) {
 	}
 }
 
+// Expects DynamicOptionsTemplateRef attribute to be set in workflow.json
+// .Ids & .Texts each is a template string that are expected to resolve to a string array
+// e.g. The template string may resolve to: ["education", "fitness"] which is
+//      in a json format of a string array
+// If the template string contain no template code, as long as the format complies,
+// it is still a valid value for .Ids & .Texts
 func (cp *GenericPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
 	pc := cp.promptConfig
 	cp.currentUIPrompt = NewUIBasicPrompt()
@@ -142,16 +148,34 @@ func (cp *GenericPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
 	}
 	cp.currentUIPrompt.setId(pc.Id)
 
+	var optionIds, optionTexts []string
+
+	// If DynamicOptionsTemplateRef is provided, evaluate it by applying
+	// StateEntities to get the list of options
+	text := pc.ExpectedResponses.DynamicOptionsTemplateRef.Ids
+	t := template.Must(template.New("dynamicOptions").Parse(text))
+	var doc1, doc2 bytes.Buffer
+	err := t.Execute(&doc1, uiUserData.State)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error executing expectedResponses template: %s\n\n", err)
+		log.Println("executing expectedResponses template:", err)
+	}
+	unstringify(doc1.Bytes(), &optionIds)
+
+	text = pc.ExpectedResponses.DynamicOptionsTemplateRef.Texts
+	t = template.Must(template.New("dynamicOptions").Parse(text))
+	err = t.Execute(&doc2, uiUserData.State)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error executing expectedResponses template: %s\n\n", err)
+		log.Println("executing expectedResponses template:", err)
+	}
+	unstringify(doc2.Bytes(), &optionTexts)
+
 	options := []*UIOption{}
-	for i := range pc.ExpectedResponses.Values {
-		switch pc.ExpectedResponses.Values[i].Id {
-		case EXPECTED_CONTENT_FACTOR_REF:
-			for _, v := range uiUserData.State.GetRemainingFactorIds() {
-				options = append(options, &UIOption{v, GetFactorConfig(v).Name})
-			}
-		default:
-			options = append(options, &UIOption{pc.ExpectedResponses.Values[i].Id, pc.ExpectedResponses.Values[i].Text})
-		}
+	for i, v := range optionIds {
+		options = append(options, &UIOption{v, optionTexts[i]})
 	}
 	cp.currentUIPrompt.setOptions(options)
 }
@@ -302,14 +326,14 @@ func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserDat
 
 }
 
-func (cp *GenericPrompt) makeExpectedResponseHandler(p PromptConfig) ExpectedResponseHandler {
+func (cp *GenericPrompt) makeExpectedResponseHandler(pc PromptConfig) ExpectedResponseHandler {
 	var erh ExpectedResponseHandler
-	if p.IsDynamicExpectedResponses {
-		erh = &DynamicExpectedResponseHandler{}
-	} else {
+	if pc.ExpectedResponses.DynamicOptionsTemplateRef.Ids == "" {
 		erh = &StaticExpectedResponseHandler{}
+	} else {
+		erh = &DynamicExpectedResponseHandler{}
 	}
-	erh.init(p)
+	erh.init(pc)
 	return erh
 }
 
@@ -319,8 +343,9 @@ type Response interface {
 }
 
 type StaticExpectedResponseHandler struct {
-	expectedResponseMap map[string]*PromptConfigRef
-	currentPromptConfig PromptConfig
+	expectedResponseMap      map[string]*PromptConfigRef
+	expectedValueTemplateMap map[string][]string
+	currentPromptConfig      PromptConfig
 }
 
 type DynamicExpectedResponseHandler struct {
@@ -342,6 +367,7 @@ func (derh *DynamicExpectedResponseHandler) init(p PromptConfig) {
 
 func (erh *StaticExpectedResponseHandler) init(p PromptConfig) {
 	erh.expectedResponseMap = make(map[string]*PromptConfigRef)
+	erh.expectedValueTemplateMap = make(map[string][]string)
 	erh.currentPromptConfig = p
 
 	ecs := p.ExpectedResponses.Values
@@ -363,6 +389,9 @@ func (erh *StaticExpectedResponseHandler) init(p PromptConfig) {
 				phaseId = v.NextPrompt.PhaseId
 			}
 		}
+		if v.IdValueTemplateRef != nil && len(v.IdValueTemplateRef) > 0 {
+			erh.expectedValueTemplateMap[strings.ToLower(v.Id)] = v.IdValueTemplateRef
+		}
 		erh.expectedResponseMap[strings.ToLower(v.Id)] = &PromptConfigRef{Id: promptId, PhaseId: phaseId}
 	}
 }
@@ -370,7 +399,7 @@ func (erh *StaticExpectedResponseHandler) init(p PromptConfig) {
 // Return the next prompt that maps to the expected response
 // If there is only one expected response, return that one regardless of the response id
 func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserData *UIUserData) Prompt {
-	var rid string
+	var rid string // The string value to be used to determine what the next prompt is
 	var p *PromptConfigRef
 	currentPhaseId := uiUserData.CurrentPhaseId
 
@@ -383,34 +412,69 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 		// If there are more than one expected responses, find the appropriate
 		// next prompt based on the current response
 
-		if erh.currentPromptConfig.ExpectedResponses.StateTemplateRef != "" {
-			// If StateTemplateRef is provided, evaluate it by applying
-			// StateEntities to find the matching expected response
-			text := erh.currentPromptConfig.ExpectedResponses.StateTemplateRef
+		// Determine whether to use the current Response or the State object
+		// to determine what the next prompt is
+		if erh.currentPromptConfig.ExpectedResponses.CheckStateTemplateRef != "" {
+			// If CheckStateTemplateRef is provided, evaluate it by applying
+			// StateEntities to find the matching expected response.
+			// Use this value instead of the most recent response to determine
+			// the next prompt.
+			// This allows the logic for next prompt to be based on the current state
+			// regardless of what the most recent response was.
+			text := erh.currentPromptConfig.ExpectedResponses.CheckStateTemplateRef
 			t := template.Must(template.New("expectedResponses").Parse(text))
 			var doc bytes.Buffer
 			err := t.Execute(&doc, uiUserData.State)
 
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error executing expectedResponses template: %s\n\n", err)
-				log.Println("executing expectedResponses template:", err)
+				fmt.Fprintf(os.Stderr, "Error executing expectedResponses CheckStateTemplateRef template: %s\n\n", err)
+				log.Println("executing expectedResponses CheckStateTemplateRef template:", err)
 			}
 			rid = doc.String()
 		} else {
-			// If StateTemplateRef is not provided, use the response id directly
+			// If CheckStateTemplateRef is not provided, use the response id directly
 			// to find the matching expected response
 			rid = r.GetResponseId()
 		}
+
+		// Match rid with the list of values that maps to the next prompt
+
 		p = erh.expectedResponseMap[strings.ToLower(rid)]
 
+		// If there are no matching value, resolve the template strings
+		// in the IdValueTemplateRef attribute with the dynamic value
+		// and see if there is a match there
+		if p == nil {
+			for k, v := range erh.expectedValueTemplateMap {
+				for _, dv := range v {
+
+					t := template.Must(template.New("dynamicValue").Parse(dv))
+					var doc bytes.Buffer
+					err := t.Execute(&doc, uiUserData.State)
+
+					if err != nil {
+						fmt.Fprintf(os.Stderr, "Error executing expectedResponses IdValueTemplateRef template: %s\n\n", err)
+						log.Println("executing expectedResponses IdValueTemplateRef template:", err)
+					}
+					valueRef := doc.String()
+
+					if strings.ToLower(valueRef) == strings.ToLower(rid) {
+						p = erh.expectedResponseMap[strings.ToLower(k)]
+						break
+					}
+				}
+			}
+		}
+
+		// If there are no matching value, use ANY_RESPONSE if exists
 		if p == nil {
 			p = erh.expectedResponseMap[strings.ToLower(EXPECTED_ANY_RESPONSE)]
 		}
 	}
 
 	if p == nil {
-		fmt.Fprintf(os.Stderr, "Error generating next prompt for response: %s\n\n", r)
-		log.Fatalf("Error generating next prompt for response: %s\n\n", r)
+		fmt.Fprintf(os.Stderr, "No next prompt configured. Error generating next prompt for response: %s\n\n", r)
+		log.Fatalf("o next prompt configured. Error generating next prompt for response: %s\n\n", r)
 		return nil
 	}
 	// TODO - Not the cleanest way to do this
@@ -446,7 +510,7 @@ type UIPromptDynamicText struct {
 	state            StateEntities
 }
 
-func (ps *UIPromptDynamicText) String() []string {
+func (ps UIPromptDynamicText) String() []string {
 	display := make([]string, len(ps.promptConfig.Text))
 	for i, v := range ps.promptConfig.Text {
 		t := template.Must(template.New("display").Parse(v))

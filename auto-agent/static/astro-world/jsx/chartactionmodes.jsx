@@ -17,6 +17,15 @@ const paddingBottom = 50;
 const paddingTop = 20;
 const paddingRight = 20;
 const rowColors = ['transparent', 'rgba(0,0,0,0.05)'];
+const noFilterTitle = "All";
+
+// Key for a list of performance records
+// This must match what are passed through user.getAllPerformanceRecords()
+// Example format of key
+// fitness:average
+const noFilterKey = "all"; // Key for all records
+
+// Example format of data
 // const data = [{
 //   label: 'Average',
 //   rcount: [5, 7, 3, 28, 1]
@@ -36,7 +45,9 @@ var Chart = React.createClass({
     var state = this.state;
     var user = this.props.user;
     var app = this.props.app;
-    var yLabels = [];
+
+    var xTitle = "";
+    var yLabels, xLabels = [];
     var performanceLabels = [{
                               grade: 'A',
                               label: 'A (very well)'
@@ -61,9 +72,11 @@ var Chart = React.createClass({
     var pRecords = user.getAllPerformanceRecords();
 
     var colFilters = [];
-    if (!this.props.showTargetFactorRecords) {
-      colFilters = ["all"];
-    } else {
+    if (this.props.filterRecords && this.props.filterRecords.length > 0) {
+      colFilters = this.props.filterRecords;
+      xTitle = this.props.filterFactorName;
+      xLabels = this.props.filterLevels;
+    } else if (this.props.showTargetFactorRecords) {
       var factors = user.getContentFactors();
       var targetFactorId;
       if (user.getState().TargetFactor) {
@@ -73,15 +86,21 @@ var Chart = React.createClass({
           if (factors[fkey[i]].FactorId == targetFactorId) {
             for (var colIndex = 0; colIndex < factors[fkey[i]].Levels.length; colIndex++) {
               colFilters[colIndex] = targetFactorId + ":" + factors[fkey[i]].Levels[colIndex].FactorLevelId;
+              xLabels[colIndex] = factors[fkey[i]].Levels[colIndex].Text;
             }
+            xTitle = TargetFactor.FactorName;
             break;
           }
         }
       }
+    } else {
+      colFilters = ["all"];
+      xTitle = noFilterTitle;
     }
+
     for (var colIndex = 0; colIndex < colFilters.length; colIndex++) {
       data[colIndex] = { label: '', rcount: [] };
-      data[colIndex].label = colFilters[colIndex];
+      data[colIndex].label = xLabels[colIndex];
       for (var gindex = 0; gindex < pRecords.length; gindex++) {
         if (pRecords[gindex].Records[colFilters[colIndex]]) {
           data[colIndex].rcount[gindex] = pRecords[gindex].Records[colFilters[colIndex]].length;
@@ -92,7 +111,7 @@ var Chart = React.createClass({
       }
     }
     return  <div>
-              <Graph user={user} colFilters={colFilters} data={data} allowToolbox={this.props.allowToolbox} yTitle="Performance" xTitle="All" yLabels={performanceLabels}/>
+              <Graph user={user} app={app} colFilters={colFilters} data={data} allowToolbox={this.props.allowToolbox} yTitle="Performance" xTitle={xTitle} yLabels={performanceLabels}/>
             </div>;
   }
 });
@@ -148,6 +167,7 @@ function Column(props) {
 
 function Toolbox(props) {
   var rcount = props.data[props.toolboxCol].rcount
+  var record = props.record
   var totalHeight = rcount.length * rowHeight
   var colWidth = columnWidth;
   var ePerRow = elementsPerRow;
@@ -161,9 +181,6 @@ function Toolbox(props) {
   var x = props.toolboxIndex % ePerRow * size;
   var y = Math.floor(props.toolboxIndex / ePerRow) * size;
   var h = rectSize / 2;
-
-  var allRecords = props.user.getAllPerformanceRecords()
-  var record = allRecords[props.toolboxGrade].Records[props.colFilters[props.toolboxCol]][props.toolboxIndex];
 
   var toggleToolbox = function(){
     props.onDiamondClick(props.toolboxCol, props.toolboxGrade, props.toolboxIndex, false)
@@ -231,7 +248,7 @@ function YAxis(props) {
 var Graph = React.createClass({
 
   getInitialState: function() {
-    return {mode: 0, showToolbox: false, toolboxCol: -1, toolboxGrade: -1, toolboxIndex: -1};
+    return {mode: 0, showToolbox: false, toolboxCol: -1, toolboxGrade: -1, toolboxIndex: -1, record:null};
   },
 
   toggleToolbox: function(col, grade, index, show) {
@@ -246,12 +263,38 @@ var Graph = React.createClass({
       this.state.toolboxCol = -1;
       this.state.toolboxGrade = -1;
       this.state.toolboxIndex = -1;
+      this.state.record = null;
+      this.setState(this.state);
     } else {
       this.state.toolboxCol = col;
       this.state.toolboxGrade = grade;
       this.state.toolboxIndex = index;
+
+      var allRecords = this.props.user.getAllPerformanceRecords()
+      var record = allRecords[grade].Records[this.props.colFilters[col]][index];
+
+      this.state.record = record;
+      var self = this;
+      var onComplete = function() {
+        self.setState(self.state);
+        self.props.app.refreshDialog();
+      };
+      this.submitRecordSelect(onComplete);
     }
-    this.setState(this.state);
+  },
+
+  submitRecordSelect: function(onComplete) {
+    var user = this.props.user;
+    var prompt = user.getPrompt();
+    var promptId = prompt.PromptId;
+    var phaseId = user.getCurrentPhaseId()
+
+    var response = {};
+
+    response.RecordNo = this.state.record.RecordNo;
+
+    var jsonResponse = JSON.stringify(response);
+    user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
   },
 
   render: function() {
@@ -275,7 +318,7 @@ var Graph = React.createClass({
     var toolbox
     if (this.state.showToolbox) {
       var key = "k"+this.state.toolboxCol+":"+this.state.toolboxGrade+":"+this.state.toolboxIndex;
-      toolbox = <Toolbox user={props.user} colFilters={props.colFilters} singleColumn={singleColumn} onDiamondClick={this.toggleToolbox} toolboxCol={this.state.toolboxCol} toolboxGrade={this.state.toolboxGrade} toolboxIndex={this.state.toolboxIndex} data={props.data} key={key}/>
+      toolbox = <Toolbox user={props.user} colFilters={props.colFilters} singleColumn={singleColumn} onDiamondClick={this.toggleToolbox} toolboxCol={this.state.toolboxCol} toolboxGrade={this.state.toolboxGrade} toolboxIndex={this.state.toolboxIndex} data={props.data} record={this.state.record} key={key}/>
     }
 
     if (props.allowToolbox) {

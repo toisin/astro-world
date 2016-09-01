@@ -310,6 +310,7 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 	}
 	if cp.state == nil {
 		cps := &CovPhaseState{}
+
 		cps.initContents(appConfig.CovPhase.ContentRef.Factors)
 		cp.state = cps
 		cp.state.setPhaseId(appConfig.CovPhase.Id)
@@ -325,4 +326,8 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 		}
 	}
 	uiUserData.State = cp.state
+
+	// TODO - There is an order dependency here because assume
+	// uiUserData.ContentFactors is initialized. Ugly for should work for now
+	uiUserData.State.SetContentFactorsPointer(&uiUserData.ContentFactors)
 }

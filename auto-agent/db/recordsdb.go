@@ -78,3 +78,23 @@ func GetRecord(c appengine.Context, factorLevels []string) (r Record, k *datasto
 	k = ks[i]
 	return
 }
+
+func GetRecordByRecordNo(c appengine.Context, recordNo string) (r Record, k *datastore.Key, err error) {
+
+	q := datastore.NewQuery("Record")
+	q = q.Filter("RecordNo=", recordNo)
+
+	var records []Record
+	// To retrieve the results,
+	// you must execute the Query using its GetAll or Run methods.
+	ks, err := q.GetAll(c, &records)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Getting Record:"+err.Error()+"!\n\n")
+		return
+	}
+
+	// There should not be more than one record
+	r = records[0]
+	k = ks[0]
+	return
+}

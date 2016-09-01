@@ -22,13 +22,15 @@ var ChartAction = React.createClass({
     if (action) {
       switch (action.UIActionModeId) {
         case "NEW_TARGET_FACTOR":
-          return  <ChartSelectTargetFactor user={user} onComplete={onComplete} app={app}/>;
+          return  <ChartSelectTargetFactor user={user} onComplete={onComplete} app={app} key={"NEW_TARGET_FACTOR"}/>;
         case "ALL_RECORDS_ALLOW_TOOLBOX":
-          return  <Chart user={user} allowToolbox onComplete={onComplete} app={app}/>;
+          return  <Chart user={user} allowToolbox onComplete={onComplete} app={app} key={"ALL_RECORDS_ALLOW_TOOLBOX"}/>;
+        case "FITNESS_AVERAGE_RECORDS":
+          return  <Chart user={user} filterFactorName={"Fitness"} filterLevels={["Average"]} filterRecords={["fitness:average"]} onComplete={onComplete} app={app} key={"FITNESS_AVERAGE_RECORDS"}/>;
         case "ALL_RECORDS":
-          return  <Chart user={user} onComplete={onComplete} app={app}/>;
+          return  <Chart user={user} onComplete={onComplete} app={app} key={"ALL_RECORDS"}/>;
         case "TARGET_FACTOR_RECORDS":
-          return  <Chart user={user} showTargetFactorRecords onComplete={onComplete} app={app}/>;
+          return  <Chart user={user} showTargetFactorRecords onComplete={onComplete} app={app} key={"TARGET_FACTOR_RECORDS"}/>;
         default:
           return <div></div>;
       }

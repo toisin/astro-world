@@ -19,20 +19,20 @@ type ChartPrompt struct {
 	*GenericPrompt
 }
 
-func MakeChartPrompt(p PromptConfig, UiUserData *UIUserData) *ChartPrompt {
+func MakeChartPrompt(p PromptConfig, uiUserData *UIUserData) *ChartPrompt {
 	var n *ChartPrompt
 	n = &ChartPrompt{}
 	n.GenericPrompt = &GenericPrompt{}
 	n.GenericPrompt.currentPrompt = n
-	n.init(p, UiUserData)
+	n.init(p, uiUserData)
 	return n
 }
 
-func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, UiUserData *UIUserData, c appengine.Context) {
+func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
 	if cp.promptConfig.ResponseType == RESPONSE_END {
 		// Sequence has ended. Update remaining factors
-		UiUserData.State.(*ChartPhaseState).updateRemainingFactors()
-		cp.nextPrompt = cp.generateFirstPromptInNextSequence(UiUserData)
+		uiUserData.State.(*ChartPhaseState).updateRemainingFactors()
+		cp.nextPrompt = cp.generateFirstPromptInNextSequence(uiUserData)
 	} else if r != "" {
 		dec := json.NewDecoder(strings.NewReader(r))
 		pc := cp.promptConfig
@@ -60,7 +60,7 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, UiUserData *UIUserD
 					fmt.Fprint(os.Stderr, "DB Error Adding Memo:"+err.Error()+"!\n\n")
 					return
 				}
-				cp.updateMemo(UiUserData, memoResponse)
+				cp.updateMemo(uiUserData, memoResponse)
 				cp.response = &memoResponse
 			}
 			break
@@ -74,10 +74,25 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, UiUserData *UIUserD
 					log.Fatal(err)
 					return
 				}
-				UiUserData.CurrentFactorId = response.Id
-				u.CurrentFactorId = UiUserData.CurrentFactorId
-				cp.updateStateCurrentFactor(UiUserData, UiUserData.CurrentFactorId)
+				uiUserData.CurrentFactorId = response.Id
+				u.CurrentFactorId = uiUserData.CurrentFactorId
+				cp.updateStateCurrentFactor(uiUserData, uiUserData.CurrentFactorId)
 				cp.response = &response
+			}
+			break
+		case RESPONSE_CHART_RECORD:
+			for {
+				var recordResponse UIChartRecordSelectResponse
+				if err := dec.Decode(&recordResponse); err == io.EOF {
+					break
+				} else if err != nil {
+					fmt.Fprintf(os.Stderr, "%s", err)
+					log.Fatal(err)
+					return
+				}
+				cp.checkRecord(&recordResponse, c)
+				cp.updateStateRecord(uiUserData, recordResponse)
+				cp.response = &recordResponse
 			}
 			break
 		case RESPONSE_CAUSAL_CONCLUSION:
@@ -90,7 +105,7 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, UiUserData *UIUserD
 					log.Fatal(err)
 					return
 				}
-				cp.updateStateCurrentFactorCausal(UiUserData, response.GetResponseId())
+				cp.updateStateCurrentFactorCausal(uiUserData, response.GetResponseId())
 				cp.response = &response
 			}
 			break
@@ -108,16 +123,45 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, UiUserData *UIUserD
 			}
 		}
 		if cp.response != nil {
-			cp.nextPrompt = cp.expectedResponseHandler.generateNextPrompt(cp.response, UiUserData)
+			cp.nextPrompt = cp.expectedResponseHandler.generateNextPrompt(cp.response, uiUserData)
 		}
 	}
 }
 
-func (cp *ChartPrompt) updateState(UiUserData *UIUserData) {
-	if UiUserData.State != nil {
-		// if UiUserData already have a cp state, use that and update it
-		if UiUserData.State.GetPhaseId() == appConfig.ChartPhase.Id {
-			cp.state = UiUserData.State.(*ChartPhaseState)
+func (cp *ChartPrompt) checkRecord(rsr *UIChartRecordSelectResponse, c appengine.Context) {
+	if rsr.RecordNo != "" {
+		record, _, err := db.GetRecordByRecordNo(c, rsr.RecordNo)
+		if err != nil {
+			fmt.Fprint(os.Stderr, "DB Error Getting A Record with Record #:"+rsr.RecordNo+" "+err.Error()+"!\n\n")
+			log.Fatal(err)
+			return
+		}
+		rsr.dbRecord = record
+	}
+}
+
+// This method should only update record select
+// Unless if no existing state, than create new one, otherwise, only
+// update record select
+func (cp *ChartPrompt) updateStateRecord(uiUserData *UIUserData, r UIChartRecordSelectResponse) {
+	cp.updateState(uiUserData)
+	if cp.state != nil {
+		s := cp.state.(*ChartPhaseState)
+		if r.RecordNo != "" {
+			s.Record = CreateRecordStateFromDB(r.dbRecord)
+		} else {
+			s.Record = RecordState{}
+		}
+		cp.state = s
+	}
+	uiUserData.State = cp.state
+}
+
+func (cp *ChartPrompt) updateState(uiUserData *UIUserData) {
+	if uiUserData.State != nil {
+		// if uiUserData already have a cp state, use that and update it
+		if uiUserData.State.GetPhaseId() == appConfig.ChartPhase.Id {
+			cp.state = uiUserData.State.(*ChartPhaseState)
 		}
 	}
 	if cp.state == nil {
@@ -125,9 +169,9 @@ func (cp *ChartPrompt) updateState(UiUserData *UIUserData) {
 		cps.initContents(appConfig.ChartPhase.ContentRef.Factors)
 		cp.state = cps
 		cp.state.setPhaseId(appConfig.ChartPhase.Id)
-		cp.state.setUsername(UiUserData.Username)
-		cp.state.setScreenname(UiUserData.Screenname)
-		fid := UiUserData.CurrentFactorId
+		cp.state.setUsername(uiUserData.Username)
+		cp.state.setScreenname(uiUserData.Screenname)
+		fid := uiUserData.CurrentFactorId
 		if fid != "" {
 			cp.state.setTargetFactor(
 				FactorState{
@@ -136,5 +180,9 @@ func (cp *ChartPrompt) updateState(UiUserData *UIUserData) {
 					IsCausal:   factorConfigMap[fid].IsCausal})
 		}
 	}
-	UiUserData.State = cp.state
+	uiUserData.State = cp.state
+
+	// TODO - There is an order dependency here because assume
+	// uiUserData.ContentFactors is initialized. Ugly for should work for now
+	uiUserData.State.SetContentFactorsPointer(&uiUserData.ContentFactors)
 }

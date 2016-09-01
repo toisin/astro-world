@@ -56,31 +56,37 @@ type StateEntities interface {
 	setUsername(string)
 	setScreenname(string)
 	setTargetFactor(FactorState)
-	setRemainingFactorIds([]string)
+	setRemainingFactors([]UIFactor)
 	setBeliefs(BeliefsState)
 	setLastMemo(UIMemoResponse)
 	GetPhaseId() string
 	GetBeliefs() BeliefsState
 	isContentCompleted() bool
 	GetTargetFactor() FactorState
-	GetRemainingFactorIds() []string
+	GetRemainingFactors() []UIFactor
 	GetLastMemo() UIMemoResponse
+	SetContentFactorsPointer(*map[string]*UIFactor)
 }
 
 type GenericState struct {
-	PhaseId            string
-	Username           string
-	Screenname         string
-	TargetFactor       FactorState
-	RemainingFactorIds []string
-	Beliefs            BeliefsState
-	LastMemo           UIMemoResponse
+	PhaseId          string
+	Username         string
+	Screenname       string
+	TargetFactor     FactorState
+	RemainingFactors []UIFactor
+	Beliefs          BeliefsState
+	LastMemo         UIMemoResponse
+	ContentFactors   *map[string]*UIFactor // Using a pointer here in case if things change in UiUserData
 }
 
 type BeliefsState struct {
 	HasCausalFactors         bool
 	CausalFactors            []string
 	HasMultipleCausalFactors bool
+}
+
+func (c *GenericState) SetContentFactorsPointer(p *map[string]*UIFactor) {
+	c.ContentFactors = p
 }
 
 func (c *GenericState) GetPhaseId() string {
@@ -101,8 +107,8 @@ func (c *GenericState) GetTargetFactor() FactorState {
 }
 
 // Not applicable to all phases
-func (c *GenericState) GetRemainingFactorIds() []string {
-	return c.RemainingFactorIds
+func (c *GenericState) GetRemainingFactors() []UIFactor {
+	return c.RemainingFactors
 }
 
 func (c *GenericState) setPhaseId(s string) {
@@ -123,8 +129,8 @@ func (c *GenericState) setTargetFactor(t FactorState) {
 }
 
 // Not applicable to all phases
-func (c *GenericState) setRemainingFactorIds(ss []string) {
-	c.RemainingFactorIds = ss
+func (c *GenericState) setRemainingFactors(ss []UIFactor) {
+	c.RemainingFactors = ss
 }
 
 func (c *GenericState) setBeliefs(s BeliefsState) {
@@ -136,7 +142,7 @@ func (c *GenericState) setLastMemo(s UIMemoResponse) {
 }
 
 func (cp *GenericState) isContentCompleted() bool {
-	if len(cp.RemainingFactorIds) > 0 {
+	if len(cp.RemainingFactors) > 0 {
 		return false
 	}
 	return true
@@ -145,24 +151,20 @@ func (cp *GenericState) isContentCompleted() bool {
 // Not applicable to all phases
 func (c *GenericState) updateRemainingFactors() {
 	factorId := c.TargetFactor.FactorId
-	if c.RemainingFactorIds != nil {
-		for i, v := range c.RemainingFactorIds {
-			if v == factorId {
-				c.RemainingFactorIds = append(c.RemainingFactorIds[:i], c.RemainingFactorIds[i+1:]...)
+	if c.RemainingFactors != nil {
+		for i, v := range c.RemainingFactors {
+			if v.FactorId == factorId {
+				c.RemainingFactors = append(c.RemainingFactors[:i], c.RemainingFactors[i+1:]...)
 				break
 			}
 		}
 	}
 }
 
-// Not applicable to all phases
-func (c *GenericState) getRemainingFactorIds() []string {
-	return c.RemainingFactorIds
-}
-
 // Implements workflow.StateEntities
 type ChartPhaseState struct {
 	GenericState
+	Record RecordState
 }
 
 func (c *ChartPhaseState) GetPhaseId() string {
@@ -170,9 +172,13 @@ func (c *ChartPhaseState) GetPhaseId() string {
 }
 
 func (c *ChartPhaseState) initContents(factors []Factor) {
-	c.RemainingFactorIds = make([]string, len(factors))
+	c.RemainingFactors = make([]UIFactor, len(factors))
 	for i, v := range factors {
-		c.RemainingFactorIds[i] = v.Id
+		// Lazy initialization RemainingFactors do not need
+		// all the details
+		c.RemainingFactors[i] = UIFactor{
+			FactorId: v.Id,
+			Text:     v.Name}
 	}
 }
 
@@ -192,9 +198,13 @@ func (c *CovPhaseState) GetPhaseId() string {
 }
 
 func (c *CovPhaseState) initContents(factors []Factor) {
-	c.RemainingFactorIds = make([]string, len(factors))
+	c.RemainingFactors = make([]UIFactor, len(factors))
 	for i, v := range factors {
-		c.RemainingFactorIds[i] = v.Id
+		// Lazy initialization RemainingFactors do not need
+		// all the details
+		c.RemainingFactors[i] = UIFactor{
+			FactorId: v.Id,
+			Text:     v.Name}
 	}
 }
 
@@ -231,7 +241,7 @@ type FactorState struct {
 	HasConclusion    bool
 }
 
-func (fs *FactorState) String() string {
+func (fs FactorState) String() string {
 	s := fs.FactorId + ":" + fs.SelectedLevelId
 	return s
 }
@@ -239,7 +249,8 @@ func (fs *FactorState) String() string {
 // For jsx to reference all factors
 // configured for the particular phase
 // in the workflow.json
-// (Used by UIUserData.ContentFactors)
+// (Used by UIUserData.ContentFactors &
+//  Partially used by GenericState.ReaminingFactors -- only Text & FactorId are initialized)
 type UIFactor struct {
 	FactorId       string
 	Text           string
@@ -254,6 +265,10 @@ type UIFactorOption struct {
 	FactorLevelId string
 	Text          string
 	ImgPath       string
+}
+
+func (o UIFactorOption) String() string {
+	return o.Text
 }
 
 func MakeUIUserData(u db.User) *UIUserData {
@@ -275,6 +290,11 @@ func MakeUIUserData(u db.User) *UIUserData {
 
 	uiUserData.initPhase(uiUserData.CurrentPhaseId)
 
+	if uiUserData.ContentFactors != nil {
+		// TODO - There is an order dependency here because uiUserData.ContentFactors
+		// is intialized in initPhase. Ugly for should work for now
+		uiUserData.State.SetContentFactorsPointer(&uiUserData.ContentFactors)
+	}
 	return uiUserData
 }
 
@@ -316,6 +336,24 @@ func (rsr *UIRecordsSelectResponse) GetResponseText() string {
 
 func (rsr *UIRecordsSelectResponse) GetResponseId() string {
 	return rsr.Id
+}
+
+type UIChartRecordSelectResponse struct {
+	RecordNo string
+	dbRecord db.Record
+}
+
+func (rsr *UIChartRecordSelectResponse) GetResponseText() string {
+	responseText := ""
+	if rsr.RecordNo != "" {
+		responseText = "Record #" + rsr.RecordNo
+	}
+
+	return responseText
+}
+
+func (rsr *UIChartRecordSelectResponse) GetResponseId() string {
+	return rsr.RecordNo
 }
 
 // For Prior belief screen UI jsx

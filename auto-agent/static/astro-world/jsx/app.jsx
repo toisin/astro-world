@@ -39,6 +39,10 @@ var App = React.createClass({
     this.setState(this.state);
   },
 
+  refreshDialog: function() {
+    this.setState(this.state);
+  },
+
   changeState: function() {
     this.setState({mode: 0, actionReady: false});
   },

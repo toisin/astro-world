@@ -104,27 +104,33 @@ type Sequence struct {
 }
 
 type PromptConfig struct {
-	Id                         string // Id must be unique within the phase
-	PhaseId                    string
-	Text                       []string
-	UIActionModeId             string
-	PromptType                 string
-	ResponseType               string
-	ExpectedResponses          ExpectedResponseConfig
-	IsDynamicExpectedResponses bool
-	sequenceOrder              int
+	Id                string // Id must be unique within the phase
+	PhaseId           string
+	Text              []string
+	UIActionModeId    string
+	PromptType        string
+	ResponseType      string
+	ExpectedResponses ExpectedResponseConfig
+	sequenceOrder     int
 }
 
 type ExpectedResponseConfig struct {
-	StateTemplateRef string // If StateTemplateRef is empty, treat value as is
-	Values           []ExpectedResponseValue
+	DynamicOptionsTemplateRef DynamicOptionsConfig
+	CheckStateTemplateRef     string // If CheckStateTemplateRef is empty, treat value as is
+	Values                    []ExpectedResponseValue
+}
+
+type DynamicOptionsConfig struct {
+	Ids   string
+	Texts string
 }
 
 type ExpectedResponseValue struct {
-	Id            string
-	Text          string
-	NextPrompt    PromptConfig
-	NextPromptRef PromptConfigRef
+	Id                 string
+	IdValueTemplateRef []string
+	Text               string
+	NextPrompt         PromptConfig
+	NextPromptRef      PromptConfigRef
 }
 
 type PromptConfigRef struct {
@@ -179,6 +185,9 @@ func InitWorkflow() {
 		contentConfig = appConfig.Content
 	}
 	populateFactorConfigMap(&contentConfig)
+
+	populateContentRef(&appConfig.CovPhase.ContentRef)
+	populateContentRef(&appConfig.ChartPhase.ContentRef)
 }
 
 func populatePromptConfigMap(pc *PromptConfig, phaseId string, sequenceOrder int) {
@@ -209,14 +218,21 @@ func populateFactorConfigMap(cf *ContentConfig) {
 	}
 }
 
+// Assume that only ids were there before this is call
+func populateContentRef(cf *ContentConfig) {
+	for i := range cf.Factors {
+		cf.Factors[i] = factorConfigMap[cf.Factors[i].Id]
+	}
+}
+
 func GetFirstPhase() *PhaseConfig {
 	return &appConfig.CovPhase
 }
 
 func MakeFirstPrompt(uiUserData *UIUserData) Prompt {
 	// Hardcoding the first prompt is the first prompt of CovPrompt
-	p := MakePrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.CovPhase.Id, uiUserData)
-	// p := MakePrompt(appConfig.ChartPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.ChartPhase.Id, uiUserData)
+	// p := MakePrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.CovPhase.Id, uiUserData)
+	p := MakePrompt(appConfig.ChartPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.ChartPhase.Id, uiUserData)
 	return p
 }
 
