@@ -52,12 +52,12 @@
           },
           {
             "Name": "Some College",
-            "Id": "some college",
+            "Id": "somecollege",
             "ImgPath": "some college.jpg"
           },
           {
             "Name": "No College",
-            "Id": "no college",
+            "Id": "nocollege",
             "ImgPath": "no college.jpg"
           }
         ]
@@ -1404,12 +1404,16 @@
                                                       {
                                                         "Id": "average",
                                                         "IdValueTemplateRef": [
+                                                          "avrage",
                                                           "average",
                                                           "avg",
                                                           "It's average",
                                                           "it is average",
                                                           "the level is average",
                                                           "They all have average fitness."
+                                                        ],
+                                                        "IdNotValueTemplateRef": [
+                                                          "excellent"
                                                         ],
                                                         "NextPrompt": {
                                                           "Id": "intro fitness only why diff performance",
@@ -1458,6 +1462,28 @@
                                                             ]
                                                           }
                                                         }
+                                                      },
+                                                      {
+                                                        "Id": "UNCLEAR_RESPONSE",
+                                                        "NextPrompt": {
+                                                          "Id": "intro fitness only average unclear",
+                                                          "Text": [
+                                                            "I am not really sure what you mean. Look at the bottom of the chart. What level of fitness does it say? You may also want to check your spelling."
+                                                          ],
+                                                          "PromptType": "Text",
+                                                          "ResponseType": "Basic",
+                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
+                                                          "ExpectedResponses": {
+                                                            "Values": [
+                                                              {
+                                                                "Id": "ANY_RESPONSE",
+                                                                "NextPromptRef": {
+                                                                  "Id": "intro fitness only why diff performance"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
                                                       }
                                                     ]
                                                   }
@@ -1468,24 +1494,40 @@
                                                 "NextPrompt": {
                                                   "Id": "intro highlight one record education wrong",
                                                   "Text": [
-                                                    "Seems like you are having trouble finding the information. Let's try a different one. Can you click on one of the diamonds that has a C performance?"
+                                                    "Seems like you are having trouble finding the information. Let's try a different one."
                                                   ],
-                                                  "PromptType": "NO_INPUT",
-                                                  "ResponseType": "CHART_RECORD",
-                                                  "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
+                                                  "PromptType":"STRAIGHT_THROUGH",
+                                                  "ResponseType":"Basic",
+                                                  "UIActionModeId": "ALL_RECORDS",
                                                   "ExpectedResponses": {
                                                     "CheckStateTemplateRef": "{{.Record.Performance}}",
                                                     "Values": [
                                                       {
-                                                        "Id": "c",
-                                                        "NextPromptRef": {
-                                                          "Id": "intro highlight one record"
-                                                        }
-                                                      },
-                                                      {
                                                         "Id": "ANY_RESPONSE",
-                                                        "NextPromptRef": {
-                                                          "Id": "intro highlight one record y-axis"
+                                                        "NextPrompt": {
+                                                          "Id": "intro highlight one record try another record",
+                                                          "Text": ["Can you click on one of the diamonds that has a C performance?"],
+                                                          "PromptType": "NO_INPUT",
+                                                          "ResponseType": "CHART_RECORD",
+                                                          "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
+                                                          "ExpectedResponses": {
+                                                            "CheckStateTemplateRef": "{{.Record.Performance}}",
+                                                            "Values": [
+                                                              {
+                                                                "Id": "c",
+                                                                "NextPromptRef": {
+                                                                  "Id": "intro highlight one record"
+                                                                }
+                                                              },
+                                                              {
+                                                                "Id": "ANY_RESPONSE",
+                                                                "NextPromptRef": {
+                                                                  "Id": "intro highlight one record y-axis"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                          
                                                         }
                                                       }
                                                     ]
@@ -1551,7 +1593,7 @@
                                                         "NextPrompt": {
                                                           "Id": "intro highlight one record explain everything",
                                                           "Text": [
-                                                            "Record #{{.Record.RecordNo}} with performance {{.Record.Performance}} has {{.Record.FactorLevels.education.SelectedLevelId}} for Education. What did you see this person's level of Fitness is?"
+                                                            "Record #{{.Record.RecordNo}} with performance {{.Record.Performance}} has {{.Record.FactorLevels.education.SelectedLevel}} for Education. What did you see this person's level of Fitness is?"
                                                           ],
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",

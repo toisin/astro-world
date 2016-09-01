@@ -111,7 +111,7 @@ var Chart = React.createClass({
       }
     }
     return  <div>
-              <Graph user={user} app={app} colFilters={colFilters} data={data} allowToolbox={this.props.allowToolbox} yTitle="Performance" xTitle={xTitle} yLabels={performanceLabels}/>
+              <Graph user={user} app={app} colFilters={colFilters} data={data} allowToolboxToggle={this.props.allowToolbox} yTitle="Performance" xTitle={xTitle} yLabels={performanceLabels}/>
             </div>;
   }
 });
@@ -123,7 +123,7 @@ function Diamond(props) {
     props.onDiamondClick(props.col, props.grade, props.rIndex, true);
   };
 
-  if (props.allowToolbox) {
+  if (props.allowToolboxToggle) {
     return <rect onClick={toggleToolbox} width={rectSize} height={rectSize}
       transform={`translate(${props.x},${props.y}) rotate(45) translate(-${h},-${h})`}
       style={{stroke: 'green', fill: 'green'}}/>
@@ -143,7 +143,7 @@ function Diamonds(props) {
   for (let i = 0; i < props.count; i++) {
     let y = Math.floor(i / ePerRow);
     let x = i % ePerRow;
-    diamonds.push(<Diamond x={x * size} y={y * size} allowToolbox={props.allowToolbox} onDiamondClick={props.onDiamondClick} col={props.col} grade={props.grade} rIndex={i} key={i}/>);
+    diamonds.push(<Diamond x={x * size} y={y * size} allowToolboxToggle={props.allowToolboxToggle} onDiamondClick={props.onDiamondClick} col={props.col} grade={props.grade} rIndex={i} key={i}/>);
   }
   return <g transform={`translate(${size / 2}, -${size / 2}) scale(1, -1)`}>{diamonds}</g>;
 }
@@ -160,7 +160,7 @@ function Column(props) {
   return <g transform={`translate(${x},${0})`}>{
     props.rcount.map((count, i) =>
       <g transform={`translate(0,${(i+1) * rowHeight})`} key={i}>
-        <Diamonds singleColumn={props.singleColumn} allowToolbox={props.allowToolbox} onDiamondClick={props.onDiamondClick} count={props.rcount[i]} col={props.col} grade={i}/>
+        <Diamonds singleColumn={props.singleColumn} allowToolboxToggle={props.allowToolboxToggle} onDiamondClick={props.onDiamondClick} count={props.rcount[i]} col={props.col} grade={i}/>
       </g>)
     }</g>;
 }
@@ -182,9 +182,10 @@ function Toolbox(props) {
   var y = Math.floor(props.toolboxIndex / ePerRow) * size;
   var h = rectSize / 2;
 
-  var toggleToolbox = function(){
-    props.onDiamondClick(props.toolboxCol, props.toolboxGrade, props.toolboxIndex, false)
-  }
+  // Not used
+  // var toggleToolbox = function(){
+  //     props.onDiamondClick(props.toolboxCol, props.toolboxGrade, props.toolboxIndex, false)
+  //   }
 
   return  <g transform={`translate(${props.toolboxCol * colWidth}, 0)`}>
             <g transform={`translate(${colX},0)`}>
@@ -195,7 +196,7 @@ function Toolbox(props) {
                     style={{stroke: 'black', fill: 'darkgreen'}}/>
                 </g>
                 <g transform={`translate(${size / 2}, -${size / 2}) scale(1, -1)`}>
-                  <rect onClick={toggleToolbox} width={toolBoxSizeWidth} height={toolBoxSizeHeight}
+                  <rect width={toolBoxSizeWidth} height={toolBoxSizeHeight}
                     transform={`translate(${x},${y}) translate(${h*3},0)`}
                     style={{stroke: 'white', fill: 'lightgrey'}}/>
                   <g transform={`translate(${x + (toolBoxSizeWidth+h*3)/2}, ${y+columnLabelHeight}) scale(1, -1)`}>
@@ -305,9 +306,10 @@ var Graph = React.createClass({
     if (singleColumn) {
       colWidth = columnWidth * 2;
     }
+    var allowToolboxToggle = props.allowToolboxToggle && !this.state.showToolbox;
     const labels = props.data.map(v => v.label);
     const columns = props.data.map((v, i) => <g transform={`translate(${i * colWidth}, 0)`} key={i}>
-      <Column singleColumn={singleColumn} onDiamondClick={this.toggleToolbox} allowToolbox={props.allowToolbox} rcount={v.rcount} col={i}/>
+      <Column singleColumn={singleColumn} onDiamondClick={this.toggleToolbox} allowToolboxToggle={allowToolboxToggle} rcount={v.rcount} col={i}/>
     </g>);
 
     const rowBackground = props.data[0].rcount.map((_, i) => {
@@ -321,7 +323,7 @@ var Graph = React.createClass({
       toolbox = <Toolbox user={props.user} colFilters={props.colFilters} singleColumn={singleColumn} onDiamondClick={this.toggleToolbox} toolboxCol={this.state.toolboxCol} toolboxGrade={this.state.toolboxGrade} toolboxIndex={this.state.toolboxIndex} data={props.data} record={this.state.record} key={key}/>
     }
 
-    if (props.allowToolbox) {
+    if (this.state.showToolbox) {
       drawingAreaW = "100%";
       drawingAreaH = paddingBottom + props.yLabels.length * rowHeight + paddingTop;
     } else {

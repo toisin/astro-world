@@ -46,6 +46,7 @@ const (
 	EXPECTED_CONTENT_FACTOR_REF = "CONTENT_FACTOR_REF"
 	EXPECTED_MATCH_TEMPLATE_REF = "MATCH_TEMPLATE_REF"
 	EXPECTED_ANY_RESPONSE       = "ANY_RESPONSE"
+	EXPECTED_UNCLEAR_RESPONSE   = "UNCLEAR_RESPONSE"
 
 	UIACTION_INACTIVE = "NO_UIACTION"
 	// ***TODO MUST FIX!!! server cannot be shut down when json is mulformed
@@ -126,11 +127,12 @@ type DynamicOptionsConfig struct {
 }
 
 type ExpectedResponseValue struct {
-	Id                 string
-	IdValueTemplateRef []string
-	Text               string
-	NextPrompt         PromptConfig
-	NextPromptRef      PromptConfigRef
+	Id                    string
+	IdValueTemplateRef    []string
+	IdNotValueTemplateRef []string
+	Text                  string
+	NextPrompt            PromptConfig
+	NextPromptRef         PromptConfigRef
 }
 
 type PromptConfigRef struct {

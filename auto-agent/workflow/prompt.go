@@ -343,9 +343,10 @@ type Response interface {
 }
 
 type StaticExpectedResponseHandler struct {
-	expectedResponseMap      map[string]*PromptConfigRef
-	expectedValueTemplateMap map[string][]string
-	currentPromptConfig      PromptConfig
+	expectedResponseMap         map[string]*PromptConfigRef
+	expectedValueTemplateMap    map[string][]string
+	expectedNotValueTemplateMap map[string][]string
+	currentPromptConfig         PromptConfig
 }
 
 type DynamicExpectedResponseHandler struct {
@@ -368,6 +369,7 @@ func (derh *DynamicExpectedResponseHandler) init(p PromptConfig) {
 func (erh *StaticExpectedResponseHandler) init(p PromptConfig) {
 	erh.expectedResponseMap = make(map[string]*PromptConfigRef)
 	erh.expectedValueTemplateMap = make(map[string][]string)
+	erh.expectedNotValueTemplateMap = make(map[string][]string)
 	erh.currentPromptConfig = p
 
 	ecs := p.ExpectedResponses.Values
@@ -391,6 +393,9 @@ func (erh *StaticExpectedResponseHandler) init(p PromptConfig) {
 		}
 		if v.IdValueTemplateRef != nil && len(v.IdValueTemplateRef) > 0 {
 			erh.expectedValueTemplateMap[strings.ToLower(v.Id)] = v.IdValueTemplateRef
+		}
+		if v.IdNotValueTemplateRef != nil && len(v.IdNotValueTemplateRef) > 0 {
+			erh.expectedNotValueTemplateMap[strings.ToLower(v.Id)] = v.IdNotValueTemplateRef
 		}
 		erh.expectedResponseMap[strings.ToLower(v.Id)] = &PromptConfigRef{Id: promptId, PhaseId: phaseId}
 	}
@@ -441,10 +446,11 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 
 		p = erh.expectedResponseMap[strings.ToLower(rid)]
 
-		// If there are no matching value, resolve the template strings
-		// in the IdValueTemplateRef attribute with the dynamic value
-		// and see if there is a match there
 		if p == nil {
+			// If there are no matching value, resolve the template strings
+			// in the IdValueTemplateRef attribute with the dynamic value
+			// and see if there is a match there
+
 			for k, v := range erh.expectedValueTemplateMap {
 				for _, dv := range v {
 
@@ -458,10 +464,38 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 					}
 					valueRef := doc.String()
 
-					if strings.ToLower(valueRef) == strings.ToLower(rid) {
+					if strings.Contains(strings.ToLower(rid), strings.ToLower(valueRef)) {
 						p = erh.expectedResponseMap[strings.ToLower(k)]
 						break
 					}
+				}
+				if p != nil {
+					for _, dv := range erh.expectedNotValueTemplateMap[k] {
+
+						t := template.Must(template.New("dynamicValue").Parse(dv))
+						var doc bytes.Buffer
+						err := t.Execute(&doc, uiUserData.State)
+
+						if err != nil {
+							fmt.Fprintf(os.Stderr, "Error executing expectedResponses IdValueTemplateRef template: %s\n\n", err)
+							log.Println("executing expectedResponses IdValueTemplateRef template:", err)
+						}
+						valueRef := doc.String()
+
+						if strings.Contains(strings.ToLower(rid), strings.ToLower(valueRef)) {
+							// If there was a match but also a "not value" match simultaneously,
+							// then, if an unclear response prompt exists, use that,
+							// otherwise, fall back on any response
+							// This leans on the safety of ANY_RESPONSE rather than a match when
+							// a "not value" also matches
+							if erh.expectedResponseMap[strings.ToLower(EXPECTED_UNCLEAR_RESPONSE)] != nil {
+								p = erh.expectedResponseMap[strings.ToLower(EXPECTED_UNCLEAR_RESPONSE)]
+							} else {
+								p = erh.expectedResponseMap[strings.ToLower(EXPECTED_ANY_RESPONSE)]
+							}
+						}
+					}
+					break
 				}
 			}
 		}
