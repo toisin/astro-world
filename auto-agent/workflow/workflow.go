@@ -304,7 +304,7 @@ func CreateRecordStateFromDB(r db.Record) RecordState {
 				factorId = r.FactorId4
 				selectedLevelId = r.FactorLevel4
 			}
-			rs.FactorLevels[factorId] = CreateSelectedLevelFactorState(factorId, selectedLevelId)
+			rs.FactorLevels[factorId] = CreateSelectedLevelFactorState(factorId, selectedLevelId, i)
 		}
 	} else {
 		rs.RecordName = ""
@@ -314,7 +314,7 @@ func CreateRecordStateFromDB(r db.Record) RecordState {
 	return rs
 }
 
-func CreateSelectedLevelFactorState(factorId string, selectedLevelId string) FactorState {
+func CreateSelectedLevelFactorState(factorId string, selectedLevelId string, order int) FactorState {
 	f := GetFactorConfig(factorId)
 	allLevels := f.Levels
 	var selectedLevel string
@@ -342,7 +342,8 @@ func CreateSelectedLevelFactorState(factorId string, selectedLevelId string) Fac
 		SelectedLevelId: selectedLevelId,
 		OppositeLevel:   oppositeLevel,
 		OppositeLevelId: oppositeLevelId,
-		IsCausal:        f.IsCausal}
+		IsCausal:        f.IsCausal,
+		Order:           order}
 }
 
 func UnstringifyState(b []byte, phaseId string) (se StateEntities, err error) {

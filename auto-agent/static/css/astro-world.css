@@ -156,6 +156,7 @@ body {
   width: 300px;
   height: 80px;
   background: #f0f0e0;
+  font-size: 13px;
 }
 
 
@@ -326,6 +327,7 @@ body {
 .mbox textarea {
   width: 500px;
   height: 80px;
+  font-size: 13px;
 }
 
 .graph .axis .diamond {

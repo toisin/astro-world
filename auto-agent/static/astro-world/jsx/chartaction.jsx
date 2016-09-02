@@ -19,7 +19,7 @@ var ChartAction = React.createClass({
     var action = user.getAction();
     var onComplete = this.props.onComplete;
 
-    var recordsToShow = [{grade:2, filter:"fitness:average", no:22},{grade:4, filter:"fitness:average", no:47}]
+    var recordsToShow = [{grade:1, filter:"fitness:average", no:64},{grade:4, filter:"fitness:average", no:47}]
 
     if (action) {
       switch (action.UIActionModeId) {

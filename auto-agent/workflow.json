@@ -233,7 +233,7 @@
         "FirstPrompt": {
           "Id": "Select target factor",
           "Text": [
-            "Which factor would you like to figure out now?"
+            "Which factor would you like to investigate now?"
           ],
           "PromptType": "NO_INPUT",
           "ResponseType": "SELECT_TARGET_FACTOR",
@@ -1391,7 +1391,7 @@
                                                 "NextPrompt": {
                                                   "Id": "intro highlight one record explain",
                                                   "Text": [
-                                                    "You selected Record #{{.Record.RecordNo}} with performance {{.Record.Performance}}. Just like all the cases you have looked at before. You can see the levels of this person's fitness, parents' health, and other factors. Can you tell me what the education level of this applicant is?"
+                                                    "You selected Record #{{.Record.RecordNo}} with performance {{.Record.Performance}}. Just like all the cases you have looked at before. You can see the levels of this person's Fitness, Parents' Health, and other factors. Can you tell me what the education level of this applicant is?"
                                                   ],
                                                   "PromptType": "MC",
                                                   "ResponseType": "Basic",
@@ -1455,7 +1455,7 @@
                                         "NextPrompt": {
                                           "Id": "intro highlight one record",
                                           "Text": [
-                                            "You got it. You selected Record #{{.Record.RecordNo}}. Just like all the cases you have looked at before. You can see the levels of this person's fitness, parents' health, and other factors. What is the education level of this applicant?"
+                                            "You got it. You selected Record #{{.Record.RecordNo}}. Just like all the cases you have looked at before. You can see the levels of this person's Fitness, Parents' Health, and other factors. What is the Education level of this applicant?"
                                           ],
                                           "PromptType": "MC",
                                           "ResponseType": "Basic",
@@ -1473,8 +1473,8 @@
                                                   "Text": [
                                                     "Seems like you are having trouble finding the information. Let's try a different one."
                                                   ],
-                                                  "PromptType":"STRAIGHT_THROUGH",
-                                                  "ResponseType":"Basic",
+                                                  "PromptType": "STRAIGHT_THROUGH",
+                                                  "ResponseType": "Basic",
                                                   "UIActionModeId": "ALL_RECORDS",
                                                   "ExpectedResponses": {
                                                     "CheckStateTemplateRef": "{{.Record.Performance}}",
@@ -1483,7 +1483,9 @@
                                                         "Id": "ANY_RESPONSE",
                                                         "NextPrompt": {
                                                           "Id": "intro highlight one record try another record",
-                                                          "Text": ["Can you click on one of the diamonds that has a C performance?"],
+                                                          "Text": [
+                                                            "Can you click on one of the diamonds that has a C performance?"
+                                                          ],
                                                           "PromptType": "NO_INPUT",
                                                           "ResponseType": "CHART_RECORD",
                                                           "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
@@ -1504,7 +1506,6 @@
                                                               }
                                                             ]
                                                           }
-                                                          
                                                         }
                                                       }
                                                     ]
@@ -1519,7 +1520,7 @@
                                                 "NextPrompt": {
                                                   "Id": "intro fitness only",
                                                   "Text": [
-                                                    "Good. Now, let's look at a different chart. Here, we changed the chart so that we see only some of the people. Can you tell me what level of fitness do all of these people have?"
+                                                    "Good. Now, let's look at a different chart. Here, we changed the chart so that we see only some of the people. Can you tell me what level of Fitness do all of these people have?"
                                                   ],
                                                   "PromptType": "Text",
                                                   "ResponseType": "Basic",
@@ -1531,7 +1532,7 @@
                                                         "NextPrompt": {
                                                           "Id": "intro fitness only average wrong",
                                                           "Text": [
-                                                            "Look at the bottom of the chart. What level of fitness does it say?"
+                                                            "Look at the bottom of the chart. What level of Fitness does it say?"
                                                           ],
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",
@@ -1565,7 +1566,7 @@
                                                         "NextPrompt": {
                                                           "Id": "intro fitness only why diff performance",
                                                           "Text": [
-                                                            "Ok, good. They all have average fitness. So why do you think that even though all of these people have average fitness but they have different performance? Some have C and some have E. Why?"
+                                                            "Ok, good. They all have average Fitness. So why do you think that even though all of these people have average Fitness but they have different performance? For example, some have B and some have E. Why?"
                                                           ],
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",
@@ -1577,12 +1578,109 @@
                                                                 "NextPrompt": {
                                                                   "Id": "intro fitness only explain diff performance",
                                                                   "Text": [
-                                                                    "Good. Because may be other things are also making a difference. Let's make sure we understand what's going on here.",
-                                                                    "Take a look at the two records shown here. What are their fitness levels?"
+                                                                    "Ok. So, maybe because other things are also making a difference. Let's make sure we understand what's going on here.",
+                                                                    "Here, I have selected two of the diamonds to show you these records. Take a look at these two records. What are the levels of their Fitness?"
                                                                   ],
                                                                   "PromptType": "Text",
-                                                                  "ResponseType": "COMPLETE",
-                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS"
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPrompt": {
+                                                                          "Id": "intro fitness only diff performance same fitness level",
+                                                                          "Text": [
+                                                                            "Look to the bottom of the chart, what does it say?"
+                                                                          ],
+                                                                          "PromptType": "Text",
+                                                                          "ResponseType": "Basic",
+                                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS",
+                                                                          "ExpectedResponses": {
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "ANY_RESPONSE",
+                                                                                "NextPromptRef": {
+                                                                                  "Id": "intro fitness only explain more diff performance"
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "Id": "average",
+                                                                        "IdValueTemplateRef": [
+                                                                          "avrage",
+                                                                          "average",
+                                                                          "avg",
+                                                                          "It's average",
+                                                                          "it is average",
+                                                                          "the level is average",
+                                                                          "They all have average fitness."
+                                                                        ],
+                                                                        "IdNotValueTemplateRef": [
+                                                                          "excellent"
+                                                                        ],
+                                                                        "NextPrompt": {
+                                                                          "Id": "intro fitness only explain more diff performance",
+                                                                          "Text": [
+                                                                            "Ok. So they both have average. But they have different performances. What might be giving them different performances here?"
+                                                                          ],
+                                                                          "PromptType": "Text",
+                                                                          "ResponseType": "Basic",
+                                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS",
+                                                                          "ExpectedResponses": {
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "ANY_RESPONSE",
+                                                                                "NextPrompt": {
+                                                                                  "Id": "intro fitness only explain more more diff performance",
+                                                                                  "Text": [
+                                                                                    "Take a look at the two records more closely and you can see that, even though they have the same Fitness, other things could be different. What do you see?"
+                                                                                  ],
+                                                                                  "PromptType": "Text",
+                                                                                  "ResponseType": "Basic",
+                                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS",
+                                                                                  "ExpectedResponses": {
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "ANY_RESPONSE",
+                                                                                        "NextPrompt": {
+                                                                                          "Id": "intro fitness only confirm explain diff performance",
+                                                                                          "Text": [
+                                                                                            "Ok, good. So we can see that, here, their levels of Education and Parents' Health are both different. So that might be the reason why their performance are different.",
+                                                                                            "Now that we understand how to read the charts, let's use these charts to investigate which factors make a difference and see if we come to the same conclusions as before. Press \"Enter\" when you are ready."
+                                                                                          ],
+                                                                                          "PromptType": "ENTER_TO_CONTINUE",
+                                                                                          "ResponseType": "COMPLETE",
+                                                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS"
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              {
+                                                                                "Id": "education",
+                                                                                "IdValueTemplateRef": [
+                                                                                  "ed",
+                                                                                  "education",
+                                                                                  "other",
+                                                                                  "thing",
+                                                                                  "health",
+                                                                                  "parent"
+                                                                                ],
+                                                                                "NextPromptRef": {
+                                                                                  "Id": "intro fitness only confirm explain diff performance"
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
                                                                 }
                                                               },
                                                               {
@@ -1611,7 +1709,7 @@
                                                                 "NextPrompt": {
                                                                   "Id": "intro fitness only why again diff performance",
                                                                   "Text": [
-                                                                    "Seems like you are not sure? That's ok. So we know that they all have average fitness but that they still have different performance. What could be the reason why these people have different performance?"
+                                                                    "Seems like you are not sure. That's ok. So we know that they all have average Fitness but that they still have different performance. What could be the reason why these people have different performance?"
                                                                   ],
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
@@ -1624,7 +1722,7 @@
                                                                           "Id": "intro fitness only explain diff performance"
                                                                         }
                                                                       }
-                                                                      ]
+                                                                    ]
                                                                   }
                                                                 }
                                                               }
@@ -1637,7 +1735,7 @@
                                                         "NextPrompt": {
                                                           "Id": "intro fitness only average unclear",
                                                           "Text": [
-                                                            "I am not really sure what you mean. Look at the bottom of the chart. What level of fitness does it say? You may also want to check your spelling."
+                                                            "I am not really sure what you mean. Look at the bottom of the chart. What level of Fitness does it say? You may also want to check your spelling."
                                                           ],
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",

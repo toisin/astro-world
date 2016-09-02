@@ -184,6 +184,11 @@ function Toolbox(props) {
   var y = Math.floor(props.toolboxIndex / ePerRow) * size;
   var h = rectSize / 2;
 
+  var factors = [];
+  Object.keys(record.FactorLevels).map(function(l, j) {
+      var i = Object.keys(record.FactorLevels).length - 1 - record.FactorLevels[l].Order;
+      factors[record.FactorLevels[l].Order] = <text x={-toolBoxSizeWidth/3} y={-columnLabelHeight*(i+1)} textAnchor='start' className='axis-label' key={i}>{record.FactorLevels[l].FactorName}:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{record.FactorLevels[l].SelectedLevel}</text>});
+
   // Not used
   // var toggleToolbox = function(){
   //     props.onDiamondClick(props.toolboxCol, props.toolboxGrade, props.toolboxIndex, false)
@@ -202,10 +207,7 @@ function Toolbox(props) {
                     transform={`translate(${x},${y}) translate(${h*3},0)`}
                     style={{stroke: 'white', fill: 'lightgrey'}}/>
                   <g transform={`translate(${x + (toolBoxSizeWidth+h*3)/2}, ${y+columnLabelHeight}) scale(1, -1)`}>
-                    {
-                      Object.keys(record.FactorLevels).map((l, i) =>
-                        <text x={0} y={-columnLabelHeight*(i+1)} textAnchor='middle' className='axis-label' key={i}>{record.FactorLevels[l].FactorName}: {record.FactorLevels[l].SelectedLevel}</text>)
-                    }
+                    {factors}
                     <text x={0} y={-columnLabelHeight*(Object.keys(record.FactorLevels).length+2)} textAnchor='middle' className='axis-title' key={Object.keys(record.FactorLevels).length}>Record #{record.RecordNo} {record.RecordName}</text>
                     <text x={0} y={0} textAnchor='middle' className='axis-title' key={Object.keys(record.FactorLevels).length+1}>Performance: {record.Performance}</text>
                   </g>

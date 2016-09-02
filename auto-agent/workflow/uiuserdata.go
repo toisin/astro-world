@@ -239,6 +239,7 @@ type FactorState struct {
 	IsCausal         bool
 	IsConcludeCausal bool
 	HasConclusion    bool
+	Order            int
 }
 
 func (fs FactorState) String() string {
