@@ -90,7 +90,7 @@ var Chart = React.createClass({
               colFilters[colIndex] = targetFactorId + ":" + factors[fkey[i]].Levels[colIndex].FactorLevelId;
               xLabels[colIndex] = factors[fkey[i]].Levels[colIndex].Text;
             }
-            xTitle = TargetFactor.FactorName;
+            xTitle = user.getState().TargetFactor.FactorName;
             break;
           }
         }

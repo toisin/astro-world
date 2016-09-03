@@ -1735,7 +1735,7 @@
                                                         "NextPrompt": {
                                                           "Id": "intro fitness only average unclear",
                                                           "Text": [
-                                                            "I am not really sure what you mean. Look at the bottom of the chart. What level of Fitness does it say? You may also want to check your spelling."
+                                                            "I am not really sure if I got that. Look at the bottom of the chart. What level of Fitness does it say? You may also want to check your spelling."
                                                           ],
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",
@@ -1781,7 +1781,7 @@
         "FirstPrompt": {
           "Id": "Select target factor",
           "Text": [
-            "Which factor would you like to figure out now?"
+            "Which factor would you like to investigate now?"
           ],
           "PromptType": "NO_INPUT",
           "ResponseType": "SELECT_TARGET_FACTOR",
@@ -1797,11 +1797,101 @@
                 "NextPrompt": {
                   "Id": "show chart",
                   "Text": [
-                    "Here is the chart for {{.TargetFactor.FactorName}} "
+                    "Here is the chart for {{.TargetFactor.FactorName}}.",
+                    "So, remember, other things may be contributing as well. But overall do you think Fitness makes a difference?"
                   ],
-                  "PromptType": "ENTER_TO_CONTINUE",
-                  "ResponseType": "COMPLETE",
-                  "UIActionModeId": "TARGET_FACTOR_RECORDS"
+                  "PromptType": "MC",
+                  "ResponseType": "CAUSAL_CONCLUSION",
+                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                  "ExpectedResponses": {
+                    "Values": [
+                      {
+                        "Id": "true",
+                        "Text": "Yes",
+                        "NextPrompt": {
+                          "Id": "chart causal",
+                          "Text": [
+                            "Ok, so you think that {{.TargetFactor.FactorName}} makes a difference. Ok. What makes you decide that?"
+                          ],
+                          "PromptType": "Text",
+                          "ResponseType": "Basic",
+                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                          "ExpectedResponses": {
+                            "Values": [
+                              {
+                                "Id": "ANY_RESPONSE",
+                                "NexPrompt": {
+                                  "Id": "chart causal follow up",
+                                  "Text": [
+                                    "So you think that the chart shows you that."
+                                  ]
+                                }
+                              },
+                              {
+                                "Id": "maybe about chart",
+                                "NexPrompt": {
+                                  "Id": "chart causal refers to chart",
+                                  "Text": [
+                                    "Sounds like you think that the chart shows you that {{.TargetFactor.FactorName}} makes a difference. Can you tell me more what it is about the chart that shows you {{.TargetFactor.FactorName}} makes a difference?"
+                                  ],
+                                  "PromptType": "Text",
+                                  "ResponseType": "Basic",
+                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                  "ExpectedResponses": {
+                                    "CheckStateTemplateRef": "{{.TargetFactor.IsCausal}}",
+                                    "Values": [
+                                      {
+                                        "Id": "true",
+                                        "NextPrompt": {
+                                          "Id": "chart causal refers to chart",
+                                          "Text": [
+                                            "Ok, great. Now, suppose someone disagrees with you and thinks that {{.TargetFactor.FactorName}} does not make a difference. What would you say to them?"
+                                            ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              },
+                              {
+                                "Id": "maybe about record",
+                                "IdValueTemplateRef": [
+                                  "before",
+                                  "record",
+                                  "applicant",
+                                  "saw",
+                                  "he",
+                                  "she"
+                                ],
+                                "IdNotValueTemplateRef": [
+                                  "chart",
+                                  "none",
+                                  "A",
+                                  "E"
+                                ],
+                                "NextPrompt": {
+                                  "Id": "chart causal refers to records",
+                                  "Text": [
+                                    "Ok. Sounds like you might be thinking about what we did before. Remember that the organization wants to be really sure before we make any decisions. So we don't want to rely on opinions or what we found with just a few records.",
+                                    "What do you think the chart tells us about whether {{.TargetFactor.FactorName}} matters or not to the performance?"
+                                  ]
+                                }
+                              },
+                              {
+                                "Id": "UNCLEAR_RESPONSE",
+                                "NextPrompt": {
+                                  "Id": "chart causal explain unclear",
+                                  "Text": [
+                                    "I am not really sure if I got that. What do you think the chart tells us about whether {{.TargetFactor.FactorName}} matters or not to the performance?"
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
                 }
               }
             ]
