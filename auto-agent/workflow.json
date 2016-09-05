@@ -1797,8 +1797,8 @@
                 "NextPrompt": {
                   "Id": "show chart",
                   "Text": [
-                    "Here is the chart for {{.TargetFactor.FactorName}}.",
-                    "So, remember, other things may be contributing as well. But overall do you think Fitness makes a difference?"
+                    "Here is the chart for {{.TargetFactor.FactorName}}. So, what do you think?",
+                    "Remember, other things may be contributing as well. But overall do you think {{.TargetFactor.FactorName}} makes a difference?"
                   ],
                   "PromptType": "MC",
                   "ResponseType": "CAUSAL_CONCLUSION",
@@ -1811,7 +1811,7 @@
                         "NextPrompt": {
                           "Id": "chart causal",
                           "Text": [
-                            "Ok, so you think that {{.TargetFactor.FactorName}} makes a difference. Ok. What makes you decide that?"
+                            "Ok, so you think that {{.TargetFactor.FactorName}} makes a difference. What makes you decide that?"
                           ],
                           "PromptType": "Text",
                           "ResponseType": "Basic",
@@ -1820,15 +1820,174 @@
                             "Values": [
                               {
                                 "Id": "ANY_RESPONSE",
-                                "NexPrompt": {
-                                  "Id": "chart causal follow up",
+                                "NextPrompt": {
+                                  "Id": "chart causal explain unclear",
                                   "Text": [
-                                    "So you think that the chart shows you that."
-                                  ]
+                                    "I am not really sure if I got that. You said that you think {{.TargetFactor.FactorName}} makes a difference to performance. Look at the chart here, what is it about the chart that tells you that {{.TargetFactor.FactorName}} matters to the performance?"
+                                  ],
+                                  "PromptType": "Text",
+                                  "ResponseType": "Basic",
+                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                  "ExpectedResponses": {
+                                    "CheckStateTemplateRef": "{{.TargetFactor.IsCausal}}",
+                                    "Values": [
+                                      {
+                                        "Id": "ANY_RESPONSE",
+                                        "NextPrompt": {
+                                          "Id": "chart wrong causal conclusion",
+                                          "Text": [
+                                            "Ok. Now, let's make sure we got this. Look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v}}{{end}} for {{.TargetFactor.FactorName}}. Do you see anything different between those who the different levels?"
+                                          ],
+                                          "PromptType": "Text",
+                                          "ResponseType": "Basic",
+                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                          "ExpectedResponses": {}
+                                        }
+                                      },
+                                      {
+                                        "Id": "true",
+                                        "NextPrompt": {
+                                          "Id": "chart correct causal explain step by step",
+                                          "Text": [
+                                            "Ok. Now, let's make sure we got this. Look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v}}{{end}} for {{.TargetFactor.FactorName}}. How are they different? Is there anything special about those who have {{index $factor.Levels 0}}?"
+                                          ],
+                                          "PromptType": "Text",
+                                          "ResponseType": "Basic",
+                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                          "ExpectedResponses": {
+                                            "Values": [
+                                              {
+                                                "Id": "ANY_RESPONSE",
+                                                "NexPrompt": {
+                                                  "Id": "chart correct causal explain step by step double check",
+                                                  "Text": [
+                                                    "Ok. I see. So for {{.TargetFactor.FactorName}}, which level do you think is best to have for performance?"
+                                                  ],
+                                                  "PromptType": "MC",
+                                                  "ResponseType": "Basic",
+                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                  "ExpectedResponses": {
+                                                    "DynamicOptionsTemplateRef": {
+                                                      "Ids": "[{{$factor := index .ContentFactors .TargetFactor.FactorName}}{{range $i, $v := $factor.Levels}}{{if gt $i  0}},{{end}}\"{{$v.FactorLevelId}}\"{{end}}]",
+                                                      "Texts": "[{{$factor := index .ContentFactors .TargetFactor.FactorName}}{{range $i, $v := $factor.Levels}}{{if gt $i  0}},{{end}}\"{{$v.Text}}\"{{end}}]"
+                                                    },
+                                                    "Values": [
+                                                      {
+                                                        "Id": "best level",
+                                                        "IdValueTemplateRef": [
+                                                          "{{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$bestLevel index $factor.Levels 0}}{{$bestLevel.FactorLevelId}}"
+                                                        ],
+                                                        "NextPrompt": {
+                                                          "Id": "chart correct causal correct best level",
+                                                          "Text": [
+                                                            "Ok, got it. So you think that {{.TargetFactor.FactorName}} really does make a difference to performance. Now, suppose someone disagrees with you, what would you say to them?"
+                                                          ],
+                                                          "PromptType": "Text",
+                                                          "ResponseType": "Basic",
+                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                          "ExpectedResponses": {
+                                                            "Values": [
+                                                              {
+                                                                "Id": "ANY_RESPONSE",
+                                                                "NextPrompt": {
+                                                                  "Id": "chart correct causal correct best level challege",
+                                                                  "Text": [
+                                                                    "I see. Now, how do you think the graph would look different if {{.TargetFactor.FactorName}} makes no difference to performance?"
+                                                                  ],
+                                                                  "PromptType": "Text",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPrompt": {
+                                                                          "Id": "memo",
+                                                                          "Text": [
+                                                                            "Ok, great, so you are sure then.",
+                                                                            "Ok. Let's write down what you found out here as a memo to the foundation. Don't forget to click \"Enter\" to submit it."
+                                                                          ],
+                                                                          "PromptType": "NO_INPUT",
+                                                                          "ResponseType": "MEMO",
+                                                                          "UIActionModeId": "MEMO_FORM",
+                                                                          "ExpectedResponses": {
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "ANY_RESPONSE",
+                                                                                "NextPrompt": {
+                                                                                  "Id": "memo done",
+                                                                                  "Text": [
+                                                                                    "Great! Thank you for the memo to the foundation. Let's move on to the next factor then."
+                                                                                  ],
+                                                                                  "PromptType": "ENTER_TO_CONTINUE",
+                                                                                  "ResponseType": "COMPLETE",
+                                                                                  "UIActionModeId": "MEMO"
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "Id": "ANY_RESPONSE",
+                                                        "NextPrompt": {
+                                                          "Id": "not best levels",
+                                                          "Text": [
+                                                            "I see. Let's look at the performance of all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{index $factor.Levels 1}} for {{.TargetFactor.FactorName}}. What is the best performance those people have?"
+                                                          ],
+                                                          "PromptType": "Text",
+                                                          "ResponseType": "Basic",
+                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                          "ExpectedResponses": {
+                                                            "Values": [
+                                                              {
+                                                                "Id": "ANY_RESPONSE",
+                                                                "NextPromptRef":{
+                                                                  "Id": "chart correct causal explain step by step double check"
+                                                                }
+                                                              }
+                                                              ]
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
                                 }
                               },
                               {
                                 "Id": "maybe about chart",
+                                "IdValueTemplateRef": [
+                                  "chart",
+                                  "none",
+                                  "A",
+                                  "E",
+                                  "all",
+                                  "nobody"
+                                ],
+                                "IdNotValueTemplateRef": [
+                                  "before",
+                                  "record",
+                                  "applicant",
+                                  "saw",
+                                  "he",
+                                  "she"
+                                ],
                                 "NexPrompt": {
                                   "Id": "chart causal refers to chart",
                                   "Text": [
@@ -1841,12 +2000,15 @@
                                     "CheckStateTemplateRef": "{{.TargetFactor.IsCausal}}",
                                     "Values": [
                                       {
+                                        "Id": "ANY_RESPONSE",
+                                        "NextPromptRef": {
+                                          "Id": "chart wrong causal conclusion"
+                                        }
+                                      },
+                                      {
                                         "Id": "true",
-                                        "NextPrompt": {
-                                          "Id": "chart causal refers to chart",
-                                          "Text": [
-                                            "Ok, great. Now, suppose someone disagrees with you and thinks that {{.TargetFactor.FactorName}} does not make a difference. What would you say to them?"
-                                            ]
+                                        "NextPromptRef": {
+                                          "Id": "chart correct causal explain step by step"
                                         }
                                       }
                                     ]
@@ -1867,23 +2029,36 @@
                                   "chart",
                                   "none",
                                   "A",
-                                  "E"
+                                  "E",
+                                  "all",
+                                  "nobody"
                                 ],
                                 "NextPrompt": {
                                   "Id": "chart causal refers to records",
                                   "Text": [
                                     "Ok. Sounds like you might be thinking about what we did before. Remember that the organization wants to be really sure before we make any decisions. So we don't want to rely on opinions or what we found with just a few records.",
                                     "What do you think the chart tells us about whether {{.TargetFactor.FactorName}} matters or not to the performance?"
-                                  ]
-                                }
-                              },
-                              {
-                                "Id": "UNCLEAR_RESPONSE",
-                                "NextPrompt": {
-                                  "Id": "chart causal explain unclear",
-                                  "Text": [
-                                    "I am not really sure if I got that. What do you think the chart tells us about whether {{.TargetFactor.FactorName}} matters or not to the performance?"
-                                  ]
+                                  ],
+                                  "PromptType": "Text",
+                                  "ResponseType": "Basic",
+                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                  "ExpectedResponses": {
+                                    "CheckStateTemplateRef": "{{.TargetFactor.IsCausal}}",
+                                    "Values": [
+                                      {
+                                        "Id": "ANY_RESPONSE",
+                                        "NextPromptRef": {
+                                          "Id": "chart wrong causal conclusion"
+                                        }
+                                      },
+                                      {
+                                        "Id": "true",
+                                        "NextPromptRef": {
+                                          "Id": "chart correct causal explain step by step"
+                                        }
+                                      }
+                                    ]
+                                  }
                                 }
                               }
                             ]
