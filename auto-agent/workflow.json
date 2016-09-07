@@ -300,7 +300,7 @@
                                                 "NextPrompt": {
                                                   "Id": "is there enough information",
                                                   "Text": [
-                                                    "Do you have enough information to say whether {{.TargetFactor.FactorName}} makes a difference to the performance in the space? Yes or No?"
+                                                    "Do you have enough information to say whether {{.TargetFactor.FactorName}} makes a difference to performance in space? Yes or No?"
                                                   ],
                                                   "PromptType": "MC",
                                                   "ResponseType": "Basic",
@@ -454,7 +454,7 @@
                                                         "NextPrompt": {
                                                           "Id": "not enough information",
                                                           "Text": [
-                                                            "Ok, let's see how we can figure out whether {{.TargetFactor.FactorName}} makes a difference.",
+                                                            "Ok, let's see how we can figure out whether {{.TargetFactor.FactorName}} makes a difference to performance in space.",
                                                             "What do you think {{.RecordNoOne.FirstName}}'s performance would have been if {{.RecordNoOne.FirstName}}'s {{.TargetFactor.FactorName}} was {{$factorId := .TargetFactor.FactorId}}{{$factor := index .RecordNoOne.FactorLevels $factorId}}{{$factor.OppositeLevel}} instead?"
                                                           ],
                                                           "PromptType": "Text",
@@ -495,7 +495,7 @@
                           "Id": "choose two records",
                           "Text": [
                             "Which records would you like to see?",
-                            "On the screen, choose the records you want that will help you figure out whether {{.TargetFactor.FactorName}} makes a difference. Select a level for each factor, and the computer will find you the applicants with those levels."
+                            "On the screen, choose the records you want that will help you figure out whether {{.TargetFactor.FactorName}} makes a difference to performance in space. Select a level for each factor, and the computer will find you the applicants with those levels."
                           ],
                           "PromptType": "NO_INPUT",
                           "ResponseType": "RECORD",
@@ -567,7 +567,7 @@
                                                         "NextPrompt": {
                                                           "Id": "two records causal",
                                                           "Text": [
-                                                            "Ok. So you think that {{.TargetFactor.FactorName}} makes a difference. What makes you say that?"
+                                                            "Ok. So you think that {{.TargetFactor.FactorName}} makes a difference to performance in space. What makes you say that?"
                                                           ],
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",
@@ -602,7 +602,7 @@
                                                                 "NextPrompt": {
                                                                   "Id": "two records uncontrolled causal",
                                                                   "Text": [
-                                                                    "That may be true. But can we really tell for sure that {{.TargetFactor.FactorName}} makes a difference to the performance? Couldn’t someone say that it is because {{.RecordNoTwo.FirstName}} has {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}} and that is why {{.RecordNoOne.FirstName}} has a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade than {{.RecordNoTwo.FirstName}}? Can you really know for sure that {{.TargetFactor.FactorName}}  gave {{.RecordNoOne.FirstName}} a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade?"
+                                                                    "That may be true. But can we really tell for sure that {{.TargetFactor.FactorName}} makes a difference to performance? Couldn’t someone say that it is because {{.RecordNoTwo.FirstName}} has {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}} and that is why {{.RecordNoOne.FirstName}} has a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade than {{.RecordNoTwo.FirstName}}? Can you really know for sure that {{.TargetFactor.FactorName}}  gave {{.RecordNoOne.FirstName}} a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade?"
                                                                   ],
                                                                   "PromptType": "MC",
                                                                   "ResponseType": "Basic",
@@ -638,7 +638,7 @@
                                                                         "NextPrompt": {
                                                                           "Id": "two records uncontrolled unsure causal",
                                                                           "Text": [
-                                                                            "How can we be 100% sure? Can you find a better record to compare {{.RecordNoOne.FirstName}} with so that we know whether {{.TargetFactor.FactorName}} really makes a difference?",
+                                                                            "How can we be 100% sure? Can you find a better record to compare {{.RecordNoOne.FirstName}} with so that we know whether {{.TargetFactor.FactorName}} really makes a difference to performance in space?",
                                                                             "What would we need? Press \"Enter\" when you are ready to continue."
                                                                           ],
                                                                           "PromptType": "ENTER_TO_CONTINUE",
@@ -678,7 +678,7 @@
                                                                         "NextPrompt": {
                                                                           "Id": "controlled wrong causal conclusion",
                                                                           "Text": [
-                                                                            "But {{.RecordNoOne.FirstName}} has the same grade as {{.RecordNoTwo.FirstName}}. How can you tell that {{.TargetFactor.FactorName}} makes a difference if they have the same grade?"
+                                                                            "But {{.RecordNoOne.FirstName}} has the same grade as {{.RecordNoTwo.FirstName}}. How can you tell that {{.TargetFactor.FactorName}} makes a difference to performance if they have the same grade?"
                                                                           ],
                                                                           "PromptType": "Text",
                                                                           "ResponseType": "Basic",
@@ -826,7 +826,7 @@
                                                         "NextPrompt": {
                                                           "Id": "two records noncausal",
                                                           "Text": [
-                                                            "Ok. So you think that {{.TargetFactor.FactorName}} does not make a difference. What makes you say that?"
+                                                            "Ok. So you think that {{.TargetFactor.FactorName}} does not make a difference to performance. What makes you say that?"
                                                           ],
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",
@@ -949,7 +949,7 @@
                                                         "NextPrompt": {
                                                           "Id": "two records causal unsure",
                                                           "Text": [
-                                                            "It's ok that you are not sure wheather {{.TargetFactor.FactorName}} makes a difference."
+                                                            "It's ok that you are not sure wheather {{.TargetFactor.FactorName}} makes a difference to performance."
                                                           ],
                                                           "PromptType": "STRAIGHT_THROUGH",
                                                           "ResponseType": "Basic",
@@ -986,7 +986,7 @@
                                                                   "Id": "two records target varying causal unsure",
                                                                   "Text": [
                                                                     "Let's look at these records again. What do you think these records tell us?",
-                                                                    "Do you think that, Yes, they do show that {{.TargetFactor.FactorName}} makes a difference? Or No, these records really show that {{.TargetFactor.FactorName}} does not matter? Or you just can't tell with these records?"
+                                                                    "Do you think that, Yes, they do show that {{.TargetFactor.FactorName}} makes a difference to performance in space? Or No, these records really show that {{.TargetFactor.FactorName}} does not matter? Or you just can't tell with these records?"
                                                                   ],
                                                                   "PromptType": "MC",
                                                                   "ResponseType": "CAUSAL_CONCLUSION",
@@ -1013,7 +1013,7 @@
                                                                                 "NextPrompt": {
                                                                                   "Id": "two records uncontrolled maybe causal",
                                                                                   "Text": [
-                                                                                    "What about these records that tells you {{.TargetFactor.FactorName}} makes a difference?"
+                                                                                    "What about these records that tells you {{.TargetFactor.FactorName}} makes a difference to performance?"
                                                                                   ],
                                                                                   "PromptType": "Text",
                                                                                   "ResponseType": "Basic",
@@ -1025,7 +1025,7 @@
                                                                                         "NextPrompt": {
                                                                                           "Id": "two records uncontrolled maybe causal question",
                                                                                           "Text": [
-                                                                                            "That may be true. But couldn’t someone say that it is because {{.RecordNoTwo.FirstName}} has {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}} and that is why {{.RecordNoOne.FirstName}} has a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade than {{.RecordNoTwo.FirstName}}? How can we be 100% sure? Let's see if you can find a better record to compare {{.RecordNoOne.FirstName}} with so that we know whether {{.TargetFactor.FactorName}} really makes a difference?",
+                                                                                            "That may be true. But couldn’t someone say that it is because {{.RecordNoTwo.FirstName}} has {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}} and that is why {{.RecordNoOne.FirstName}} has a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade than {{.RecordNoTwo.FirstName}}? How can we be 100% sure? Let's see if you can find a better record to compare {{.RecordNoOne.FirstName}} with so that we know whether {{.TargetFactor.FactorName}} really makes a difference to performance?",
                                                                                             "What would we need? Press \"Enter\" when you are ready to continue."
                                                                                           ],
                                                                                           "PromptType": "ENTER_TO_CONTINUE",
@@ -1074,7 +1074,7 @@
                                                                                 "NextPrompt": {
                                                                                   "Id": "two records controlled maybe causal",
                                                                                   "Text": [
-                                                                                    "What about these records that tells you {{.TargetFactor.FactorName}} makes a difference?"
+                                                                                    "What about these records that tells you {{.TargetFactor.FactorName}} makes a difference to performance in space?"
                                                                                   ],
                                                                                   "PromptType": "Text",
                                                                                   "ResponseType": "Basic",
@@ -1124,7 +1124,7 @@
                                                                         "NextPrompt": {
                                                                           "Id": "two records maybe non-causal",
                                                                           "Text": [
-                                                                            "Ok. So you think that these records show that {{.TargetFactor.FactorName}} does not make a difference.",
+                                                                            "Ok. So you think that these records show that {{.TargetFactor.FactorName}} does not make a difference to performance.",
                                                                             "Press \"Enter\" when you are ready to continue."
                                                                           ],
                                                                           "PromptType": "ENTER_TO_CONTINUE",
@@ -1138,7 +1138,7 @@
                                                                                 "NextPrompt": {
                                                                                   "Id": "two records uncontrolled maybe non-causal",
                                                                                   "Text": [
-                                                                                    "What about these records that tells you {{.TargetFactor.FactorName}} does not make a difference?"
+                                                                                    "What about these records that tells you {{.TargetFactor.FactorName}} does not make a difference to performance?"
                                                                                   ],
                                                                                   "PromptType": "Text",
                                                                                   "ResponseType": "Basic",
@@ -1151,7 +1151,7 @@
                                                                                           "Id": "two records uncontrolled maybe non-causal question",
                                                                                           "Text": [
                                                                                             "That may be true. But {{.TargetFactor.FactorName}} and {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.FactorName}} are both different in the two records. {{if eq .RecordNoOne.Performance .RecordNoTwo.Performance}}Can you really know why their grades are the same? {{end}}Maybe one makes the grade go up and the other makes it go down so they offset each other? Can you really know for sure that {{.TargetFactor.FactorName}} does not make a difference to performance?",
-                                                                                            "How can we be 100% sure? Let's see if you can find a better record to compare {{.RecordNoOne.FirstName}} with so that we know whether {{.TargetFactor.FactorName}} really makes a difference?",
+                                                                                            "How can we be 100% sure? Let's see if you can find a better record to compare {{.RecordNoOne.FirstName}} with so that we know whether {{.TargetFactor.FactorName}} really makes a difference to performance in space?",
                                                                                             "What would we need? Press \"Enter\" when you are ready to continue."
                                                                                           ],
                                                                                           "PromptType": "ENTER_TO_CONTINUE",
@@ -1228,7 +1228,7 @@
                                                                         "NextPrompt": {
                                                                           "Id": "two records no conclusion",
                                                                           "Text": [
-                                                                            "Ok. So you don't think these records help us figure out whether {{.TargetFactor.FactorName}} makes a difference.",
+                                                                            "Ok. So you don't think these records help us figure out whether {{.TargetFactor.FactorName}} makes a difference to performance in space.",
                                                                             "What is it about these records that makes it hard to decide whether {{.TargetFactor.FactorName}} makes a difference? What do you think we would need instead to figure out whether {{.TargetFactor.FactorName}} makes a difference to performance?"
                                                                           ],
                                                                           "PromptType": "Text",
@@ -1360,38 +1360,173 @@
                               {
                                 "Id": "ANY_RESPONSE",
                                 "NextPrompt": {
-                                  "Id": "intro highlight one record performance",
+                                  "Id": "intro unclear highlight performance axis",
                                   "Text": [
-                                    "Great. Now, let's look at the chart more closely. Can you click on one of the diamonds that has a B performance?"
+                                    "Ok. So on the left side of the chart, you can see a list of performance levels, from A to E."
                                   ],
-                                  "PromptType": "NO_INPUT",
-                                  "ResponseType": "CHART_RECORD",
-                                  "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
+                                  "PromptType": "STRAIGHT_THROUGH",
+                                  "ResponseType": "Basic",
+                                  "UIActionModeId": "ALL_RECORDS",
                                   "ExpectedResponses": {
-                                    "CheckStateTemplateRef": "{{.Record.Performance}}",
+                                    "Values": [
+                                      {
+                                        "Id": "ANY_RESPONSE",
+                                        "NextPromptRef": {
+                                          "Id": "intro highlight one record performance"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              },
+                              {
+                                "Id": "NOT_SURE_RESPONSE",
+                                "IdValueTemplateRef": [
+                                  "not sure",
+                                  "don't know",
+                                  "dont know",
+                                  "dnt know",
+                                  "hmm",
+                                  "do not know"
+                                ],
+                                "NextPrompt": {
+                                  "Id": "intro unsure highlight performance axis",
+                                  "Text": [
+                                    "Look to the left side of the chart. Do you see a list of performance levels? What are the performances you see on this chart?"
+                                  ],
+                                  "PromptType": "Text",
+                                  "ResponseType": "Basic",
+                                  "UIActionModeId": "ALL_RECORDS",
+                                  "ExpectedResponses": {
+                                    "Values": [
+                                      {
+                                        "Id": "ANY_RESPONSE",
+                                        "NextPromptRef": {
+                                          "Id": "intro unclear highlight performance axis"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              },
+                              {
+                                "Id": "list performance",
+                                "IdValueTemplateRef": [
+                                  "A",
+                                  "B",
+                                  "C",
+                                  "D",
+                                  "E"
+                                ],
+                                "NextPrompt": {
+                                  "Id": "intro highlight performance axis",
+                                  "Text": [
+                                    "Good. So on the left side of the chart, you can see a list of performance levels, from A to E."
+                                  ],
+                                  "PromptType": "STRAIGHT_THROUGH",
+                                  "ResponseType": "Basic",
+                                  "UIActionModeId": "ALL_RECORDS",
+                                  "ExpectedResponses": {
                                     "Values": [
                                       {
                                         "Id": "ANY_RESPONSE",
                                         "NextPrompt": {
-                                          "Id": "intro highlight one record y-axis",
+                                          "Id": "intro highlight one record performance",
                                           "Text": [
-                                            "Ok, try looking to the left side of the chart, what performance level is this record on?"
+                                            "Great. Now, let's look at the chart more closely. Can you click on one of the diamonds that has a B performance?"
                                           ],
-                                          "PromptType": "MC",
-                                          "ResponseType": "Basic",
+                                          "PromptType": "NO_INPUT",
+                                          "ResponseType": "CHART_RECORD",
                                           "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
                                           "ExpectedResponses": {
-                                            "DynamicOptionsTemplateRef": {
-                                              "Ids": "[\"A\",\"B\",\"C\",\"D\",\"E\"]",
-                                              "Texts": "[\"A\",\"B\",\"C\",\"D\",\"E\"]"
-                                            },
+                                            "CheckStateTemplateRef": "{{.Record.Performance}}",
                                             "Values": [
                                               {
                                                 "Id": "ANY_RESPONSE",
                                                 "NextPrompt": {
-                                                  "Id": "intro highlight one record explain",
+                                                  "Id": "intro highlight one record y-axis",
                                                   "Text": [
-                                                    "You selected Record #{{.Record.RecordNo}} with performance {{.Record.Performance}}. Just like all the cases you have looked at before. You can see the levels of this person's Fitness, Parents' Health, and other factors. Can you tell me what the education level of this applicant is?"
+                                                    "Ok, try looking to the left side of the chart, what performance level is this record on?"
+                                                  ],
+                                                  "PromptType": "MC",
+                                                  "ResponseType": "Basic",
+                                                  "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
+                                                  "ExpectedResponses": {
+                                                    "DynamicOptionsTemplateRef": {
+                                                      "Ids": "[\"A\",\"B\",\"C\",\"D\",\"E\"]",
+                                                      "Texts": "[\"A\",\"B\",\"C\",\"D\",\"E\"]"
+                                                    },
+                                                    "Values": [
+                                                      {
+                                                        "Id": "ANY_RESPONSE",
+                                                        "NextPrompt": {
+                                                          "Id": "intro highlight one record explain",
+                                                          "Text": [
+                                                            "You selected Record #{{.Record.RecordNo}} with performance {{.Record.Performance}}. Just like all the cases you have looked at before. You can see the levels of this person's Fitness, Parents' Health, and other factors. Can you tell me what the education level of this applicant is?"
+                                                          ],
+                                                          "PromptType": "MC",
+                                                          "ResponseType": "Basic",
+                                                          "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
+                                                          "ExpectedResponses": {
+                                                            "DynamicOptionsTemplateRef": {
+                                                              "Ids": "[{{range $i, $v := .ContentFactors.education.Levels}}{{if gt $i  0}},{{end}}\"{{$v.FactorLevelId}}\"{{end}}]",
+                                                              "Texts": "[{{range $i, $v := .ContentFactors.education.Levels}}{{if gt $i  0}},{{end}}\"{{$v.Text}}\"{{end}}]"
+                                                            },
+                                                            "Values": [
+                                                              {
+                                                                "Id": "ANY_RESPONSE",
+                                                                "NextPrompt": {
+                                                                  "Id": "intro highlight one record explain everything",
+                                                                  "Text": [
+                                                                    "Record #{{.Record.RecordNo}} with performance {{.Record.Performance}} has {{.Record.FactorLevels.education.SelectedLevel}} for Education. What did you see this person's level of Fitness is?"
+                                                                  ],
+                                                                  "PromptType": "Text",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPromptRef": {
+                                                                          "Id": "intro fitness only"
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "Id": "selected level",
+                                                                "IdValueTemplateRef": [
+                                                                  "{{.Record.FactorLevels.education.SelectedLevelId}}"
+                                                                ],
+                                                                "NextPromptRef": {
+                                                                  "Id": "intro fitness only"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "Id": "selected performance",
+                                                        "IdValueTemplateRef": [
+                                                          "{{.Record.Performance}}"
+                                                        ],
+                                                        "NextPromptRef": {
+                                                          "Id": "intro highlight one record"
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "Id": "b",
+                                                "NextPrompt": {
+                                                  "Id": "intro highlight one record",
+                                                  "Text": [
+                                                    "You got it. You selected Record #{{.Record.RecordNo}}. Just like all the cases you have looked at before. You can see the levels of this person's Fitness, Parents' Health, and other factors. What is the Education level of this applicant?"
                                                   ],
                                                   "PromptType": "MC",
                                                   "ResponseType": "Basic",
@@ -1405,19 +1540,43 @@
                                                       {
                                                         "Id": "ANY_RESPONSE",
                                                         "NextPrompt": {
-                                                          "Id": "intro highlight one record explain everything",
+                                                          "Id": "intro highlight one record education wrong",
                                                           "Text": [
-                                                            "Record #{{.Record.RecordNo}} with performance {{.Record.Performance}} has {{.Record.FactorLevels.education.SelectedLevel}} for Education. What did you see this person's level of Fitness is?"
+                                                            "Seems like you are having trouble finding the information. Let's try a different one."
                                                           ],
-                                                          "PromptType": "Text",
+                                                          "PromptType": "STRAIGHT_THROUGH",
                                                           "ResponseType": "Basic",
-                                                          "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
+                                                          "UIActionModeId": "ALL_RECORDS",
                                                           "ExpectedResponses": {
+                                                            "CheckStateTemplateRef": "{{.Record.Performance}}",
                                                             "Values": [
                                                               {
                                                                 "Id": "ANY_RESPONSE",
-                                                                "NextPromptRef": {
-                                                                  "Id": "intro fitness only"
+                                                                "NextPrompt": {
+                                                                  "Id": "intro highlight one record try another record",
+                                                                  "Text": [
+                                                                    "Can you click on one of the diamonds that has a C performance?"
+                                                                  ],
+                                                                  "PromptType": "NO_INPUT",
+                                                                  "ResponseType": "CHART_RECORD",
+                                                                  "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
+                                                                  "ExpectedResponses": {
+                                                                    "CheckStateTemplateRef": "{{.Record.Performance}}",
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPromptRef": {
+                                                                          "Id": "intro highlight one record y-axis"
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "Id": "c",
+                                                                        "NextPromptRef": {
+                                                                          "Id": "intro highlight one record"
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
                                                                 }
                                                               }
                                                             ]
@@ -1429,144 +1588,10 @@
                                                         "IdValueTemplateRef": [
                                                           "{{.Record.FactorLevels.education.SelectedLevelId}}"
                                                         ],
-                                                        "NextPromptRef": {
-                                                          "Id": "intro fitness only"
-                                                        }
-                                                      }
-                                                    ]
-                                                  }
-                                                }
-                                              },
-                                              {
-                                                "Id": "selected performance",
-                                                "IdValueTemplateRef": [
-                                                  "{{.Record.Performance}}"
-                                                ],
-                                                "NextPromptRef": {
-                                                  "Id": "intro highlight one record"
-                                                }
-                                              }
-                                            ]
-                                          }
-                                        }
-                                      },
-                                      {
-                                        "Id": "b",
-                                        "NextPrompt": {
-                                          "Id": "intro highlight one record",
-                                          "Text": [
-                                            "You got it. You selected Record #{{.Record.RecordNo}}. Just like all the cases you have looked at before. You can see the levels of this person's Fitness, Parents' Health, and other factors. What is the Education level of this applicant?"
-                                          ],
-                                          "PromptType": "MC",
-                                          "ResponseType": "Basic",
-                                          "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
-                                          "ExpectedResponses": {
-                                            "DynamicOptionsTemplateRef": {
-                                              "Ids": "[{{range $i, $v := .ContentFactors.education.Levels}}{{if gt $i  0}},{{end}}\"{{$v.FactorLevelId}}\"{{end}}]",
-                                              "Texts": "[{{range $i, $v := .ContentFactors.education.Levels}}{{if gt $i  0}},{{end}}\"{{$v.Text}}\"{{end}}]"
-                                            },
-                                            "Values": [
-                                              {
-                                                "Id": "ANY_RESPONSE",
-                                                "NextPrompt": {
-                                                  "Id": "intro highlight one record education wrong",
-                                                  "Text": [
-                                                    "Seems like you are having trouble finding the information. Let's try a different one."
-                                                  ],
-                                                  "PromptType": "STRAIGHT_THROUGH",
-                                                  "ResponseType": "Basic",
-                                                  "UIActionModeId": "ALL_RECORDS",
-                                                  "ExpectedResponses": {
-                                                    "CheckStateTemplateRef": "{{.Record.Performance}}",
-                                                    "Values": [
-                                                      {
-                                                        "Id": "ANY_RESPONSE",
                                                         "NextPrompt": {
-                                                          "Id": "intro highlight one record try another record",
+                                                          "Id": "intro fitness only",
                                                           "Text": [
-                                                            "Can you click on one of the diamonds that has a C performance?"
-                                                          ],
-                                                          "PromptType": "NO_INPUT",
-                                                          "ResponseType": "CHART_RECORD",
-                                                          "UIActionModeId": "ALL_RECORDS_ALLOW_TOOLBOX",
-                                                          "ExpectedResponses": {
-                                                            "CheckStateTemplateRef": "{{.Record.Performance}}",
-                                                            "Values": [
-                                                              {
-                                                                "Id": "ANY_RESPONSE",
-                                                                "NextPromptRef": {
-                                                                  "Id": "intro highlight one record y-axis"
-                                                                }
-                                                              },
-                                                              {
-                                                                "Id": "c",
-                                                                "NextPromptRef": {
-                                                                  "Id": "intro highlight one record"
-                                                                }
-                                                              }
-                                                            ]
-                                                          }
-                                                        }
-                                                      }
-                                                    ]
-                                                  }
-                                                }
-                                              },
-                                              {
-                                                "Id": "selected level",
-                                                "IdValueTemplateRef": [
-                                                  "{{.Record.FactorLevels.education.SelectedLevelId}}"
-                                                ],
-                                                "NextPrompt": {
-                                                  "Id": "intro fitness only",
-                                                  "Text": [
-                                                    "Good. Now, let's look at a different chart. Here, we changed the chart so that we see only some of the people. Can you tell me what level of Fitness do all of these people have?"
-                                                  ],
-                                                  "PromptType": "Text",
-                                                  "ResponseType": "Basic",
-                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
-                                                  "ExpectedResponses": {
-                                                    "Values": [
-                                                      {
-                                                        "Id": "ANY_RESPONSE",
-                                                        "NextPrompt": {
-                                                          "Id": "intro fitness only average wrong",
-                                                          "Text": [
-                                                            "Look at the bottom of the chart. What level of Fitness does it say?"
-                                                          ],
-                                                          "PromptType": "Text",
-                                                          "ResponseType": "Basic",
-                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
-                                                          "ExpectedResponses": {
-                                                            "Values": [
-                                                              {
-                                                                "Id": "ANY_RESPONSE",
-                                                                "NextPromptRef": {
-                                                                  "Id": "intro fitness only why diff performance"
-                                                                }
-                                                              }
-                                                            ]
-                                                          }
-                                                        }
-                                                      },
-                                                      {
-                                                        "Id": "average",
-                                                        "IdValueTemplateRef": [
-                                                          "avrage",
-                                                          "average",
-                                                          "avg",
-                                                          "It's average",
-                                                          "it is average",
-                                                          "the level is average",
-                                                          "They all have average fitness."
-                                                        ],
-                                                        "IdNotValueTemplateRef": [
-                                                          "excellent"
-                                                        ],
-                                                        "NextPrompt": {
-                                                          "Id": "intro fitness only why diff performance",
-                                                          "Text": [
-                                                            "Ok, good. They all have average Fitness. So why do you think that even though all of these people have average Fitness but they have different performance? For example, some have B and some have E. Why?"
+                                                            "Good. Now, let's look at a different chart. Here, we changed the chart so that we see only some of the people. Can you tell me what level of Fitness do all of these people have?"
                                                           ],
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",
@@ -1576,140 +1601,9 @@
                                                               {
                                                                 "Id": "ANY_RESPONSE",
                                                                 "NextPrompt": {
-                                                                  "Id": "intro fitness only explain diff performance",
+                                                                  "Id": "intro fitness only average wrong",
                                                                   "Text": [
-                                                                    "Ok. So, maybe because other things are also making a difference. Let's make sure we understand what's going on here.",
-                                                                    "Here, I have selected two of the diamonds to show you these records. Take a look at these two records. What are the levels of their Fitness?"
-                                                                  ],
-                                                                  "PromptType": "Text",
-                                                                  "ResponseType": "Basic",
-                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS",
-                                                                  "ExpectedResponses": {
-                                                                    "Values": [
-                                                                      {
-                                                                        "Id": "ANY_RESPONSE",
-                                                                        "NextPrompt": {
-                                                                          "Id": "intro fitness only diff performance same fitness level",
-                                                                          "Text": [
-                                                                            "Look to the bottom of the chart, what does it say?"
-                                                                          ],
-                                                                          "PromptType": "Text",
-                                                                          "ResponseType": "Basic",
-                                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS",
-                                                                          "ExpectedResponses": {
-                                                                            "Values": [
-                                                                              {
-                                                                                "Id": "ANY_RESPONSE",
-                                                                                "NextPromptRef": {
-                                                                                  "Id": "intro fitness only explain more diff performance"
-                                                                                }
-                                                                              }
-                                                                            ]
-                                                                          }
-                                                                        }
-                                                                      },
-                                                                      {
-                                                                        "Id": "average",
-                                                                        "IdValueTemplateRef": [
-                                                                          "avrage",
-                                                                          "average",
-                                                                          "avg",
-                                                                          "It's average",
-                                                                          "it is average",
-                                                                          "the level is average",
-                                                                          "They all have average fitness."
-                                                                        ],
-                                                                        "IdNotValueTemplateRef": [
-                                                                          "excellent"
-                                                                        ],
-                                                                        "NextPrompt": {
-                                                                          "Id": "intro fitness only explain more diff performance",
-                                                                          "Text": [
-                                                                            "Ok. So they both have average. But they have different performances. What might be giving them different performances here?"
-                                                                          ],
-                                                                          "PromptType": "Text",
-                                                                          "ResponseType": "Basic",
-                                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS",
-                                                                          "ExpectedResponses": {
-                                                                            "Values": [
-                                                                              {
-                                                                                "Id": "ANY_RESPONSE",
-                                                                                "NextPrompt": {
-                                                                                  "Id": "intro fitness only explain more more diff performance",
-                                                                                  "Text": [
-                                                                                    "Take a look at the two records more closely and you can see that, even though they have the same Fitness, other things could be different. What do you see?"
-                                                                                  ],
-                                                                                  "PromptType": "Text",
-                                                                                  "ResponseType": "Basic",
-                                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS",
-                                                                                  "ExpectedResponses": {
-                                                                                    "Values": [
-                                                                                      {
-                                                                                        "Id": "ANY_RESPONSE",
-                                                                                        "NextPrompt": {
-                                                                                          "Id": "intro fitness only confirm explain diff performance",
-                                                                                          "Text": [
-                                                                                            "Ok, good. So we can see that, here, their levels of Education and Parents' Health are both different. So that might be the reason why their performance are different.",
-                                                                                            "Now that we understand how to read the charts, let's use these charts to investigate which factors make a difference and see if we come to the same conclusions as before. Press \"Enter\" when you are ready."
-                                                                                          ],
-                                                                                          "PromptType": "ENTER_TO_CONTINUE",
-                                                                                          "ResponseType": "COMPLETE",
-                                                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS"
-                                                                                        }
-                                                                                      }
-                                                                                    ]
-                                                                                  }
-                                                                                }
-                                                                              },
-                                                                              {
-                                                                                "Id": "education",
-                                                                                "IdValueTemplateRef": [
-                                                                                  "ed",
-                                                                                  "education",
-                                                                                  "other",
-                                                                                  "thing",
-                                                                                  "health",
-                                                                                  "parent"
-                                                                                ],
-                                                                                "NextPromptRef": {
-                                                                                  "Id": "intro fitness only confirm explain diff performance"
-                                                                                }
-                                                                              }
-                                                                            ]
-                                                                          }
-                                                                        }
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                }
-                                                              },
-                                                              {
-                                                                "Id": "NOT_SURE_RESPONSE",
-                                                                "IdValueTemplateRef": [
-                                                                  "not sure",
-                                                                  "don't know",
-                                                                  "dont know",
-                                                                  "dnt know",
-                                                                  "hmm",
-                                                                  "do not know"
-                                                                ],
-                                                                "IdNotValueTemplateRef": [
-                                                                  "maybe",
-                                                                  "may be",
-                                                                  "think",
-                                                                  "could be",
-                                                                  "it is",
-                                                                  "other",
-                                                                  "factor",
-                                                                  "factors",
-                                                                  "education",
-                                                                  "health",
-                                                                  "climate"
-                                                                ],
-                                                                "NextPrompt": {
-                                                                  "Id": "intro fitness only why again diff performance",
-                                                                  "Text": [
-                                                                    "Seems like you are not sure. That's ok. So we know that they all have average Fitness but that they still have different performance. What could be the reason why these people have different performance?"
+                                                                    "Look at the bottom of the chart. What level of Fitness does it say?"
                                                                   ],
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
@@ -1719,33 +1613,214 @@
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
                                                                         "NextPromptRef": {
-                                                                          "Id": "intro fitness only explain diff performance"
+                                                                          "Id": "intro fitness only why diff performance"
                                                                         }
                                                                       }
                                                                     ]
                                                                   }
                                                                 }
-                                                              }
-                                                            ]
-                                                          }
-                                                        }
-                                                      },
-                                                      {
-                                                        "Id": "UNCLEAR_RESPONSE",
-                                                        "NextPrompt": {
-                                                          "Id": "intro fitness only average unclear",
-                                                          "Text": [
-                                                            "I am not really sure if I got that. Look at the bottom of the chart. What level of Fitness does it say? You may also want to check your spelling."
-                                                          ],
-                                                          "PromptType": "Text",
-                                                          "ResponseType": "Basic",
-                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
-                                                          "ExpectedResponses": {
-                                                            "Values": [
+                                                              },
                                                               {
-                                                                "Id": "ANY_RESPONSE",
-                                                                "NextPromptRef": {
-                                                                  "Id": "intro fitness only why diff performance"
+                                                                "Id": "average",
+                                                                "IdValueTemplateRef": [
+                                                                  "avrage",
+                                                                  "average",
+                                                                  "avg",
+                                                                  "It's average",
+                                                                  "it is average",
+                                                                  "the level is average",
+                                                                  "They all have average fitness."
+                                                                ],
+                                                                "IdNotValueTemplateRef": [
+                                                                  "excellent"
+                                                                ],
+                                                                "NextPrompt": {
+                                                                  "Id": "intro fitness only why diff performance",
+                                                                  "Text": [
+                                                                    "Ok, good. They all have Average Fitness. So why do you think that even though all of these people have Average Fitness but they have different performance? For example, some have B and some have E. Why?"
+                                                                  ],
+                                                                  "PromptType": "Text",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPrompt": {
+                                                                          "Id": "intro fitness only explain diff performance",
+                                                                          "Text": [
+                                                                            "Ok. So, maybe because other things are also making a difference. Let's make sure we understand what's going on here.",
+                                                                            "Here, I have selected two of the diamonds to show you these records. Take a look at these two records. What are the levels of their Fitness?"
+                                                                          ],
+                                                                          "PromptType": "Text",
+                                                                          "ResponseType": "Basic",
+                                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS",
+                                                                          "ExpectedResponses": {
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "ANY_RESPONSE",
+                                                                                "NextPrompt": {
+                                                                                  "Id": "intro fitness only diff performance same fitness level",
+                                                                                  "Text": [
+                                                                                    "Look to the bottom of the chart, what does it say?"
+                                                                                  ],
+                                                                                  "PromptType": "Text",
+                                                                                  "ResponseType": "Basic",
+                                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS",
+                                                                                  "ExpectedResponses": {
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "ANY_RESPONSE",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "intro fitness only explain more diff performance"
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              {
+                                                                                "Id": "average",
+                                                                                "IdValueTemplateRef": [
+                                                                                  "avrage",
+                                                                                  "average",
+                                                                                  "avg",
+                                                                                  "It's average",
+                                                                                  "it is average",
+                                                                                  "the level is average",
+                                                                                  "They all have average fitness."
+                                                                                ],
+                                                                                "IdNotValueTemplateRef": [
+                                                                                  "excellent"
+                                                                                ],
+                                                                                "NextPrompt": {
+                                                                                  "Id": "intro fitness only explain more diff performance",
+                                                                                  "Text": [
+                                                                                    "Ok. So they both have Average. But they have different performances. What might be giving them different performances here?"
+                                                                                  ],
+                                                                                  "PromptType": "Text",
+                                                                                  "ResponseType": "Basic",
+                                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS",
+                                                                                  "ExpectedResponses": {
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "ANY_RESPONSE",
+                                                                                        "NextPrompt": {
+                                                                                          "Id": "intro fitness only explain more more diff performance",
+                                                                                          "Text": [
+                                                                                            "Take a look at the two records more closely and you can see that, even though they have the same Fitness, other things could be different. What do you see?"
+                                                                                          ],
+                                                                                          "PromptType": "Text",
+                                                                                          "ResponseType": "Basic",
+                                                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS",
+                                                                                          "ExpectedResponses": {
+                                                                                            "Values": [
+                                                                                              {
+                                                                                                "Id": "ANY_RESPONSE",
+                                                                                                "NextPrompt": {
+                                                                                                  "Id": "intro fitness only confirm explain diff performance",
+                                                                                                  "Text": [
+                                                                                                    "Ok, good. So we can see that, here, their levels of Education and Parents' Health are both different. So that might be a reason why their performance are different.",
+                                                                                                    "Now that we understand how to read the charts, let's use these charts to investigate which factors make a difference and see if we come to the same conclusions as before. Press \"Enter\" when you are ready."
+                                                                                                  ],
+                                                                                                  "PromptType": "ENTER_TO_CONTINUE",
+                                                                                                  "ResponseType": "COMPLETE",
+                                                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS"
+                                                                                                }
+                                                                                              }
+                                                                                            ]
+                                                                                          }
+                                                                                        }
+                                                                                      },
+                                                                                      {
+                                                                                        "Id": "education",
+                                                                                        "IdValueTemplateRef": [
+                                                                                          "ed",
+                                                                                          "education",
+                                                                                          "other",
+                                                                                          "thing",
+                                                                                          "health",
+                                                                                          "parent"
+                                                                                        ],
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "intro fitness only confirm explain diff performance"
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "Id": "NOT_SURE_RESPONSE",
+                                                                        "IdValueTemplateRef": [
+                                                                          "not sure",
+                                                                          "don't know",
+                                                                          "dont know",
+                                                                          "dnt know",
+                                                                          "hmm",
+                                                                          "do not know"
+                                                                        ],
+                                                                        "IdNotValueTemplateRef": [
+                                                                          "maybe",
+                                                                          "may be",
+                                                                          "think",
+                                                                          "could be",
+                                                                          "it is",
+                                                                          "other",
+                                                                          "factor",
+                                                                          "factors",
+                                                                          "education",
+                                                                          "health",
+                                                                          "climate"
+                                                                        ],
+                                                                        "NextPrompt": {
+                                                                          "Id": "intro fitness only why again diff performance",
+                                                                          "Text": [
+                                                                            "Seems like you are not sure. That's ok. So we know that they all have Average Fitness but that they still have different performance. What could be a reason why these people have different performance?"
+                                                                          ],
+                                                                          "PromptType": "Text",
+                                                                          "ResponseType": "Basic",
+                                                                          "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
+                                                                          "ExpectedResponses": {
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "ANY_RESPONSE",
+                                                                                "NextPromptRef": {
+                                                                                  "Id": "intro fitness only explain diff performance"
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "Id": "UNCLEAR_RESPONSE",
+                                                                "NextPrompt": {
+                                                                  "Id": "intro fitness only average unclear",
+                                                                  "Text": [
+                                                                    "I am not really sure if I got that. Look at the bottom of the chart. What level of Fitness does it say? You may also want to check your spelling."
+                                                                  ],
+                                                                  "PromptType": "Text",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPromptRef": {
+                                                                          "Id": "intro fitness only why diff performance"
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
                                                                 }
                                                               }
                                                             ]
@@ -1809,7 +1884,7 @@
                         "NextPrompt": {
                           "Id": "chart conclusion",
                           "Text": [
-                            "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference?"
+                            "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance in space?"
                           ],
                           "PromptType": "MC",
                           "ResponseType": "CAUSAL_CONCLUSION",
@@ -1822,7 +1897,7 @@
                                 "NextPrompt": {
                                   "Id": "chart causal",
                                   "Text": [
-                                    "Ok, so you think that {{.TargetFactor.FactorName}} makes a difference. What makes you decide that?"
+                                    "Ok, so you think that {{.TargetFactor.FactorName}} makes a difference to performance. What makes you decide that?"
                                   ],
                                   "PromptType": "Text",
                                   "ResponseType": "Basic",
@@ -1847,7 +1922,7 @@
                                                 "NextPrompt": {
                                                   "Id": "chart wrong causal conclusion",
                                                   "Text": [
-                                                    "Ok. Let me make sure I got that. If you look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v}}{{end}} for {{.TargetFactor.FactorName}}, do you see any differences in the performance between the people who have different levels of {{.TargetFactor.FactorName}}?"
+                                                    "Ok. Let me make sure I got that. If you look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v}}{{end}} for {{.TargetFactor.FactorName}}, do you see any differences in the performance between the people who have different levels of {{.TargetFactor.FactorName}}?"
                                                   ],
                                                   "PromptType": "Text",
                                                   "ResponseType": "Basic",
@@ -1866,7 +1941,7 @@
                                                         "NextPrompt": {
                                                           "Id": "chart wrong causal conclusion see any difference",
                                                           "Text": [
-                                                            "Ok. So, if you look at the chart, does it look like people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} would do better or worse or about the same as those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}?"
+                                                            "Ok. So, if you look at the chart, does it look like people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} would do better or worse or about the same as those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}?"
                                                           ],
                                                           "PromptType": "MC",
                                                           "ResponseType": "Basic",
@@ -1882,7 +1957,7 @@
                                                                 "NextPrompt": {
                                                                   "Id": "chart wrong causal conclusion lost",
                                                                   "Text": [
-                                                                    "Ok, no problem. Let's see if we can figure it out together. Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
+                                                                    "Ok, no problem. Let's see if we can figure it out together. Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} for {{.TargetFactor.FactorName}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
                                                                   ],
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
@@ -1892,19 +1967,74 @@
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
                                                                         "NextPrompt": {
-                                                                          "Id": "chart wrong causal conclusion explain",
+                                                                          "Id": "chart wrong causal conclusion try again",
                                                                           "Text": [
-                                                                            "Ok, so it seems that people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} and the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}, they all have the same kind of performance."
+                                                                            "Ok, so it seems that people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} and the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}, they all have the same kind of performance.",
+                                                                            "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance in space?"
                                                                           ],
-                                                                          "PromptType": "STRAIGHT_THROUGH",
-                                                                          "ResponseType": "Basic",
+                                                                          "PromptType": "MC",
+                                                                          "ResponseType": "CAUSAL_CONCLUSION",
                                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                                           "ExpectedResponses": {
                                                                             "Values": [
                                                                               {
-                                                                                "Id": "ANY_RESPONSE",
-                                                                                "NextPromptRef": {
-                                                                                  "Id": "chart conclusion"
+                                                                                "Id": "true",
+                                                                                "Text": "Yes",
+                                                                                "NextPrompt": {
+                                                                                  "Id": "chart wrong causal conclusion try again chart causal",
+                                                                                  "Text": [
+                                                                                    "So you think that {{.TargetFactor.FactorName}} does make a difference to performance."
+                                                                                  ],
+                                                                                  "PromptType": "STRAIGHT_THROUGH",
+                                                                                  "ResponseType": "Basic",
+                                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                                  "ExpectedResponses": {
+                                                                                    "CheckStateTemplateRef": "{{.TargetFactor.IsCausal}}",
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "true",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "chart correct causal explain step by step double check"
+                                                                                        }
+                                                                                      },
+                                                                                      {
+                                                                                        "Id": "ANY_RESPONSE",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "chart wrong causal conclusion see difference"
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              {
+                                                                                "Id": "false",
+                                                                                "Text": "No",
+                                                                                "NextPrompt": {
+                                                                                  "Id": "chart wrong causal conclusion try again chart non-causal",
+                                                                                  "Text": [
+                                                                                    "I see."
+                                                                                  ],
+                                                                                  "PromptType": "STRAIGHT_THROUGH",
+                                                                                  "ResponseType": "Basic",
+                                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                                  "ExpectedResponses": {
+                                                                                    "CheckStateTemplateRef": "{{.TargetFactor.IsCausal}}",
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "false",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "chart correct non-causal conclusion"
+                                                                                        }
+                                                                                      },
+                                                                                      {
+                                                                                        "Id": "ANY_RESPONSE",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "chart wrong non-causal conclusion"
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
                                                                                 }
                                                                               }
                                                                             ]
@@ -1920,7 +2050,7 @@
                                                                 "NextPrompt": {
                                                                   "Id": "chart wrong causal conclusion see difference",
                                                                   "Text": [
-                                                                    "Ok. Now, let's look again at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
+                                                                    "Ok. Now, let's look again at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
                                                                   ],
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
@@ -1930,7 +2060,7 @@
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
                                                                         "NextPromptRef": {
-                                                                          "Id": "chart wrong causal conclusion explain"
+                                                                          "Id": "chart wrong causal conclusion try again"
                                                                         }
                                                                       }
                                                                     ]
@@ -1943,7 +2073,7 @@
                                                                 "NextPrompt": {
                                                                   "Id": "chart wrong causal conclusion try again",
                                                                   "Text": [
-                                                                    "Ok, I see. Based on the chart, you think that people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} and those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}} have the same performance."
+                                                                    "Ok, I see. Based on the chart, you think that people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} and those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}} have the same performance."
                                                                   ],
                                                                   "PromptType": "STRAIGHT_THROUGH",
                                                                   "ResponseType": "Basic",
@@ -1967,7 +2097,7 @@
                                                       {
                                                         "Id": "ANY_RESPONSE",
                                                         "NextPromptRef": {
-                                                          "Id": "chart wrong causal conclusion see any difference"
+                                                          "Id": "chart wrong causal conclusion see difference"
                                                         }
                                                       },
                                                       {
@@ -1993,7 +2123,7 @@
                                                 "NextPrompt": {
                                                   "Id": "chart correct causal explain step by step",
                                                   "Text": [
-                                                    "Ok. let me make sure I got that. If you look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v.Text}}{{end}} for {{.TargetFactor.FactorName}}, how are they different? Is there anything special about those who have {{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}?"
+                                                    "Ok. let me make sure I got that. If you look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v.Text}}{{end}} for {{.TargetFactor.FactorName}}, how are they different? Is there anything special about those who have {{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}?"
                                                   ],
                                                   "PromptType": "Text",
                                                   "ResponseType": "Basic",
@@ -2002,24 +2132,24 @@
                                                     "Values": [
                                                       {
                                                         "Id": "ANY_RESPONSE",
-                                                        "NexPrompt": {
+                                                        "NextPrompt": {
                                                           "Id": "chart correct causal explain step by step double check",
                                                           "Text": [
-                                                            "Ok. I see. So for {{.TargetFactor.FactorName}}, which level do you think is best to have for performance?"
+                                                            "Ok. I see. So for {{.TargetFactor.FactorName}}, which level do you think is best to have for  performance?"
                                                           ],
                                                           "PromptType": "MC",
                                                           "ResponseType": "Basic",
                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                           "ExpectedResponses": {
                                                             "DynamicOptionsTemplateRef": {
-                                                              "Ids": "[{{$factor := index .ContentFactors .TargetFactor.FactorName}}{{range $i, $v := $factor.Levels}}{{if gt $i  0}},{{end}}\"{{$v.FactorLevelId}}\"{{end}}]",
-                                                              "Texts": "[{{$factor := index .ContentFactors .TargetFactor.FactorName}}{{range $i, $v := $factor.Levels}}{{if gt $i  0}},{{end}}\"{{$v.Text}}\"{{end}}]"
+                                                              "Ids": "[{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{range $i, $v := $factor.Levels}}{{if gt $i  0}},{{end}}\"{{$v.FactorLevelId}}\"{{end}}]",
+                                                              "Texts": "[{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{range $i, $v := $factor.Levels}}{{if gt $i  0}},{{end}}\"{{$v.Text}}\"{{end}}]"
                                                             },
                                                             "Values": [
                                                               {
                                                                 "Id": "best level",
                                                                 "IdValueTemplateRef": [
-                                                                  "{{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$bestLevel index $factor.Levels 0}}{{$bestLevel.FactorLevelId}}"
+                                                                  "{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestLevel := index $factor.Levels 0}}{{$bestLevel.FactorLevelId}}"
                                                                 ],
                                                                 "NextPrompt": {
                                                                   "Id": "chart correct causal correct best level",
@@ -2036,7 +2166,7 @@
                                                                         "NextPrompt": {
                                                                           "Id": "chart correct causal correct best level challenge",
                                                                           "Text": [
-                                                                            "I see. Now, how do you think the graph would look different if {{.TargetFactor.FactorName}} makes no difference to performance?"
+                                                                            "I see. Now, how do you think the chart would look different if {{.TargetFactor.FactorName}} makes no difference to performance?"
                                                                           ],
                                                                           "PromptType": "Text",
                                                                           "ResponseType": "Basic",
@@ -2048,8 +2178,7 @@
                                                                                 "NextPrompt": {
                                                                                   "Id": "memo",
                                                                                   "Text": [
-                                                                                    "Ok, great, so you are sure then.",
-                                                                                    "Ok. Let's write down what you found out here as a memo to the foundation. Don't forget to click \"Enter\" to submit it."
+                                                                                    "Ok, great. Now, let's write down what you found out here as a memo to the foundation. Don't forget to click \"Enter\" to submit it."
                                                                                   ],
                                                                                   "PromptType": "NO_INPUT",
                                                                                   "ResponseType": "MEMO",
@@ -2085,7 +2214,7 @@
                                                                 "NextPrompt": {
                                                                   "Id": "not best levels",
                                                                   "Text": [
-                                                                    "I see. Let's look at the performance of all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}. What is the best performance those people have?"
+                                                                    "I see. Let's look at the performance of all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}. What is the best performance those people have?"
                                                                   ],
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
@@ -2119,44 +2248,19 @@
                                         "IdValueTemplateRef": [
                                           "chart",
                                           "none",
-                                          "A",
-                                          "E",
                                           "all",
-                                          "nobody"
+                                          "nobody",
+                                          "those",
+                                          "people"
                                         ],
                                         "IdNotValueTemplateRef": [
                                           "before",
                                           "record",
                                           "applicant",
-                                          "saw",
-                                          "he",
-                                          "she"
+                                          "saw"
                                         ],
-                                        "NexPrompt": {
-                                          "Id": "chart causal refers to chart",
-                                          "Text": [
-                                            "Sounds like you think that the chart shows you that {{.TargetFactor.FactorName}} makes a difference. Can you tell me more what it is about the chart that shows you {{.TargetFactor.FactorName}} makes a difference?"
-                                          ],
-                                          "PromptType": "Text",
-                                          "ResponseType": "Basic",
-                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
-                                          "ExpectedResponses": {
-                                            "CheckStateTemplateRef": "{{.TargetFactor.IsCausal}}",
-                                            "Values": [
-                                              {
-                                                "Id": "ANY_RESPONSE",
-                                                "NextPromptRef": {
-                                                  "Id": "chart wrong causal conclusion"
-                                                }
-                                              },
-                                              {
-                                                "Id": "true",
-                                                "NextPromptRef": {
-                                                  "Id": "chart correct causal explain step by step"
-                                                }
-                                              }
-                                            ]
-                                          }
+                                        "NextPromptRef": {
+                                          "Id": "chart causal step by step assume refers to chart"
                                         }
                                       },
                                       {
@@ -2165,17 +2269,15 @@
                                           "before",
                                           "record",
                                           "applicant",
-                                          "saw",
-                                          "he",
-                                          "she"
+                                          "saw"
                                         ],
                                         "IdNotValueTemplateRef": [
                                           "chart",
                                           "none",
-                                          "A",
-                                          "E",
                                           "all",
-                                          "nobody"
+                                          "nobody",
+                                          "those",
+                                          "people"
                                         ],
                                         "NextPrompt": {
                                           "Id": "chart refers to records",
@@ -2190,7 +2292,7 @@
                                             "Values": [
                                               {
                                                 "Id": "ANY_RESPONSE",
-                                                "NextPrompt": {
+                                                "NextPromptRef": {
                                                   "Id": "chart conclusion"
                                                 }
                                               }
@@ -2208,7 +2310,7 @@
                                 "NextPrompt": {
                                   "Id": "chart non-causal",
                                   "Text": [
-                                    "Ok, so you think that {{.TargetFactor.FactorName}} does not make a difference. What makes you decide that?"
+                                    "Ok, so you think that {{.TargetFactor.FactorName}} does not make a difference to performance. What makes you decide that?"
                                   ],
                                   "PromptType": "Text",
                                   "ResponseType": "Basic",
@@ -2233,7 +2335,7 @@
                                                 "NextPrompt": {
                                                   "Id": "chart wrong non-causal conclusion",
                                                   "Text": [
-                                                    "Ok. let me make sure I got that. If you look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v.Text}}{{end}} for {{.TargetFactor.FactorName}}, how are they different? Is there anything special about those who have {{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}?"
+                                                    "Ok. let me make sure I got that. If you look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v.Text}}{{end}} for {{.TargetFactor.FactorName}}, how are they different? Is there anything special about those who have {{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}?"
                                                   ],
                                                   "PromptType": "Text",
                                                   "ResponseType": "Basic",
@@ -2242,7 +2344,7 @@
                                                     "Values": [
                                                       {
                                                         "Id": "ANY_RESPONSE",
-                                                        "NexPrompt": {
+                                                        "NextPrompt": {
                                                           "Id": "chart wrong non-causal explain step by step",
                                                           "Text": [
                                                             "Ok. I see. So for {{.TargetFactor.FactorName}}, is there a level that you would think is best to have for performance? If so, which level is best?"
@@ -2252,19 +2354,19 @@
                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                           "ExpectedResponses": {
                                                             "DynamicOptionsTemplateRef": {
-                                                              "Ids": "[{{$factor := index .ContentFactors .TargetFactor.FactorName}}{{range $i, $v := $factor.Levels}}{{if gt $i  0}},{{end}}\"{{$v.FactorLevelId}}\"{{end}}, \"the same\"]",
-                                                              "Texts": "[\"No\",{{$factor := index .ContentFactors .TargetFactor.FactorName}}{{range $i, $v := $factor.Levels}}{{if gt $i  0}},{{end}}\"{{$v.Text}}\"{{end}}, \"No, all the same.\"]"
+                                                              "Ids": "[{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{range $i, $v := $factor.Levels}}{{if gt $i  0}},{{end}}\"{{$v.FactorLevelId}}\"{{end}}, \"the same\"]",
+                                                              "Texts": "[{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{range $i, $v := $factor.Levels}}{{if gt $i  0}},{{end}}\"{{$v.Text}}\"{{end}}, \"No, all the same.\"]"
                                                             },
                                                             "Values": [
                                                               {
                                                                 "Id": "best level",
                                                                 "IdValueTemplateRef": [
-                                                                  "{{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$bestLevel index $factor.Levels 0}}{{$bestLevel.FactorLevelId}}"
+                                                                  "{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestLevel := index $factor.Levels 0}}{{$bestLevel.FactorLevelId}}"
                                                                 ],
                                                                 "NextPrompt": {
                                                                   "Id": "chart wrong non-causal correct best level",
                                                                   "Text": [
-                                                                    "Ok. So you think that having {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$bestLevel index $factor.Levels 0}}{{$bestLevel.Text}} for {{.TargetFactor.FactorName}} is best for performance."
+                                                                    "Ok. So you think that having {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestLevel := index $factor.Levels 0}}{{$bestLevel.Text}} for {{.TargetFactor.FactorName}} is best for performance."
                                                                   ],
                                                                   "PromptType": "STRAIGHT_THROUGH",
                                                                   "ResponseType": "Basic",
@@ -2286,7 +2388,7 @@
                                                                 "NextPrompt": {
                                                                   "Id": "chart wrong non-causal wrong best levels",
                                                                   "Text": [
-                                                                    "I see. Now, let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
+                                                                    "I see. Now, let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
                                                                   ],
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
@@ -2332,7 +2434,7 @@
                                                 "NextPrompt": {
                                                   "Id": "chart correct non-causal explain step by step",
                                                   "Text": [
-                                                    "Ok. Let me make sure I got that. If you look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v}}{{end}} for {{.TargetFactor.FactorName}}, do you see any differences in the performance between the people who have different levels of {{.TargetFactor.FactorName}}?"
+                                                    "Ok. Let me make sure I got that. If you look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v}}{{end}} for {{.TargetFactor.FactorName}}, do you see any differences in the performance between the people who have different levels of {{.TargetFactor.FactorName}}?"
                                                   ],
                                                   "PromptType": "Text",
                                                   "ResponseType": "Basic",
@@ -2363,7 +2465,7 @@
                                                                 "NextPrompt": {
                                                                   "Id": "chart correct non-causal challenge",
                                                                   "Text": [
-                                                                    "I see. Now, how do you think the graph would look different if {{.TargetFactor.FactorName}} does make a difference to performance?"
+                                                                    "I see. Now, how do you think the chart would look different if {{.TargetFactor.FactorName}} does make a difference to performance?"
                                                                   ],
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
@@ -2389,7 +2491,7 @@
                                                         "NextPrompt": {
                                                           "Id": "chart correct non-causal conclusion see difference",
                                                           "Text": [
-                                                            "Ok, let me make sure I got that. Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
+                                                            "Ok, let me make sure I got that. Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
                                                           ],
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",
@@ -2419,7 +2521,7 @@
                                                         "NextPrompt": {
                                                           "Id": "chart correct non-causal explain not sure",
                                                           "Text": [
-                                                            "Ok, no problem. Let's see if we can figure it out together. Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
+                                                            "Ok, no problem. Let's see if we can figure it out together. Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
                                                           ],
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",
@@ -2449,25 +2551,23 @@
                                         "IdValueTemplateRef": [
                                           "chart",
                                           "none",
-                                          "A",
-                                          "E",
                                           "all",
-                                          "nobody"
+                                          "nobody",
+                                          "those",
+                                          "people"
                                         ],
                                         "IdNotValueTemplateRef": [
                                           "before",
                                           "record",
                                           "applicant",
-                                          "saw",
-                                          "he",
-                                          "she"
+                                          "saw"
                                         ],
-                                        "NexPrompt": {
+                                        "NextPrompt": {
                                           "Id": "chart non-causal refers to chart",
                                           "Text": [
-                                            "Sounds like you think that the chart shows you that {{.TargetFactor.FactorName}} does not make a difference. Can you tell me more what it is about the chart that shows you {{.TargetFactor.FactorName}} does not makes a difference?"
+                                            "I see."
                                           ],
-                                          "PromptType": "Text",
+                                          "PromptType": "STRAIGHT_THROUGH",
                                           "ResponseType": "Basic",
                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                           "ExpectedResponses": {
@@ -2495,17 +2595,15 @@
                                           "before",
                                           "record",
                                           "applicant",
-                                          "saw",
-                                          "he",
-                                          "she"
+                                          "saw"
                                         ],
                                         "IdNotValueTemplateRef": [
                                           "chart",
                                           "none",
-                                          "A",
-                                          "E",
                                           "all",
-                                          "nobody"
+                                          "nobody",
+                                          "those",
+                                          "people"
                                         ],
                                         "NextPromptRef": {
                                           "Id": "chart refers to records"
@@ -2521,7 +2619,7 @@
                                 "NextPrompt": {
                                   "Id": "chart not sure",
                                   "Text": [
-                                    "Ok, no problem. Let's see if we can figure it out together. Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorName}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
+                                    "Ok, no problem. Let's see if we can figure it out together. Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
                                   ],
                                   "PromptType": "Text",
                                   "ResponseType": "Basic",
@@ -2530,8 +2628,191 @@
                                     "Values": [
                                       {
                                         "Id": "ANY_RESPONSE",
-                                        "NextPromptRef": {
-                                          "Id": "chart conclusion"
+                                        "NextPrompt": {
+                                          "Id": "chart conclusion step by step",
+                                          "Text": [
+                                            "So, what do you think? What does this tell you about whether {{.TargetFactor.FactorName}} makes a difference to performance?"
+                                          ],
+                                          "PromptType": "MC",
+                                          "ResponseType": "CAUSAL_CONCLUSION",
+                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                          "ExpectedResponses": {
+                                            "Values": [
+                                              {
+                                                "Id": "true",
+                                                "Text": "Yes",
+                                                "NextPrompt": {
+                                                  "Id": "chart causal step by step",
+                                                  "Text": [
+                                                    "Ok, so you think that {{.TargetFactor.FactorName}} makes a difference to performance. What makes you decide that?"
+                                                  ],
+                                                  "PromptType": "Text",
+                                                  "ResponseType": "Basic",
+                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                  "ExpectedResponses": {
+                                                    "Values": [
+                                                      {
+                                                        "Id": "ANY_RESPONSE",
+                                                        "NextPrompt": {
+                                                          "Id": "chart causal step by step assume refers to chart",
+                                                          "Text": [
+                                                            "I see."
+                                                          ],
+                                                          "PromptType": "STRAIGHT_THROUGH",
+                                                          "ResponseType": "Basic",
+                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                          "ExpectedResponses": {
+                                                            "CheckStateTemplateRef": "{{.TargetFactor.IsCausal}}",
+                                                            "Values": [
+                                                              {
+                                                                "Id": "ANY_RESPONSE",
+                                                                "NextPromptRef": {
+                                                                  "Id": "chart wrong causal conclusion"
+                                                                }
+                                                              },
+                                                              {
+                                                                "Id": "true",
+                                                                "NextPromptRef": {
+                                                                  "Id": "chart correct causal explain step by step"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "Id": "maybe about record",
+                                                        "IdValueTemplateRef": [
+                                                          "before",
+                                                          "record",
+                                                          "applicant",
+                                                          "saw"
+                                                        ],
+                                                        "IdNotValueTemplateRef": [
+                                                          "chart",
+                                                          "none",
+                                                          "all",
+                                                          "nobody",
+                                                          "those",
+                                                          "people"
+                                                        ],
+                                                        "NextPrompt": {
+                                                          "Id": "chart causal step by step refers to records",
+                                                          "Text": [
+                                                            "Ok. Sounds like you might be thinking about what we did before. Remember that the organization wants to be really sure before we make any decisions. So we don't want to rely on opinions or what we found with just a few records.",
+                                                            "Look carefully at the chart here. What do you think the chart tells us about whether {{.TargetFactor.FactorName}} matters or not to the performance?"
+                                                          ],
+                                                          "PromptType": "STRAIGHT_THROUGH",
+                                                          "ResponseType": "Basic",
+                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                          "ExpectedResponses": {
+                                                            "Values": [
+                                                              {
+                                                                "Id": "ANY_RESPONSE",
+                                                                "NextPromptRef": {
+                                                                  "Id": "chart conclusion"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "Id": "false",
+                                                "Text": "No",
+                                                "NextPromptRef": {
+                                                  "Id": "chart non-causal"
+                                                }
+                                              },
+                                              {
+                                                "Id": "not sure",
+                                                "Text": "Not Sure",
+                                                "NextPrompt": {
+                                                  "Id": "chart not sure still",
+                                                  "Text": [
+                                                    "Ok, Let's look some more together. So, when you look at the chart, does it look like people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} would have better or worse or about the same performance as those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}?"
+                                                  ],
+                                                  "PromptType": "MC",
+                                                  "ResponseType": "Basic",
+                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                  "ExpectedResponses": {
+                                                    "DynamicOptionsTemplateRef": {
+                                                      "Ids": "[\"better\",\"worse\",\"the same\"]",
+                                                      "Texts": "[\"Better\",\"Worse\",\"The Same\"]"
+                                                    },
+                                                    "Values": [
+                                                      {
+                                                        "Id": "the same",
+                                                        "NextPrompt": {
+                                                          "Id": "chart non-causal maybe",
+                                                          "Text": [
+                                                            "So you think that people with these different levels of {{.TargetFactor.FactorName}} perform about the same.",
+                                                            "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance?"
+                                                          ],
+                                                          "PromptType": "MC",
+                                                          "ResponseType": "CAUSAL_CONCLUSION",
+                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                          "ExpectedResponses": {
+                                                            "Values": [
+                                                              {
+                                                                "Id": "true",
+                                                                "Text": "Yes",
+                                                                "NextPromptRef": {
+                                                                  "Id": "chart causal"
+                                                                }
+                                                              },
+                                                              {
+                                                                "Id": "false",
+                                                                "Text": "No",
+                                                                "NextPromptRef": {
+                                                                  "Id": "chart non-causal"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "Id": "ANY_RESPONSE",
+                                                        "NextPrompt": {
+                                                          "Id": "chart causal maybe",
+                                                          "Text": [
+                                                            "So you think that people with these different levels of {{.TargetFactor.FactorName}} will perform differently.",
+                                                            "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance?"
+                                                          ],
+                                                          "PromptType": "MC",
+                                                          "ResponseType": "CAUSAL_CONCLUSION",
+                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                          "ExpectedResponses": {
+                                                            "Values": [
+                                                              {
+                                                                "Id": "true",
+                                                                "Text": "Yes",
+                                                                "NextPromptRef": {
+                                                                  "Id": "chart causal"
+                                                                }
+                                                              },
+                                                              {
+                                                                "Id": "false",
+                                                                "Text": "No",
+                                                                "NextPromptRef": {
+                                                                  "Id": "chart non-causal"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
                                         }
                                       }
                                     ]

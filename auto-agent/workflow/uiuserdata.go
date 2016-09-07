@@ -16,31 +16,35 @@ type UIUserData struct {
 	CurrentUIPrompt      UIPrompt
 	CurrentUIAction      UIAction
 	State                StateEntities
-	ContentFactors       map[string]*UIFactor
+	ContentFactors       map[string]UIFactor
 	ArchiveHistoryLength int
 }
 
 func (uiUserData *UIUserData) initPhase(pId string) {
 	if pId != "" && uiUserData.CurrentPhaseId != pId {
 		uiUserData.CurrentPhaseId = pId
+	}
 
-		uiUserData.ContentFactors = make(map[string]*UIFactor, len(GetPhase(uiUserData.CurrentPhaseId).ContentRef.Factors))
+	if uiUserData.CurrentPhaseId != "" {
+		uiUserData.ContentFactors = make(map[string]UIFactor, len(GetPhase(uiUserData.CurrentPhaseId).ContentRef.Factors))
 		for i, v := range GetPhase(uiUserData.CurrentPhaseId).ContentRef.Factors {
 			f := GetFactorConfig(v.Id)
-			uiUserData.ContentFactors[f.Id] = &UIFactor{
+			uiUserData.ContentFactors[f.Id] = UIFactor{
 				FactorId: f.Id,
 				Text:     f.Name,
 				IsCausal: f.IsCausal,
 				Order:    i,
 			}
-			uiUserData.ContentFactors[f.Id].Levels = make([]*UIFactorOption, len(f.Levels))
+			temp := uiUserData.ContentFactors[f.Id]
+			temp.Levels = make([]UIFactorOption, len(f.Levels))
 			for j := range f.Levels {
-				uiUserData.ContentFactors[f.Id].Levels[j] = &UIFactorOption{
+				temp.Levels[j] = UIFactorOption{
 					FactorLevelId: f.Levels[j].Id,
 					Text:          f.Levels[j].Name,
 					ImgPath:       f.Levels[j].ImgPath,
 				}
 			}
+			uiUserData.ContentFactors[f.Id] = temp
 		}
 	}
 }
@@ -65,7 +69,7 @@ type StateEntities interface {
 	GetTargetFactor() FactorState
 	GetRemainingFactors() []UIFactor
 	GetLastMemo() UIMemoResponse
-	SetContentFactorsPointer(*map[string]*UIFactor)
+	SetContentFactors(map[string]UIFactor)
 }
 
 type GenericState struct {
@@ -76,7 +80,7 @@ type GenericState struct {
 	RemainingFactors []UIFactor
 	Beliefs          BeliefsState
 	LastMemo         UIMemoResponse
-	ContentFactors   *map[string]*UIFactor // Using a pointer here in case if things change in UiUserData
+	ContentFactors   map[string]UIFactor // Using a pointer here in case if things change in UiUserData
 }
 
 type BeliefsState struct {
@@ -85,7 +89,7 @@ type BeliefsState struct {
 	HasMultipleCausalFactors bool
 }
 
-func (c *GenericState) SetContentFactorsPointer(p *map[string]*UIFactor) {
+func (c *GenericState) SetContentFactors(p map[string]UIFactor) {
 	c.ContentFactors = p
 }
 
@@ -255,7 +259,7 @@ func (fs FactorState) String() string {
 type UIFactor struct {
 	FactorId       string
 	Text           string
-	Levels         []*UIFactorOption
+	Levels         []UIFactorOption
 	IsBeliefCausal bool
 	BestLevelId    string
 	IsCausal       bool
@@ -289,12 +293,12 @@ func MakeUIUserData(u db.User) *UIUserData {
 		uiUserData.State = s
 	}
 
-	uiUserData.initPhase(uiUserData.CurrentPhaseId)
+	uiUserData.initPhase(u.CurrentPhaseId)
 
-	if uiUserData.ContentFactors != nil {
+	if uiUserData.State != nil && uiUserData.ContentFactors != nil {
 		// TODO - There is an order dependency here because uiUserData.ContentFactors
 		// is intialized in initPhase. Ugly for should work for now
-		uiUserData.State.SetContentFactorsPointer(&uiUserData.ContentFactors)
+		uiUserData.State.SetContentFactors(uiUserData.ContentFactors)
 	}
 	return uiUserData
 }

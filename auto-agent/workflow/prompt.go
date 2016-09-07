@@ -261,8 +261,12 @@ func (cp *GenericPrompt) updatePriorBeliefs(uiUserData *UIUserData, r UIPriorBel
 	var hasCausal bool
 	var hasMultipleCausal bool
 	for i, v := range uiUserData.ContentFactors {
-		uiUserData.ContentFactors[i].IsBeliefCausal = r.BeliefFactors[v.Order].IsBeliefCausal
-		uiUserData.ContentFactors[i].BestLevelId = r.BeliefFactors[v.Order].BestLevelId
+		temp := uiUserData.ContentFactors[i]
+		temp.IsBeliefCausal = r.BeliefFactors[v.Order].IsBeliefCausal
+		temp.BestLevelId = r.BeliefFactors[v.Order].BestLevelId
+		uiUserData.ContentFactors[i] = temp
+		// uiUserData.ContentFactors[i].IsBeliefCausal = r.BeliefFactors[v.Order].IsBeliefCausal
+		// uiUserData.ContentFactors[i].BestLevelId = r.BeliefFactors[v.Order].BestLevelId
 		if r.BeliefFactors[v.Order].IsBeliefCausal {
 			causalFactors = append(causalFactors, v.Text)
 		}

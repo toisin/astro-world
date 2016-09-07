@@ -35,6 +35,10 @@ var ChartAction = React.createClass({
           return  <Chart user={user} singleColumn onComplete={onComplete} app={app} key={"ALL_RECORDS"}/>;
         case "TARGET_FACTOR_RECORDS":
           return  <Chart user={user} showTargetFactorRecords onComplete={onComplete} app={app} key={"TARGET_FACTOR_RECORDS"}/>;
+        case "MEMO_FORM":
+          return <div><MemoForm user={user} onComplete={onComplete} app={app}/></div>;
+        case "MEMO":
+          return <div><Memo user={user} app={app}/></div>;
         default:
           return <div></div>;
       }
