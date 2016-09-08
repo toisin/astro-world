@@ -1939,7 +1939,7 @@
                                                           "yes"
                                                         ],
                                                         "NextPrompt": {
-                                                          "Id": "chart wrong causal conclusion see any difference",
+                                                          "Id": "chart wrong causal conclusion see no difference",
                                                           "Text": [
                                                             "Ok. So, if you look at the chart, does it look like people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} would do better or worse or about the same as those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}?"
                                                           ],
@@ -1981,26 +1981,42 @@
                                                                                 "Id": "true",
                                                                                 "Text": "Yes",
                                                                                 "NextPrompt": {
-                                                                                  "Id": "chart wrong causal conclusion try again chart causal",
+                                                                                  "Id": "chart wrong causal conclusion try again still wrong chart causal",
                                                                                   "Text": [
-                                                                                    "So you think that {{.TargetFactor.FactorName}} does make a difference to performance."
+                                                                                    "I see. Now, Let me ask you, if those who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} for {{.TargetFactor.FactorName}} have the same kind of performance as those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}, does it make a difference what level of {{.TargetFactor.FactorName}} one has? Would it make a difference to their performance?"
                                                                                   ],
-                                                                                  "PromptType": "STRAIGHT_THROUGH",
+                                                                                  "PromptType": "Text",
                                                                                   "ResponseType": "Basic",
                                                                                   "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                                                   "ExpectedResponses": {
-                                                                                    "CheckStateTemplateRef": "{{.TargetFactor.IsCausal}}",
                                                                                     "Values": [
                                                                                       {
-                                                                                        "Id": "true",
-                                                                                        "NextPromptRef": {
-                                                                                          "Id": "chart correct causal explain step by step double check"
-                                                                                        }
-                                                                                      },
-                                                                                      {
                                                                                         "Id": "ANY_RESPONSE",
-                                                                                        "NextPromptRef": {
-                                                                                          "Id": "chart wrong causal conclusion see difference"
+                                                                                        "NextPrompt": {
+                                                                                          "Id": "chart wrong causal conclusion try again still wrong chart causal try again",
+                                                                                          "Text": [
+                                                                                            "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance in space?"
+                                                                                          ],
+                                                                                          "PromptType": "MC",
+                                                                                          "ResponseType": "CAUSAL_CONCLUSION",
+                                                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                                          "ExpectedResponses": {
+                                                                                            "Values": [
+                                                                                            {
+                                                                                              "Id": "true",
+                                                                                              "Text": "Yes",
+                                                                                              "NextPromptRef": {
+                                                                                                "Id":"chart wrong causal conclusion"
+                                                                                              }
+                                                                                            },
+                                                                                            {
+                                                                                              "Id": "false",
+                                                                                              "Text": "No",
+                                                                                              "NextPromptRef": {
+                                                                                                "Id": "chart wrong causal conclusion try again chart non-causal"
+                                                                                              }
+                                                                                            }]
+                                                                                          }
                                                                                         }
                                                                                       }
                                                                                     ]
@@ -2025,12 +2041,6 @@
                                                                                         "Id": "false",
                                                                                         "NextPromptRef": {
                                                                                           "Id": "chart correct non-causal conclusion"
-                                                                                        }
-                                                                                      },
-                                                                                      {
-                                                                                        "Id": "ANY_RESPONSE",
-                                                                                        "NextPromptRef": {
-                                                                                          "Id": "chart wrong non-causal conclusion"
                                                                                         }
                                                                                       }
                                                                                     ]
@@ -2071,7 +2081,7 @@
                                                                 "Id": "the same",
                                                                 "Text": "The Same",
                                                                 "NextPrompt": {
-                                                                  "Id": "chart wrong causal conclusion try again",
+                                                                  "Id": "chart wrong causal conclusion see the same try again",
                                                                   "Text": [
                                                                     "Ok, I see. Based on the chart, you think that people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} and those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}} have the same performance."
                                                                   ],
