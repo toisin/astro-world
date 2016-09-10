@@ -1882,7 +1882,7 @@
                       {
                         "Id": "ANY_RESPONSE",
                         "NextPrompt": {
-                          "Id": "chart conclusion",
+                          "Id": "MC_is_causal",
                           "Text": [
                             "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance in space?"
                           ],
@@ -1895,7 +1895,7 @@
                                 "Id": "true",
                                 "Text": "Yes",
                                 "NextPrompt": {
-                                  "Id": "chart causal",
+                                  "Id": "causal.Q_why.1",
                                   "Text": [
                                     "Ok, so you think that {{.TargetFactor.FactorName}} makes a difference to performance. What makes you decide that?"
                                   ],
@@ -1907,7 +1907,7 @@
                                       {
                                         "Id": "ANY_RESPONSE",
                                         "NextPrompt": {
-                                          "Id": "chart causal explain unclear",
+                                          "Id": "causal.help.Q_what_about_chart.1",
                                           "Text": [
                                             "I am not sure if I got that. So, you think {{.TargetFactor.FactorName}} makes a difference to performance. Now, what is it about the chart that tells you that {{.TargetFactor.FactorName}} matters to the performance?"
                                           ],
@@ -1920,7 +1920,7 @@
                                               {
                                                 "Id": "ANY_RESPONSE",
                                                 "NextPrompt": {
-                                                  "Id": "chart wrong causal conclusion",
+                                                  "Id": "causal.wrong.Q_is_diff.1",
                                                   "Text": [
                                                     "Ok. Let me make sure I got that. If you look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v}}{{end}} for {{.TargetFactor.FactorName}}, do you see any differences in the performance between the people who have different levels of {{.TargetFactor.FactorName}}?"
                                                   ],
@@ -1939,7 +1939,7 @@
                                                           "yes"
                                                         ],
                                                         "NextPrompt": {
-                                                          "Id": "chart wrong causal conclusion see no difference",
+                                                          "Id": "causal.wrong.correct.MC_is_same_perf_or_unsure.1",
                                                           "Text": [
                                                             "Ok. So, if you look at the chart, does it look like people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} would do better or worse or about the same as those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}?"
                                                           ],
@@ -1955,7 +1955,7 @@
                                                               {
                                                                 "Id": "not sure",
                                                                 "NextPrompt": {
-                                                                  "Id": "chart wrong causal conclusion lost",
+                                                                  "Id": "causal.wrong.help.Q_best_worst.1",
                                                                   "Text": [
                                                                     "Ok, no problem. Let's see if we can figure it out together. Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} for {{.TargetFactor.FactorName}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
                                                                   ],
@@ -1967,7 +1967,7 @@
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
                                                                         "NextPrompt": {
-                                                                          "Id": "chart wrong causal conclusion try again",
+                                                                          "Id": "causal.wrong.help.same_perf.MC_is_diff.1.1",
                                                                           "Text": [
                                                                             "Ok, so it seems that people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} and the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}, they all have the same kind of performance.",
                                                                             "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance in space?"
@@ -1981,7 +1981,7 @@
                                                                                 "Id": "true",
                                                                                 "Text": "Yes",
                                                                                 "NextPrompt": {
-                                                                                  "Id": "chart wrong causal conclusion try again still wrong chart causal",
+                                                                                  "Id": "causal.wrong.help.wrong.Q_does_level_matter.1.2",
                                                                                   "Text": [
                                                                                     "I see. Now, Let me ask you, if those who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} for {{.TargetFactor.FactorName}} have the same kind of performance as those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}, does it make a difference what level of {{.TargetFactor.FactorName}} one has? Would it make a difference to their performance?"
                                                                                   ],
@@ -1993,7 +1993,7 @@
                                                                                       {
                                                                                         "Id": "ANY_RESPONSE",
                                                                                         "NextPrompt": {
-                                                                                          "Id": "chart wrong causal conclusion try again still wrong chart causal try again",
+                                                                                          "Id": "causal.wrong.help.wrong.MC_is_diff.1.2.1",
                                                                                           "Text": [
                                                                                             "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance in space?"
                                                                                           ],
@@ -2002,20 +2002,21 @@
                                                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                                                           "ExpectedResponses": {
                                                                                             "Values": [
-                                                                                            {
-                                                                                              "Id": "true",
-                                                                                              "Text": "Yes",
-                                                                                              "NextPromptRef": {
-                                                                                                "Id":"chart wrong causal conclusion"
+                                                                                              {
+                                                                                                "Id": "true",
+                                                                                                "Text": "Yes",
+                                                                                                "NextPromptRef": {
+                                                                                                  "Id": "causal.wrong.Q_is_diff.1"
+                                                                                                }
+                                                                                              },
+                                                                                              {
+                                                                                                "Id": "false",
+                                                                                                "Text": "No",
+                                                                                                "NextPromptRef": {
+                                                                                                  "Id": "causal.wrong.help.correct.1.1"
+                                                                                                }
                                                                                               }
-                                                                                            },
-                                                                                            {
-                                                                                              "Id": "false",
-                                                                                              "Text": "No",
-                                                                                              "NextPromptRef": {
-                                                                                                "Id": "chart wrong causal conclusion try again chart non-causal"
-                                                                                              }
-                                                                                            }]
+                                                                                            ]
                                                                                           }
                                                                                         }
                                                                                       }
@@ -2027,7 +2028,7 @@
                                                                                 "Id": "false",
                                                                                 "Text": "No",
                                                                                 "NextPrompt": {
-                                                                                  "Id": "chart wrong causal conclusion try again chart non-causal",
+                                                                                  "Id": "causal.wrong.help.correct.1.1",
                                                                                   "Text": [
                                                                                     "I see."
                                                                                   ],
@@ -2040,7 +2041,7 @@
                                                                                       {
                                                                                         "Id": "false",
                                                                                         "NextPromptRef": {
-                                                                                          "Id": "chart correct non-causal conclusion"
+                                                                                          "Id": "non-causal.correct.correct.Q_someone_disagree.2.3"
                                                                                         }
                                                                                       }
                                                                                     ]
@@ -2058,7 +2059,7 @@
                                                               {
                                                                 "Id": "ANY_RESPONSE",
                                                                 "NextPrompt": {
-                                                                  "Id": "chart wrong causal conclusion see difference",
+                                                                  "Id": "causal.wrong.wrong.Q_best_worst.1",
                                                                   "Text": [
                                                                     "Ok. Now, let's look again at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
                                                                   ],
@@ -2070,7 +2071,7 @@
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
                                                                         "NextPromptRef": {
-                                                                          "Id": "chart wrong causal conclusion try again"
+                                                                          "Id": "causal.wrong.help.same_perf.MC_is_diff.1.1"
                                                                         }
                                                                       }
                                                                     ]
@@ -2081,7 +2082,7 @@
                                                                 "Id": "the same",
                                                                 "Text": "The Same",
                                                                 "NextPrompt": {
-                                                                  "Id": "chart wrong causal conclusion see the same try again",
+                                                                  "Id": "non-causal.correct.correct.2.3",
                                                                   "Text": [
                                                                     "Ok, I see. Based on the chart, you think that people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} and those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}} have the same performance."
                                                                   ],
@@ -2092,8 +2093,40 @@
                                                                     "Values": [
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
-                                                                        "NextPromptRef": {
-                                                                          "Id": "chart conclusion"
+                                                                        "NextPrompt": {
+                                                                          "Id": "non-causal.correct.correct.Q_someone_disagree.2.3",
+                                                                          "Text": [
+                                                                            "Ok, so it looks like you think that {{.TargetFactor.FactorName}} really does not make a difference to performance. Now, suppose someone disagrees with you and thinks that {{.TargetFactor.FactorName}} does make a difference to performance in space, what would you say to them?"
+                                                                          ],
+                                                                          "PromptType": "Text",
+                                                                          "ResponseType": "Basic",
+                                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                          "ExpectedResponses": {
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "ANY_RESPONSE",
+                                                                                "NextPrompt": {
+                                                                                  "Id": "non-causal.correct.correct.Q_how_chart_look_if_non-causal.2.3",
+                                                                                  "Text": [
+                                                                                    "I see. Now, how do you think the chart would look different if {{.TargetFactor.FactorName}} does make a difference to performance?"
+                                                                                  ],
+                                                                                  "PromptType": "Text",
+                                                                                  "ResponseType": "Basic",
+                                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                                  "ExpectedResponses": {
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "ANY_RESPONSE",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "memo"
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
                                                                         }
                                                                       }
                                                                     ]
@@ -2107,7 +2140,7 @@
                                                       {
                                                         "Id": "ANY_RESPONSE",
                                                         "NextPromptRef": {
-                                                          "Id": "chart wrong causal conclusion see difference"
+                                                          "Id": "causal.wrong.wrong.Q_best_worst.1"
                                                         }
                                                       },
                                                       {
@@ -2121,7 +2154,7 @@
                                                           "do not know"
                                                         ],
                                                         "NextPromptRef": {
-                                                          "Id": "chart wrong causal conclusion lost"
+                                                          "Id": "causal.wrong.help.Q_best_worst.1"
                                                         }
                                                       }
                                                     ]
@@ -2131,7 +2164,7 @@
                                               {
                                                 "Id": "true",
                                                 "NextPrompt": {
-                                                  "Id": "chart correct causal explain step by step",
+                                                  "Id": "causal.correct.Q_is_special_level_zero.1",
                                                   "Text": [
                                                     "Ok. let me make sure I got that. If you look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v.Text}}{{end}} for {{.TargetFactor.FactorName}}, how are they different? Is there anything special about those who have {{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}?"
                                                   ],
@@ -2143,9 +2176,9 @@
                                                       {
                                                         "Id": "ANY_RESPONSE",
                                                         "NextPrompt": {
-                                                          "Id": "chart correct causal explain step by step double check",
+                                                          "Id": "causal.correct.MC_which_best_level.1",
                                                           "Text": [
-                                                            "Ok. I see. So for {{.TargetFactor.FactorName}}, which level do you think is best to have for  performance?"
+                                                            "Ok. I see. So for {{.TargetFactor.FactorName}}, which level do you think is best to have for performance?"
                                                           ],
                                                           "PromptType": "MC",
                                                           "ResponseType": "Basic",
@@ -2162,7 +2195,7 @@
                                                                   "{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestLevel := index $factor.Levels 0}}{{$bestLevel.FactorLevelId}}"
                                                                 ],
                                                                 "NextPrompt": {
-                                                                  "Id": "chart correct causal correct best level",
+                                                                  "Id": "causal.correct.correct.Q_someone_disagree.1.1",
                                                                   "Text": [
                                                                     "Ok, got it. So you think that {{.TargetFactor.FactorName}} really does make a difference to performance. Now, suppose someone disagrees with you and thinks that {{.TargetFactor.FactorName}} really does not make a difference to performance in space, what would you say to them?"
                                                                   ],
@@ -2174,7 +2207,7 @@
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
                                                                         "NextPrompt": {
-                                                                          "Id": "chart correct causal correct best level challenge",
+                                                                          "Id": "causal.correct.correct.Q_how_chart_look_if_non-causal.1.1",
                                                                           "Text": [
                                                                             "I see. Now, how do you think the chart would look different if {{.TargetFactor.FactorName}} makes no difference to performance?"
                                                                           ],
@@ -2222,7 +2255,7 @@
                                                               {
                                                                 "Id": "ANY_RESPONSE",
                                                                 "NextPrompt": {
-                                                                  "Id": "not best levels",
+                                                                  "Id": "causal.correct.wrong.Q_what_best_perf_level_one_1.2",
                                                                   "Text": [
                                                                     "I see. Let's look at the performance of all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}. What is the best performance those people have?"
                                                                   ],
@@ -2234,7 +2267,7 @@
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
                                                                         "NextPromptRef": {
-                                                                          "Id": "chart correct causal explain step by step double check"
+                                                                          "Id": "causal.correct.MC_which_best_level.1"
                                                                         }
                                                                       }
                                                                     ]
@@ -2270,7 +2303,7 @@
                                           "saw"
                                         ],
                                         "NextPromptRef": {
-                                          "Id": "chart causal step by step assume refers to chart"
+                                          "Id": "causal.assume_chart.1"
                                         }
                                       },
                                       {
@@ -2290,7 +2323,7 @@
                                           "people"
                                         ],
                                         "NextPrompt": {
-                                          "Id": "chart refers to records",
+                                          "Id": "causal.record.see_chart.1",
                                           "Text": [
                                             "Ok. Sounds like you might be thinking about what we did before. Remember that the organization wants to be really sure before we make any decisions. So we don't want to rely on opinions or what we found with just a few records.",
                                             "Look carefully at the chart here. What do you think the chart tells us about whether {{.TargetFactor.FactorName}} matters or not to the performance?"
@@ -2303,7 +2336,7 @@
                                               {
                                                 "Id": "ANY_RESPONSE",
                                                 "NextPromptRef": {
-                                                  "Id": "chart conclusion"
+                                                  "Id": "MC_is_causal"
                                                 }
                                               }
                                             ]
@@ -2318,7 +2351,7 @@
                                 "Id": "false",
                                 "Text": "No",
                                 "NextPrompt": {
-                                  "Id": "chart non-causal",
+                                  "Id": "non-causal.Q_why.2",
                                   "Text": [
                                     "Ok, so you think that {{.TargetFactor.FactorName}} does not make a difference to performance. What makes you decide that?"
                                   ],
@@ -2330,7 +2363,7 @@
                                       {
                                         "Id": "ANY_RESPONSE",
                                         "NextPrompt": {
-                                          "Id": "chart non-causal explain unclear",
+                                          "Id": "non-causal.help.Q_what_about_chart.2",
                                           "Text": [
                                             "I am not sure if I got that. So, you think {{.TargetFactor.FactorName}} does not make a difference to performance. Now, what is it about the chart that tells you that {{.TargetFactor.FactorName}} does not matter to performance?"
                                           ],
@@ -2343,7 +2376,7 @@
                                               {
                                                 "Id": "ANY_RESPONSE",
                                                 "NextPrompt": {
-                                                  "Id": "chart wrong non-causal conclusion",
+                                                  "Id": "non-causal.wrong.Q_is_special_level_zero.2",
                                                   "Text": [
                                                     "Ok. let me make sure I got that. If you look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v.Text}}{{end}} for {{.TargetFactor.FactorName}}, how are they different? Is there anything special about those who have {{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}?"
                                                   ],
@@ -2355,7 +2388,7 @@
                                                       {
                                                         "Id": "ANY_RESPONSE",
                                                         "NextPrompt": {
-                                                          "Id": "chart wrong non-causal explain step by step",
+                                                          "Id": "non-causal.wrong.help.MC_is_and_which_best_level.2",
                                                           "Text": [
                                                             "Ok. I see. So for {{.TargetFactor.FactorName}}, is there a level that you would think is best to have for performance? If so, which level is best?"
                                                           ],
@@ -2374,7 +2407,7 @@
                                                                   "{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestLevel := index $factor.Levels 0}}{{$bestLevel.FactorLevelId}}"
                                                                 ],
                                                                 "NextPrompt": {
-                                                                  "Id": "chart wrong non-causal correct best level",
+                                                                  "Id": "non-causal.wrong.help.correct.best_level.2.1",
                                                                   "Text": [
                                                                     "Ok. So you think that having {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestLevel := index $factor.Levels 0}}{{$bestLevel.Text}} for {{.TargetFactor.FactorName}} is best for performance."
                                                                   ],
@@ -2386,7 +2419,7 @@
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
                                                                         "NextPromptRef": {
-                                                                          "Id": "chart conclusion"
+                                                                          "Id": "MC_is_causal"
                                                                         }
                                                                       }
                                                                     ]
@@ -2396,7 +2429,7 @@
                                                               {
                                                                 "Id": "ANY_RESPONSE",
                                                                 "NextPrompt": {
-                                                                  "Id": "chart wrong non-causal wrong best levels",
+                                                                  "Id": "non-causal.wrong.help.wrong.Q_best_worst.2.2",
                                                                   "Text": [
                                                                     "I see. Now, let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
                                                                   ],
@@ -2408,7 +2441,7 @@
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
                                                                         "NextPrompt": {
-                                                                          "Id": "chart wrong non-causal different levels",
+                                                                          "Id": "non-causal.wrong.help.wrong.help.have_diff_perf.2.2",
                                                                           "Text": [
                                                                             "Ok. So it seems that having different levels for {{.TargetFactor.FactorName}} give you different performance."
                                                                           ],
@@ -2420,7 +2453,7 @@
                                                                               {
                                                                                 "Id": "ANY_RESPONSE",
                                                                                 "NextPromptRef": {
-                                                                                  "Id": "chart conclusion"
+                                                                                  "Id": "MC_is_causal"
                                                                                 }
                                                                               }
                                                                             ]
@@ -2442,7 +2475,7 @@
                                               {
                                                 "Id": "false",
                                                 "NextPrompt": {
-                                                  "Id": "chart correct non-causal explain step by step",
+                                                  "Id": "non-causal.correct.Q_is_diff.2",
                                                   "Text": [
                                                     "Ok. Let me make sure I got that. If you look at all of the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$length := len $factor.Levels}}{{range $i, $v := $factor.Levels}}{{if gt $i 0}}{{if eq $length 2}} and {{else if gt $i 1}} and {{else}}, {{end}}{{end}}{{$v}}{{end}} for {{.TargetFactor.FactorName}}, do you see any differences in the performance between the people who have different levels of {{.TargetFactor.FactorName}}?"
                                                   ],
@@ -2460,62 +2493,14 @@
                                                         "IdNotValueTemplateRef": [
                                                           "yes"
                                                         ],
-                                                        "NextPrompt": {
-                                                          "Id": "chart correct non-causal conclusion",
-                                                          "Text": [
-                                                            "Ok, got it. So you think that {{.TargetFactor.FactorName}} really does not make a difference to performance. Now, suppose someone disagrees with you and thinks that {{.TargetFactor.FactorName}} does make a difference to performance in space, what would you say to them?"
-                                                          ],
-                                                          "PromptType": "Text",
-                                                          "ResponseType": "Basic",
-                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
-                                                          "ExpectedResponses": {
-                                                            "Values": [
-                                                              {
-                                                                "Id": "ANY_RESPONSE",
-                                                                "NextPrompt": {
-                                                                  "Id": "chart correct non-causal challenge",
-                                                                  "Text": [
-                                                                    "I see. Now, how do you think the chart would look different if {{.TargetFactor.FactorName}} does make a difference to performance?"
-                                                                  ],
-                                                                  "PromptType": "Text",
-                                                                  "ResponseType": "Basic",
-                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
-                                                                  "ExpectedResponses": {
-                                                                    "Values": [
-                                                                      {
-                                                                        "Id": "ANY_RESPONSE",
-                                                                        "NextPromptRef": {
-                                                                          "Id": "memo"
-                                                                        }
-                                                                      }
-                                                                    ]
-                                                                  }
-                                                                }
-                                                              }
-                                                            ]
-                                                          }
+                                                        "NextPromptRef": {
+                                                          "Id": "causal.wrong.correct.MC_is_same_perf_or_unsure.1"
                                                         }
                                                       },
                                                       {
                                                         "Id": "ANY_RESPONSE",
-                                                        "NextPrompt": {
-                                                          "Id": "chart correct non-causal conclusion see difference",
-                                                          "Text": [
-                                                            "Ok, let me make sure I got that. Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
-                                                          ],
-                                                          "PromptType": "Text",
-                                                          "ResponseType": "Basic",
-                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
-                                                          "ExpectedResponses": {
-                                                            "Values": [
-                                                              {
-                                                                "Id": "ANY_RESPONSE",
-                                                                "NextPromptRef": {
-                                                                  "Id": "chart correct non-causal conclusion"
-                                                                }
-                                                              }
-                                                            ]
-                                                          }
+                                                        "NextPromptRef": {
+                                                          "Id": "causal.wrong.wrong.Q_best_worst.1"
                                                         }
                                                       },
                                                       {
@@ -2528,24 +2513,8 @@
                                                           "hmm",
                                                           "do not know"
                                                         ],
-                                                        "NextPrompt": {
-                                                          "Id": "chart correct non-causal explain not sure",
-                                                          "Text": [
-                                                            "Ok, no problem. Let's see if we can figure it out together. Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
-                                                          ],
-                                                          "PromptType": "Text",
-                                                          "ResponseType": "Basic",
-                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
-                                                          "ExpectedResponses": {
-                                                            "Values": [
-                                                              {
-                                                                "Id": "ANY_RESPONSE",
-                                                                "NextPromptRef": {
-                                                                  "Id": "chart correct non-causal conclusion"
-                                                                }
-                                                              }
-                                                            ]
-                                                          }
+                                                        "NextPromptRef": {
+                                                          "Id": "causal.wrong.help.Q_best_worst.1"
                                                         }
                                                       }
                                                     ]
@@ -2573,7 +2542,7 @@
                                           "saw"
                                         ],
                                         "NextPrompt": {
-                                          "Id": "chart non-causal refers to chart",
+                                          "Id": "non-causal.assume_chart.2",
                                           "Text": [
                                             "I see."
                                           ],
@@ -2586,13 +2555,13 @@
                                               {
                                                 "Id": "ANY_RESPONSE",
                                                 "NextPromptRef": {
-                                                  "Id": "chart wrong non-causal conclusion"
+                                                  "Id": "non-causal.wrong.Q_is_special_level_zero.2"
                                                 }
                                               },
                                               {
                                                 "Id": "false",
                                                 "NextPromptRef": {
-                                                  "Id": "chart correct non-causal explain step by step"
+                                                  "Id": "non-causal.correct.Q_is_diff.2"
                                                 }
                                               }
                                             ]
@@ -2616,7 +2585,7 @@
                                           "people"
                                         ],
                                         "NextPromptRef": {
-                                          "Id": "chart refers to records"
+                                          "Id": "causal.record.see_chart.1"
                                         }
                                       }
                                     ]
@@ -2627,9 +2596,9 @@
                                 "Id": "not sure",
                                 "Text": "Not Sure",
                                 "NextPrompt": {
-                                  "Id": "chart not sure",
+                                  "Id": "help.Q_best_worst.3",
                                   "Text": [
-                                    "Ok, no problem. Let's see if we can figure it out together. Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
+                                    "Ok, no problem. Let's see if we can figure it out together. Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} for {{.TargetFactor.FactorName}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
                                   ],
                                   "PromptType": "Text",
                                   "ResponseType": "Basic",
@@ -2639,7 +2608,7 @@
                                       {
                                         "Id": "ANY_RESPONSE",
                                         "NextPrompt": {
-                                          "Id": "chart conclusion step by step",
+                                          "Id": "help.MC_is_causal.3",
                                           "Text": [
                                             "So, what do you think? What does this tell you about whether {{.TargetFactor.FactorName}} makes a difference to performance?"
                                           ],
@@ -2652,7 +2621,7 @@
                                                 "Id": "true",
                                                 "Text": "Yes",
                                                 "NextPrompt": {
-                                                  "Id": "chart causal step by step",
+                                                  "Id": "help.Q_why.3.1",
                                                   "Text": [
                                                     "Ok, so you think that {{.TargetFactor.FactorName}} makes a difference to performance. What makes you decide that?"
                                                   ],
@@ -2664,7 +2633,7 @@
                                                       {
                                                         "Id": "ANY_RESPONSE",
                                                         "NextPrompt": {
-                                                          "Id": "chart causal step by step assume refers to chart",
+                                                          "Id": "causal.assume_chart.1",
                                                           "Text": [
                                                             "I see."
                                                           ],
@@ -2677,13 +2646,13 @@
                                                               {
                                                                 "Id": "ANY_RESPONSE",
                                                                 "NextPromptRef": {
-                                                                  "Id": "chart wrong causal conclusion"
+                                                                  "Id": "causal.wrong.Q_is_diff.1"
                                                                 }
                                                               },
                                                               {
                                                                 "Id": "true",
                                                                 "NextPromptRef": {
-                                                                  "Id": "chart correct causal explain step by step"
+                                                                  "Id": "causal.correct.Q_is_special_level_zero.1"
                                                                 }
                                                               }
                                                             ]
@@ -2706,25 +2675,8 @@
                                                           "those",
                                                           "people"
                                                         ],
-                                                        "NextPrompt": {
-                                                          "Id": "chart causal step by step refers to records",
-                                                          "Text": [
-                                                            "Ok. Sounds like you might be thinking about what we did before. Remember that the organization wants to be really sure before we make any decisions. So we don't want to rely on opinions or what we found with just a few records.",
-                                                            "Look carefully at the chart here. What do you think the chart tells us about whether {{.TargetFactor.FactorName}} matters or not to the performance?"
-                                                          ],
-                                                          "PromptType": "STRAIGHT_THROUGH",
-                                                          "ResponseType": "Basic",
-                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
-                                                          "ExpectedResponses": {
-                                                            "Values": [
-                                                              {
-                                                                "Id": "ANY_RESPONSE",
-                                                                "NextPromptRef": {
-                                                                  "Id": "chart conclusion"
-                                                                }
-                                                              }
-                                                            ]
-                                                          }
+                                                        "NextPromptRef": {
+                                                          "Id": "causal.record.see_chart.1"
                                                         }
                                                       }
                                                     ]
@@ -2735,14 +2687,14 @@
                                                 "Id": "false",
                                                 "Text": "No",
                                                 "NextPromptRef": {
-                                                  "Id": "chart non-causal"
+                                                  "Id": "non-causal.Q_why.2"
                                                 }
                                               },
                                               {
                                                 "Id": "not sure",
                                                 "Text": "Not Sure",
                                                 "NextPrompt": {
-                                                  "Id": "chart not sure still",
+                                                  "Id": "help.help.MC_is_same_perf.3.3",
                                                   "Text": [
                                                     "Ok, Let's look some more together. So, when you look at the chart, does it look like people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} would have better or worse or about the same performance as those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}?"
                                                   ],
@@ -2758,7 +2710,7 @@
                                                       {
                                                         "Id": "the same",
                                                         "NextPrompt": {
-                                                          "Id": "chart non-causal maybe",
+                                                          "Id": "help.help.same_perf.MC_is_diff.3.3.1",
                                                           "Text": [
                                                             "So you think that people with these different levels of {{.TargetFactor.FactorName}} perform about the same.",
                                                             "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance?"
@@ -2772,14 +2724,14 @@
                                                                 "Id": "true",
                                                                 "Text": "Yes",
                                                                 "NextPromptRef": {
-                                                                  "Id": "chart causal"
+                                                                  "Id": "causal.Q_why.1"
                                                                 }
                                                               },
                                                               {
                                                                 "Id": "false",
                                                                 "Text": "No",
                                                                 "NextPromptRef": {
-                                                                  "Id": "chart non-causal"
+                                                                  "Id": "non-causal.Q_why.2"
                                                                 }
                                                               }
                                                             ]
@@ -2789,7 +2741,7 @@
                                                       {
                                                         "Id": "ANY_RESPONSE",
                                                         "NextPrompt": {
-                                                          "Id": "chart causal maybe",
+                                                          "Id": "help.help.not_same_perf.MC_is_diff.3.3.2",
                                                           "Text": [
                                                             "So you think that people with these different levels of {{.TargetFactor.FactorName}} will perform differently.",
                                                             "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance?"
@@ -2803,14 +2755,14 @@
                                                                 "Id": "true",
                                                                 "Text": "Yes",
                                                                 "NextPromptRef": {
-                                                                  "Id": "chart causal"
+                                                                  "Id": "causal.Q_why.1"
                                                                 }
                                                               },
                                                               {
                                                                 "Id": "false",
                                                                 "Text": "No",
                                                                 "NextPromptRef": {
-                                                                  "Id": "chart non-causal"
+                                                                  "Id": "non-causal.Q_why.2"
                                                                 }
                                                               }
                                                             ]
