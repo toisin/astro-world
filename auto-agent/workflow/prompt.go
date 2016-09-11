@@ -11,6 +11,7 @@ import (
 	"text/template"
 
 	"db"
+	"util"
 
 	"appengine"
 )
@@ -468,7 +469,8 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 					}
 					valueRef := doc.String()
 
-					if strings.Contains(strings.ToLower(rid), strings.ToLower(valueRef)) {
+					if util.ContainsWord(strings.ToLower(rid), strings.ToLower(valueRef)) > 0 {
+						fmt.Fprintf(os.Stderr, "matched: %s && %s, %k\n\n", valueRef, rid, k)
 						p = erh.expectedResponseMap[strings.ToLower(k)]
 						break
 					}
@@ -486,12 +488,13 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 						}
 						valueRef := doc.String()
 
-						if strings.Contains(strings.ToLower(rid), strings.ToLower(valueRef)) {
+						if util.ContainsWord(strings.ToLower(rid), strings.ToLower(valueRef)) > 0 {
 							// If there was a match but also a "not value" match simultaneously,
 							// then, if an unclear response prompt exists, use that,
 							// otherwise, fall back on any response
 							// This leans on the safety of ANY_RESPONSE rather than a match when
 							// a "not value" also matches
+							fmt.Fprintf(os.Stderr, "matched again!!: %s && %s\n\n", valueRef, rid)
 							if erh.expectedResponseMap[strings.ToLower(EXPECTED_UNCLEAR_RESPONSE)] != nil {
 								p = erh.expectedResponseMap[strings.ToLower(EXPECTED_UNCLEAR_RESPONSE)]
 							} else {
@@ -506,6 +509,7 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 
 		// If there are no matching value, use ANY_RESPONSE if exists
 		if p == nil {
+			fmt.Fprintf(os.Stderr, "none matched %s!!\n\n", rid)
 			p = erh.expectedResponseMap[strings.ToLower(EXPECTED_ANY_RESPONSE)]
 		}
 	}

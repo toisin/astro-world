@@ -1384,6 +1384,7 @@
                                 "IdValueTemplateRef": [
                                   "not sure",
                                   "don't know",
+                                  "do't know",
                                   "dont know",
                                   "dnt know",
                                   "hmm",
@@ -1416,7 +1417,8 @@
                                   "B",
                                   "C",
                                   "D",
-                                  "E"
+                                  "E",
+                                  "abcde"
                                 ],
                                 "NextPrompt": {
                                   "Id": "intro highlight performance axis",
@@ -1625,14 +1627,11 @@
                                                                 "IdValueTemplateRef": [
                                                                   "avrage",
                                                                   "average",
-                                                                  "avg",
-                                                                  "It's average",
-                                                                  "it is average",
-                                                                  "the level is average",
-                                                                  "They all have average fitness."
+                                                                  "avg"
                                                                 ],
                                                                 "IdNotValueTemplateRef": [
-                                                                  "excellent"
+                                                                  "excellent",
+                                                                  "ex"
                                                                 ],
                                                                 "NextPrompt": {
                                                                   "Id": "intro fitness only why diff performance",
@@ -1684,14 +1683,11 @@
                                                                                 "IdValueTemplateRef": [
                                                                                   "avrage",
                                                                                   "average",
-                                                                                  "avg",
-                                                                                  "It's average",
-                                                                                  "it is average",
-                                                                                  "the level is average",
-                                                                                  "They all have average fitness."
+                                                                                  "avg"
                                                                                 ],
                                                                                 "IdNotValueTemplateRef": [
-                                                                                  "excellent"
+                                                                                  "excellent",
+                                                                                  "ex"
                                                                                 ],
                                                                                 "NextPrompt": {
                                                                                   "Id": "intro fitness only explain more diff performance",
@@ -1733,14 +1729,16 @@
                                                                                         }
                                                                                       },
                                                                                       {
-                                                                                        "Id": "education",
+                                                                                        "Id": "other things",
                                                                                         "IdValueTemplateRef": [
                                                                                           "ed",
                                                                                           "education",
                                                                                           "other",
                                                                                           "thing",
+                                                                                          "things",
                                                                                           "health",
-                                                                                          "parent"
+                                                                                          "parent",
+                                                                                          "parents"
                                                                                         ],
                                                                                         "NextPromptRef": {
                                                                                           "Id": "intro fitness only confirm explain diff performance"
@@ -1759,6 +1757,7 @@
                                                                         "IdValueTemplateRef": [
                                                                           "not sure",
                                                                           "don't know",
+                                                                          "do't know",
                                                                           "dont know",
                                                                           "dnt know",
                                                                           "hmm",
@@ -1774,6 +1773,8 @@
                                                                           "factor",
                                                                           "factors",
                                                                           "education",
+                                                                          "parent",
+                                                                          "parents",
                                                                           "health",
                                                                           "climate"
                                                                         ],
@@ -1933,10 +1934,11 @@
                                                         "Id": "no difference",
                                                         "IdValueTemplateRef": [
                                                           "no",
-                                                          "not really"
+                                                          "not"
                                                         ],
                                                         "IdNotValueTemplateRef": [
-                                                          "yes"
+                                                          "yes",
+                                                          "sure"
                                                         ],
                                                         "NextPrompt": {
                                                           "Id": "causal.wrong.correct.MC_is_same_perf_or_unsure.1",
@@ -2148,6 +2150,7 @@
                                                         "IdValueTemplateRef": [
                                                           "not sure",
                                                           "don't know",
+                                                          "do't know",
                                                           "dont know",
                                                           "dnt know",
                                                           "hmm",
@@ -2289,6 +2292,7 @@
                                       {
                                         "Id": "maybe about chart",
                                         "IdValueTemplateRef": [
+                                          "charts",
                                           "chart",
                                           "none",
                                           "all",
@@ -2315,6 +2319,7 @@
                                           "saw"
                                         ],
                                         "IdNotValueTemplateRef": [
+                                          "charts",
                                           "chart",
                                           "none",
                                           "all",
@@ -2418,8 +2423,55 @@
                                                                     "Values": [
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
-                                                                        "NextPromptRef": {
-                                                                          "Id": "MC_is_causal"
+                                                                        "NextPrompt": {
+                                                                          "Id": "non-causal.wrong.help.correct.MC_is_causal.2.1",
+                                                                          "Text": [
+                                                                            "So, what do you think? What does this tell you about whether {{.TargetFactor.FactorName}} makes a difference to performance?"
+                                                                          ],
+                                                                          "PromptType": "MC",
+                                                                          "ResponseType": "CAUSAL_CONCLUSION",
+                                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                          "ExpectedResponses": {
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "true",
+                                                                                "Text": "Yes",
+                                                                                "NextPromptRef": {
+                                                                                  "Id": "causal.correct.MC_which_best_level.1"
+                                                                                }
+                                                                              },
+                                                                              {
+                                                                                "Id": "false",
+                                                                                "Text": "No",
+                                                                                "NextPrompt": {
+                                                                                  "Id": "non-causal.wrong.help.correct.wrong.Q_best_worst.2.1.2",
+                                                                                  "Text": [
+                                                                                    "Ok. Now, Let's look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} for {{.TargetFactor.FactorName}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
+                                                                                  ],
+                                                                                  "PromptType": "Text",
+                                                                                  "ResponseType": "Basic",
+                                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                                  "ExpectedResponses": {
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "ANY_RESPONSE",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "help.MC_is_causal.3"
+                                                                                        }
+                                                                                      }
+                                                                                      ]
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              {
+                                                                                "Id": "not sure",
+                                                                                "Text": "Not Sure",
+                                                                                "NextPromptRef": {
+                                                                                  "Id": "help.Q_best_worst.3"
+                                                                                }
+                                                                              }
+                                                                              ]
+                                                                          }
                                                                         }
                                                                       }
                                                                     ]
@@ -2488,10 +2540,11 @@
                                                         "Id": "no difference",
                                                         "IdValueTemplateRef": [
                                                           "no",
-                                                          "not really"
+                                                          "not"
                                                         ],
                                                         "IdNotValueTemplateRef": [
-                                                          "yes"
+                                                          "yes",
+                                                          "sure"
                                                         ],
                                                         "NextPromptRef": {
                                                           "Id": "causal.wrong.correct.MC_is_same_perf_or_unsure.1"
@@ -2508,6 +2561,7 @@
                                                         "IdValueTemplateRef": [
                                                           "not sure",
                                                           "don't know",
+                                                          "do't know",
                                                           "dont know",
                                                           "dnt know",
                                                           "hmm",
@@ -2528,6 +2582,7 @@
                                       {
                                         "Id": "maybe about chart",
                                         "IdValueTemplateRef": [
+                                          "charts",
                                           "chart",
                                           "none",
                                           "all",
@@ -2577,6 +2632,7 @@
                                           "saw"
                                         ],
                                         "IdNotValueTemplateRef": [
+                                          "charts",
                                           "chart",
                                           "none",
                                           "all",
@@ -2668,6 +2724,7 @@
                                                           "saw"
                                                         ],
                                                         "IdNotValueTemplateRef": [
+                                                          "charts",
                                                           "chart",
                                                           "none",
                                                           "all",
