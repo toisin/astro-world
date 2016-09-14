@@ -41,6 +41,7 @@ func init() {
 	http.Handle(CLEARDB_REQUEST, &ClearRecordDBHandler{})
 	http.Handle(CLEARALLUSERS_REQUEST, &ClearAllUsersDBHandler{})
 	http.Handle(CLEARUSERLOGS_REQUEST, &ClearUserLogsDBHandler{})
+	http.Handle(WRITEWORKFLOWTEXT_REQUEST, &WriteWorkflowTextHandler{})
 
 	workflow.InitWorkflow()
 }
@@ -72,6 +73,7 @@ const IMPORTDB_REQUEST = "/astro-world/importDB"
 const CLEARDB_REQUEST = "/astro-world/clearDB"
 const CLEARALLUSERS_REQUEST = "/astro-world/clearAllUsersDB"
 const CLEARUSERLOGS_REQUEST = "/astro-world/clearUserLogsDB"
+const WRITEWORKFLOWTEXT_REQUEST = "/astro-world/writeWorkflowText"
 
 type GetHandler StaticHandler
 type HistoryHandler StaticHandler
@@ -83,6 +85,7 @@ type ImportRecordDBHandler StaticHandler
 type ClearRecordDBHandler StaticHandler
 type ClearAllUsersDBHandler StaticHandler
 type ClearUserLogsDBHandler StaticHandler
+type WriteWorkflowTextHandler StaticHandler
 
 func (covH *ImportRecordDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
@@ -106,6 +109,12 @@ func (covH *ClearUserLogsDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	c := appengine.NewContext(r)
 	ClearUserLogsDB(c)
 	http.ServeFile(w, r, "static/index.html")
+}
+
+func (covH *WriteWorkflowTextHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Disposition", "attachment; filename=workflowText.csv")
+	w.Header().Set("Content-Type", "application/CSV")
+	workflow.WriteWorkflowText(w)
 }
 
 func (covH *GetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

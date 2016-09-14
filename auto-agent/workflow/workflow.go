@@ -2,11 +2,14 @@ package workflow
 
 import (
 	"bufio"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
+	"strconv"
 
 	"db"
 	// "strings"
@@ -158,6 +161,59 @@ func GetPhase(phaseId string) *PhaseConfig {
 		break
 	}
 	return currentPhase
+}
+
+func WriteWorkflowText(w http.ResponseWriter) {
+
+	writer := csv.NewWriter(w)
+
+	covPhaseConfig := appConfig.CovPhase
+	chartPhaseConfig := appConfig.ChartPhase
+
+	err := writer.Write([]string{"Cov Phase", "", "", "", "", ""})
+	if err != nil {
+		log.Fatal("Cannot write file", err)
+	}
+
+	for i, _ := range covPhaseConfig.OrderedSequences {
+		writePromptInText("", covPhaseConfig.OrderedSequences[i].FirstPrompt, writer, 0, ExpectedResponseValue{})
+	}
+
+	err = writer.Write([]string{"Chart Phase", "", "", "", "", ""})
+	if err != nil {
+		log.Fatal("Cannot write file", err)
+	}
+
+	for i, _ := range chartPhaseConfig.OrderedSequences {
+		writePromptInText("", chartPhaseConfig.OrderedSequences[i].FirstPrompt, writer, 0, ExpectedResponseValue{})
+	}
+
+	defer writer.Flush()
+}
+
+func writePromptInText(pId string, pc PromptConfig, writer *csv.Writer, level int, evalue ExpectedResponseValue) {
+	indent := ""
+	for i := 0; i < level; i++ {
+		indent = indent + "    "
+	}
+	if pId == "" {
+		pId = pc.Id
+	}
+	pId = indent + pId
+	pText := pc.Text
+	var value = []string{strconv.Itoa(level), pId, evalue.Id, "", "", ""}
+	for i, v := range pText {
+		value[3+i] = v
+	}
+	err := writer.Write(value)
+	if err != nil {
+		log.Fatal("Cannot write file", err)
+	}
+	level++
+	ecs := pc.ExpectedResponses.Values
+	for _, v := range ecs {
+		writePromptInText(v.NextPromptRef.Id, v.NextPrompt, writer, level, v)
+	}
 }
 
 func InitWorkflow() {
