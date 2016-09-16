@@ -63,9 +63,9 @@ var CovAction = React.createClass({
                   <RecordPerformance user={user} app={app}/>
                 </div>;
         case "MEMO_FORM":
-          return <div><MemoForm user={user} onComplete={onComplete} app={app}/></div>;
+          return <CovMemoForm user={user} onComplete={onComplete} app={app}/>;
         case "MEMO":
-          return <div><Memo user={user} app={app}/></div>;
+          return <Memo user={user} app={app}/>;
         default:
           return <div></div>;
       }

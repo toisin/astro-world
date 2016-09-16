@@ -35,88 +35,80 @@ const noFilterKey = "all"; // Key for all records
 // }];
 
 
-var Chart = React.createClass({
+function Chart(props) {
+  var user = props.user;
+  var app = props.app;
 
-  getInitialState: function() {
-    return {mode: 0};
-  },
+  var recordsToShow = props.recordsToShow;
 
-  render: function() {
-    var state = this.state;
-    var user = this.props.user;
-    var app = this.props.app;
+  var xTitle = "";
+  var yLabels, xLabels = [];
+  var performanceLabels = [{
+                            grade: 'A',
+                            label: 'A (very well)'
+                          },
+                          {
+                            grade: 'B',
+                            label: 'B (well)'
+                          },
+                          {
+                            grade: 'C',
+                            label: 'C (so so)'
+                          },
+                          {
+                            grade: 'D',
+                            label: 'D (poorly)'
+                          },
+                          {
+                            grade: 'E',
+                            label: 'E (very poorly)'
+                          }];
+  var data = [];
+  var pRecords = user.getAllPerformanceRecords();
 
-    var recordsToShow = this.props.recordsToShow;
-
-    var xTitle = "";
-    var yLabels, xLabels = [];
-    var performanceLabels = [{
-                              grade: 'A',
-                              label: 'A (very well)'
-                            },
-                            {
-                              grade: 'B',
-                              label: 'B (well)'
-                            },
-                            {
-                              grade: 'C',
-                              label: 'C (so so)'
-                            },
-                            {
-                              grade: 'D',
-                              label: 'D (poorly)'
-                            },
-                            {
-                              grade: 'E',
-                              label: 'E (very poorly)'
-                            }];
-    var data = [];
-    var pRecords = user.getAllPerformanceRecords();
-
-    var colFilters = [];
-    if (this.props.filterRecords && this.props.filterRecords.length > 0) {
-      colFilters = this.props.filterRecords;
-      xTitle = this.props.filterFactorName;
-      xLabels = this.props.filterLevels;
-    } else if (this.props.showTargetFactorRecords) {
-      var factors = user.getContentFactors();
-      var targetFactorId;
-      if (user.getState().TargetFactor) {
-        targetFactorId = user.getState().TargetFactor.FactorId;
-        var fkey = Object.keys(factors)
-        for (var i = 0; i < fkey.length; i++) {
-          if (factors[fkey[i]].FactorId == targetFactorId) {
-            for (var colIndex = 0; colIndex < factors[fkey[i]].Levels.length; colIndex++) {
-              colFilters[colIndex] = targetFactorId + ":" + factors[fkey[i]].Levels[colIndex].FactorLevelId;
-              xLabels[colIndex] = factors[fkey[i]].Levels[colIndex].Text;
-            }
-            xTitle = user.getState().TargetFactor.FactorName;
-            break;
+  var colFilters = [];
+  if (props.filterRecords && props.filterRecords.length > 0) {
+    colFilters = props.filterRecords;
+    xTitle = props.filterFactorName;
+    xLabels = props.filterLevels;
+  } else if (props.showTargetFactorRecords) {
+    var factors = user.getContentFactors();
+    var targetFactorId;
+    if (user.getState().TargetFactor) {
+      targetFactorId = user.getState().TargetFactor.FactorId;
+      var fkey = Object.keys(factors)
+      for (var i = 0; i < fkey.length; i++) {
+        if (factors[fkey[i]].FactorId == targetFactorId) {
+          for (var colIndex = 0; colIndex < factors[fkey[i]].Levels.length; colIndex++) {
+            colFilters[colIndex] = targetFactorId + ":" + factors[fkey[i]].Levels[colIndex].FactorLevelId;
+            xLabels[colIndex] = factors[fkey[i]].Levels[colIndex].Text;
           }
+          xTitle = user.getState().TargetFactor.FactorName;
+          break;
         }
       }
-    } else {
-      colFilters = ["all"];
-      xTitle = noFilterTitle;
     }
-
-    for (var colIndex = 0; colIndex < colFilters.length; colIndex++) {
-      data[colIndex] = { label: '', rcount: [] };
-      data[colIndex].label = xLabels[colIndex];
-      for (var gindex = 0; gindex < pRecords.length; gindex++) {
-        if (pRecords[gindex].Records[colFilters[colIndex]]) {
-          data[colIndex].rcount[gindex] = pRecords[gindex].Records[colFilters[colIndex]].length;
-        } else {
-          data[colIndex].rcount[gindex] = 0;
-        }
-        // pRecords[gindex].Grade should be the same as performanceLabels[gindex].grade
-      }
-    }
-    return  <div>
-              <Graph singleColumn={this.props.singleColumn} user={user} app={app} colFilters={colFilters} data={data} allowToolboxToggle={this.props.allowToolbox} yTitle="Performance" xTitle={xTitle} yLabels={performanceLabels} recordsToShow={recordsToShow}/>
-            </div>;
+  } else {
+    colFilters = ["all"];
+    xTitle = noFilterTitle;
   }
-});
+
+  for (var colIndex = 0; colIndex < colFilters.length; colIndex++) {
+    data[colIndex] = { label: '', rcount: [] };
+    data[colIndex].label = xLabels[colIndex];
+    for (var gindex = 0; gindex < pRecords.length; gindex++) {
+      if (pRecords[gindex].Records[colFilters[colIndex]]) {
+        data[colIndex].rcount[gindex] = pRecords[gindex].Records[colFilters[colIndex]].length;
+      } else {
+        data[colIndex].rcount[gindex] = 0;
+      }
+      // pRecords[gindex].Grade should be the same as performanceLabels[gindex].grade
+    }
+  }
+  return  <div>
+            <Graph singleColumn={props.singleColumn} user={user} app={app} colFilters={colFilters} data={data} allowToolboxToggle={props.allowToolbox} yTitle="Performance" xTitle={xTitle} yLabels={performanceLabels} recordsToShow={recordsToShow}/>
+          </div>;
+}
 
 function Diamond(props) {
   var h = rectSize / 2;
@@ -461,12 +453,31 @@ var ChartSelectTargetFactor = React.createClass({
   },
 });
 
-var ChartFactorPromptOption = React.createClass({
+function ChartFactorPromptOption(props) {
+  var option = props.option;
+  return <tr><td><label>
+          <input type="radio" name="chartactioninput" value={option.ResponseId}/><br/>{option.Text}</label></td></tr>;
+}
 
-  render: function() {
-    var option = this.props.option;
-      return <tr><td><label>
-              <input type="radio" name="chartactioninput" value={option.ResponseId}/><br/>{option.Text}</label></td></tr>;
-  },
-});
+function FactorsSummaryForm(props) {
+  var question = "Select \"Yes\" for factor that you found makes a difference.";
+  var formName = "chartactionForm";
+  return <MultiFactorsCausality formName={formName} question={question} user={props.user} onComplete={props.onComplete} app={props.app}/>;
+}
+
+function FactorsSummaryLevelsForm(props) {
+  var question = "Choose the level of the factor that you found would be best for performance.";
+  var formName = "chartactionForm";
+  return <MultiFactorsCausalityLevels formName={formName} question={question} user={props.user} onComplete={props.onComplete} app={props.app}/>;
+}
+
+function ChartMemoForm(props) {  
+  return  <div>
+            <MemoForm user={user} onComplete={onComplete} app={app}/>
+            <div>
+              {investigatingFactorHeading}
+              <Chart user={user} showTargetFactorRecords app={app} key={"TARGET_FACTOR_RECORDS"}/>
+            </div>
+           </div>;
+}
 

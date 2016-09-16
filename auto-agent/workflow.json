@@ -150,7 +150,7 @@
           "Id": "Prior beliefs",
           "Text": [
             "Before we get started, I want to know what your opinions are.",
-            "On the screen, tell me which of the factors you think will make a difference to the performance in space. When you are done, just hit \"Enter\"."
+            "On the screen, tell me which of the factors you think will make a difference to performance in space. When you are done, just hit \"Enter\"."
           ],
           "PromptType": "NO_INPUT",
           "ResponseType": "PRIOR_BELIEF_FACTORS",
@@ -276,7 +276,7 @@
                                 "NextPrompt": {
                                   "Id": "record result with no performance",
                                   "Text": [
-                                    "So, you want to look at {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}}. Now, before I show you {{.RecordNoOne.FirstName}}'s performance. Can you tell me what you would be able to figure out by looking at this record?"
+                                    "So, you want to look at {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}}. Now, before I show you {{.RecordNoOne.FirstName}}'s performance. What would you be able to figure out by looking at this record?"
                                   ],
                                   "PromptType": "Text",
                                   "ResponseType": "Basic",
@@ -508,7 +508,7 @@
                                   "Id": "two same records selection",
                                   "Text": [
                                     "You selected the same record twice.",
-                                    "So, you want to look at {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}}. Now, before I show you {{.RecordNoOne.FirstName}}'s performance. Can you tell me what you would be able to figure out by looking at this record?"
+                                    "So, you want to look at {{.RecordNoOne.RecordName}}, record #{{.RecordNoOne.RecordNo}}. Now, before I show you {{.RecordNoOne.FirstName}}'s performance. What would you be able to figure out by looking at this record?"
                                   ],
                                   "PromptType": "Text",
                                   "ResponseType": "Basic",
@@ -602,7 +602,7 @@
                                                                 "NextPrompt": {
                                                                   "Id": "two records uncontrolled causal",
                                                                   "Text": [
-                                                                    "That may be true. But can we really tell for sure that {{.TargetFactor.FactorName}} makes a difference to performance? Couldn’t someone say that it is because {{.RecordNoTwo.FirstName}} has {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}} and that is why {{.RecordNoOne.FirstName}} has a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade than {{.RecordNoTwo.FirstName}}? Can you really know for sure that {{.TargetFactor.FactorName}}  gave {{.RecordNoOne.FirstName}} a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade?"
+                                                                    "That may be true. But can we really tell for sure that {{.TargetFactor.FactorName}} makes a difference to performance in space? Couldn’t someone say that it is because {{.RecordNoTwo.FirstName}} has {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}} and that is why {{.RecordNoOne.FirstName}} has a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade than {{.RecordNoTwo.FirstName}}? Can you really know for sure that {{.TargetFactor.FactorName}}  gave {{.RecordNoOne.FirstName}} a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade?"
                                                                   ],
                                                                   "PromptType": "MC",
                                                                   "ResponseType": "Basic",
@@ -861,7 +861,7 @@
                                                                 "NextPrompt": {
                                                                   "Id": "two records uncontrolled non-causal",
                                                                   "Text": [
-                                                                    "That may be true. But {{.TargetFactor.FactorName}} and {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.FactorName}} are both different in the two records. {{if eq .RecordNoOne.Performance .RecordNoTwo.Performance}}Can you really know why their grades are the same? {{end}}Maybe one makes the grade go up and the other makes it go down so they offset each other? Can you really know for sure that {{.TargetFactor.FactorName}} does not make a difference to performance?"
+                                                                    "That may be true. But {{.TargetFactor.FactorName}} and {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.FactorName}} are both different in the two records. {{if eq .RecordNoOne.Performance .RecordNoTwo.Performance}}Can you really know why their grades are the same? {{end}}Maybe one makes the grade go up and the other makes it go down so they offset each other? Can you really know for sure that {{.TargetFactor.FactorName}} does not make a difference to performance in space?"
                                                                   ],
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
@@ -1013,7 +1013,7 @@
                                                                                 "NextPrompt": {
                                                                                   "Id": "two records uncontrolled maybe causal",
                                                                                   "Text": [
-                                                                                    "What about these records that tells you {{.TargetFactor.FactorName}} makes a difference to performance?"
+                                                                                    "What about these records that tells you {{.TargetFactor.FactorName}} makes a difference to performance in space?"
                                                                                   ],
                                                                                   "PromptType": "Text",
                                                                                   "ResponseType": "Basic",
@@ -1025,7 +1025,7 @@
                                                                                         "NextPrompt": {
                                                                                           "Id": "two records uncontrolled maybe causal question",
                                                                                           "Text": [
-                                                                                            "That may be true. But couldn’t someone say that it is because {{.RecordNoTwo.FirstName}} has {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}} and that is why {{.RecordNoOne.FirstName}} has a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade than {{.RecordNoTwo.FirstName}}? How can we be 100% sure? Let's see if you can find a better record to compare {{.RecordNoOne.FirstName}} with so that we know whether {{.TargetFactor.FactorName}} really makes a difference to performance?",
+                                                                                            "That may be true. But couldn’t someone say that it is because {{.RecordNoTwo.FirstName}} has {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}} and that is why {{.RecordNoOne.FirstName}} has a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade than {{.RecordNoTwo.FirstName}}? How can we be 100% sure? Let's see if you can find a better record to compare {{.RecordNoOne.FirstName}} with so that we know whether {{.TargetFactor.FactorName}} really makes a difference to performance in space?",
                                                                                             "What would we need? Press \"Enter\" when you are ready to continue."
                                                                                           ],
                                                                                           "PromptType": "ENTER_TO_CONTINUE",
@@ -1138,7 +1138,7 @@
                                                                                 "NextPrompt": {
                                                                                   "Id": "two records uncontrolled maybe non-causal",
                                                                                   "Text": [
-                                                                                    "What about these records that tells you {{.TargetFactor.FactorName}} does not make a difference to performance?"
+                                                                                    "What about these records that tells you {{.TargetFactor.FactorName}} does not make a difference to performance in space?"
                                                                                   ],
                                                                                   "PromptType": "Text",
                                                                                   "ResponseType": "Basic",
@@ -1464,7 +1464,7 @@
                                                         "NextPrompt": {
                                                           "Id": "intro highlight one record explain",
                                                           "Text": [
-                                                            "You selected Record #{{.Record.RecordNo}} with performance {{.Record.Performance}}. Just like all the cases you have looked at before. You can see the levels of this person's Fitness, Parents' Health, and other factors. Can you tell me what the education level of this applicant is?"
+                                                            "You selected Record #{{.Record.RecordNo}} with performance {{.Record.Performance}}. Just like all the cases you have looked at before, you can see the levels of this person's Fitness, Parents' Health, and other factors. What is the education level of this applicant?"
                                                           ],
                                                           "PromptType": "MC",
                                                           "ResponseType": "Basic",
@@ -1528,7 +1528,7 @@
                                                 "NextPrompt": {
                                                   "Id": "intro highlight one record",
                                                   "Text": [
-                                                    "You got it. You selected Record #{{.Record.RecordNo}}. Just like all the cases you have looked at before. You can see the levels of this person's Fitness, Parents' Health, and other factors. What is the Education level of this applicant?"
+                                                    "You got it. You selected Record #{{.Record.RecordNo}}. Just like all the cases you have looked at before, you can see the levels of this person's Fitness, Parents' Health, and other factors. What is the Education level of this applicant?"
                                                   ],
                                                   "PromptType": "MC",
                                                   "ResponseType": "Basic",
@@ -1593,7 +1593,7 @@
                                                         "NextPrompt": {
                                                           "Id": "intro fitness only",
                                                           "Text": [
-                                                            "Good. Now, let's look at a different chart. Here, we changed the chart so that we see only some of the people. Can you tell me what level of Fitness do all of these people have?"
+                                                            "Good. Now, let's look at a different chart. Here, we changed the chart so that we see only some of the people. What level of Fitness do all of these people have?"
                                                           ],
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",
@@ -1636,7 +1636,7 @@
                                                                 "NextPrompt": {
                                                                   "Id": "intro fitness only why diff performance",
                                                                   "Text": [
-                                                                    "Ok, good. They all have Average Fitness. So why do you think that even though all of these people have Average Fitness but they have different performance? For example, some have B and some have E. Why?"
+                                                                    "Ok, good. They all have Average Fitness. So, why do you think all of these people have Average Fitness but they have different performance? For example, some have B and some have E. Why?"
                                                                   ],
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
@@ -1716,7 +1716,7 @@
                                                                                                 "NextPrompt": {
                                                                                                   "Id": "intro fitness only confirm explain diff performance",
                                                                                                   "Text": [
-                                                                                                    "Ok, good. So we can see that, here, their levels of Education and Parents' Health are both different. So that might be a reason why their performance are different.",
+                                                                                                    "Ok, so we can see that, here, their levels of Education and Parents' Health are both different. So that might be a reason why their performance are different.",
                                                                                                     "Now that we understand how to read the charts, let's use these charts to investigate which factors make a difference and see if we come to the same conclusions as before. Press \"Enter\" when you are ready."
                                                                                                   ],
                                                                                                   "PromptType": "ENTER_TO_CONTINUE",
@@ -1781,7 +1781,7 @@
                                                                         "NextPrompt": {
                                                                           "Id": "intro fitness only why again diff performance",
                                                                           "Text": [
-                                                                            "Seems like you are not sure. That's ok. So we know that they all have Average Fitness but that they still have different performance. What could be a reason why these people have different performance?"
+                                                                            "Seems like you are not sure. That's ok. So we know they all have Average Fitness but they still have different performance. What could be a reason why these people have different performance?"
                                                                           ],
                                                                           "PromptType": "Text",
                                                                           "ResponseType": "Basic",
@@ -1910,7 +1910,7 @@
                                         "NextPrompt": {
                                           "Id": "causal.help.Q_what_about_chart.1",
                                           "Text": [
-                                            "I am not sure if I got that. So, you think {{.TargetFactor.FactorName}} makes a difference to performance. Now, what is it about the chart that tells you that {{.TargetFactor.FactorName}} matters to the performance?"
+                                            "I am not sure if I got that. So, you think {{.TargetFactor.FactorName}} makes a difference to performance. Now, what is it about the chart that tells you that {{.TargetFactor.FactorName}} matters to performance in space?"
                                           ],
                                           "PromptType": "Text",
                                           "ResponseType": "Basic",
@@ -1972,7 +1972,7 @@
                                                                           "Id": "causal.wrong.help.same_perf.MC_is_diff.1.1",
                                                                           "Text": [
                                                                             "Ok, so it seems that people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} and the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}, they all have the same kind of performance.",
-                                                                            "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance in space?"
+                                                                            "So, what does this tell you? Overall, does {{.TargetFactor.FactorName}} make a difference to performance in space?"
                                                                           ],
                                                                           "PromptType": "MC",
                                                                           "ResponseType": "CAUSAL_CONCLUSION",
@@ -1985,7 +1985,7 @@
                                                                                 "NextPrompt": {
                                                                                   "Id": "causal.wrong.help.wrong.Q_does_level_matter.1.2",
                                                                                   "Text": [
-                                                                                    "I see. Now, Let me ask you, if those who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} for {{.TargetFactor.FactorName}} have the same kind of performance as those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}, does it make a difference what level of {{.TargetFactor.FactorName}} one has? Would it make a difference to their performance?"
+                                                                                    "I see. Now, Let me ask you, if those who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} for {{.TargetFactor.FactorName}} have the same kind of performance as those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}, does it make a difference what level of {{.TargetFactor.FactorName}} one has? Would it make a difference to their performance in space?"
                                                                                   ],
                                                                                   "PromptType": "Text",
                                                                                   "ResponseType": "Basic",
@@ -1997,7 +1997,7 @@
                                                                                         "NextPrompt": {
                                                                                           "Id": "causal.wrong.help.wrong.MC_is_diff.1.2.1",
                                                                                           "Text": [
-                                                                                            "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance in space?"
+                                                                                            "So, what does this tell you? Overall, does {{.TargetFactor.FactorName}} make a difference to performance in space?"
                                                                                           ],
                                                                                           "PromptType": "MC",
                                                                                           "ResponseType": "CAUSAL_CONCLUSION",
@@ -2110,7 +2110,7 @@
                                                                                 "NextPrompt": {
                                                                                   "Id": "non-causal.correct.correct.Q_how_chart_look_if_non-causal.2.3",
                                                                                   "Text": [
-                                                                                    "I see. Now, how do you think the chart would look different if {{.TargetFactor.FactorName}} does make a difference to performance?"
+                                                                                    "I see. Now, how do you think the chart would look different if {{.TargetFactor.FactorName}} does make a difference to performance in space?"
                                                                                   ],
                                                                                   "PromptType": "Text",
                                                                                   "ResponseType": "Basic",
@@ -2181,7 +2181,7 @@
                                                         "NextPrompt": {
                                                           "Id": "causal.correct.MC_which_best_level.1",
                                                           "Text": [
-                                                            "Ok. I see. So for {{.TargetFactor.FactorName}}, which level do you think is best to have for performance?"
+                                                            "Ok. I see. So, based on what you see on the chart for {{.TargetFactor.FactorName}}, which level is best for performance in space?"
                                                           ],
                                                           "PromptType": "MC",
                                                           "ResponseType": "Basic",
@@ -2331,7 +2331,7 @@
                                           "Id": "causal.record.see_chart.1",
                                           "Text": [
                                             "Ok. Sounds like you might be thinking about what we did before. Remember that the organization wants to be really sure before we make any decisions. So we don't want to rely on opinions or what we found with just a few records.",
-                                            "Look carefully at the chart here. What do you think the chart tells us about whether {{.TargetFactor.FactorName}} matters or not to the performance?"
+                                            "Look carefully at the chart here. What does the chart tell us about whether {{.TargetFactor.FactorName}} matters or not to performance in space?"
                                           ],
                                           "PromptType": "STRAIGHT_THROUGH",
                                           "ResponseType": "Basic",
@@ -2370,7 +2370,7 @@
                                         "NextPrompt": {
                                           "Id": "non-causal.help.Q_what_about_chart.2",
                                           "Text": [
-                                            "I am not sure if I got that. So, you think {{.TargetFactor.FactorName}} does not make a difference to performance. Now, what is it about the chart that tells you that {{.TargetFactor.FactorName}} does not matter to performance?"
+                                            "I am not sure if I got that. So, you think {{.TargetFactor.FactorName}} does not make a difference to performance. Now, what is it about the chart that tells you that {{.TargetFactor.FactorName}} does not matter to performance in space?"
                                           ],
                                           "PromptType": "Text",
                                           "ResponseType": "Basic",
@@ -2395,7 +2395,7 @@
                                                         "NextPrompt": {
                                                           "Id": "non-causal.wrong.help.MC_is_and_which_best_level.2",
                                                           "Text": [
-                                                            "Ok. I see. So for {{.TargetFactor.FactorName}}, is there a level that you would think is best to have for performance? If so, which level is best?"
+                                                            "Ok. I see. So, based on what you see on the chart for {{.TargetFactor.FactorName}}, is there a level that is best to have for performance? If so, which level is best?"
                                                           ],
                                                           "PromptType": "MC",
                                                           "ResponseType": "Basic",
@@ -2426,7 +2426,7 @@
                                                                         "NextPrompt": {
                                                                           "Id": "non-causal.wrong.help.correct.MC_is_causal.2.1",
                                                                           "Text": [
-                                                                            "So, what do you think? What does this tell you about whether {{.TargetFactor.FactorName}} makes a difference to performance?"
+                                                                            "So, what do you think? What does this tell you about whether {{.TargetFactor.FactorName}} makes a difference to performance in space?"
                                                                           ],
                                                                           "PromptType": "MC",
                                                                           "ResponseType": "CAUSAL_CONCLUSION",
@@ -2666,7 +2666,7 @@
                                         "NextPrompt": {
                                           "Id": "help.MC_is_causal.3",
                                           "Text": [
-                                            "So, what do you think? What does this tell you about whether {{.TargetFactor.FactorName}} makes a difference to performance?"
+                                            "So, what do you think? What does this tell you about whether {{.TargetFactor.FactorName}} makes a difference to performance in space?"
                                           ],
                                           "PromptType": "MC",
                                           "ResponseType": "CAUSAL_CONCLUSION",
@@ -2770,7 +2770,7 @@
                                                           "Id": "help.help.same_perf.MC_is_diff.3.3.1",
                                                           "Text": [
                                                             "So you think that people with these different levels of {{.TargetFactor.FactorName}} perform about the same.",
-                                                            "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance?"
+                                                            "So, what does this tell you? Overall, does {{.TargetFactor.FactorName}} make a difference to performance in space?"
                                                           ],
                                                           "PromptType": "MC",
                                                           "ResponseType": "CAUSAL_CONCLUSION",
@@ -2801,7 +2801,7 @@
                                                           "Id": "help.help.not_same_perf.MC_is_diff.3.3.2",
                                                           "Text": [
                                                             "So you think that people with these different levels of {{.TargetFactor.FactorName}} will perform differently.",
-                                                            "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance?"
+                                                            "So, what does this tell you? Overall, does {{.TargetFactor.FactorName}} make a difference to performance in space?"
                                                           ],
                                                           "PromptType": "MC",
                                                           "ResponseType": "CAUSAL_CONCLUSION",
@@ -2855,7 +2855,7 @@
           "Id": "finding_summary",
           "Text": [
             "You’ve worked hard to figure out what factors mattered to the applicants’ performance. Now, let’s make a summary for what you have figured out so that you can make use of that information later. If you cannot remember what you figured out and needed to look at a particular chart at any time, just click on the button that will show the chart for the factor.",
-            "On the screen, tell me which of the factors you think will make a difference to the performance in space. When you are done, just hit \"Enter\"."
+            "On the screen, tell me which of the factors you found make a difference to performance in space. When you are done, just hit \"Enter\"."
           ],
           "PromptType": "NO_INPUT",
           "ResponseType": "FACTORS_SUMMARY",
@@ -2999,7 +2999,7 @@
                                                               "NextPrompt": {
                                                                 "Id": "wrong.wrong.wrong.MC_is_causal.1.2.1.1",
                                                                 "Text": [
-                                                                  "So, what do you think? What does this tell you about whether {{.TargetFactor.FactorName}} makes a difference to performance?"
+                                                                  "So, what do you think? What does this tell you about whether {{.TargetFactor.FactorName}} makes a difference to performance in space?"
                                                                 ],
                                                                 "PromptType": "MC",
                                                                 "ResponseType": "CAUSAL_CONCLUSION",
@@ -3196,7 +3196,7 @@
                     "Hit \"Enter\" when you are done."
                   ],
                   "PromptType": "NO_INPUT",
-                  "ResponseType": "FACTORS_SUMMARY_LEVELS_FORM",
+                  "ResponseType": "FACTORS_SUMMARY_LEVELS",
                   "UIActionModeId": "FACTORS_SUMMARY_LEVELS_FORM",
                   "ExpectedResponses": {
                     "Values": [

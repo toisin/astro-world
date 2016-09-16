@@ -26,19 +26,23 @@ var ChartAction = React.createClass({
         case "NEW_TARGET_FACTOR":
           return  <ChartSelectTargetFactor user={user} onComplete={onComplete} app={app} key={"NEW_TARGET_FACTOR"}/>;
         case "ALL_RECORDS_ALLOW_TOOLBOX":
-          return  <Chart user={user} singleColumn allowToolbox onComplete={onComplete} app={app} key={"ALL_RECORDS_ALLOW_TOOLBOX"}/>;
+          return  <Chart user={user} singleColumn allowToolbox app={app} key={"ALL_RECORDS_ALLOW_TOOLBOX"}/>;
         case "FITNESS_AVERAGE_RECORDS":
-          return  <Chart user={user} filterFactorName={"Fitness"} filterLevels={["Average"]} filterRecords={["fitness:average"]} onComplete={onComplete} app={app} key={"FITNESS_AVERAGE_RECORDS"}/>;
+          return  <Chart user={user} filterFactorName={"Fitness"} filterLevels={["Average"]} filterRecords={["fitness:average"]} app={app} key={"FITNESS_AVERAGE_RECORDS"}/>;
         case "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS":
-          return  <Chart user={user} recordsToShow={recordsToShow} filterFactorName={"Fitness"} filterLevels={["Average"]} filterRecords={["fitness:average"]} onComplete={onComplete} app={app} key={"FITNESS_AVERAGE_RECORDS"}/>;
+          return  <Chart user={user} recordsToShow={recordsToShow} filterFactorName={"Fitness"} filterLevels={["Average"]} filterRecords={["fitness:average"]} app={app} key={"FITNESS_AVERAGE_RECORDS"}/>;
         case "ALL_RECORDS":
-          return  <Chart user={user} singleColumn onComplete={onComplete} app={app} key={"ALL_RECORDS"}/>;
+          return  <Chart user={user} singleColumn app={app} key={"ALL_RECORDS"}/>;
         case "TARGET_FACTOR_RECORDS":
-          return  <Chart user={user} showTargetFactorRecords onComplete={onComplete} app={app} key={"TARGET_FACTOR_RECORDS"}/>;
+          return  <Chart user={user} showTargetFactorRecords app={app} key={"TARGET_FACTOR_RECORDS"}/>;
         case "MEMO_FORM":
-          return <div><MemoForm user={user} onComplete={onComplete} app={app}/></div>;
+          return <ChartMemoForm user={user} onComplete={onComplete} app={app}/>;
         case "MEMO":
-          return <div><Memo user={user} app={app}/></div>;
+          return <Memo user={user} app={app}/>;
+        case "FACTORS_SUMMARY_FORM":
+          return  <FactorsSummaryForm user={user} onComplete={onComplete} app={app}/>;
+        case "FACTORS_SUMMARY_LEVELS_FORM":
+          return  <FactorsSummaryLevelsForm user={user} onComplete={onComplete} app={app}/>;
         default:
           return <div></div>;
       }

@@ -23,9 +23,6 @@ type UIUserData struct {
 func (uiUserData *UIUserData) initPhase(pId string) {
 	if pId != "" && uiUserData.CurrentPhaseId != pId {
 		uiUserData.CurrentPhaseId = pId
-	}
-
-	if uiUserData.CurrentPhaseId != "" {
 		uiUserData.ContentFactors = make(map[string]UIFactor, len(GetPhase(uiUserData.CurrentPhaseId).ContentRef.Factors))
 		for i, v := range GetPhase(uiUserData.CurrentPhaseId).ContentRef.Factors {
 			f := GetFactorConfig(v.Id)
@@ -255,7 +252,8 @@ func (fs FactorState) String() string {
 // configured for the particular phase
 // in the workflow.json
 // (Used by UIUserData.ContentFactors &
-//  Partially used by GenericState.ReaminingFactors -- only Text & FactorId are initialized)
+//  Partially used by GenericState.ReaminingFactors -- only Text & FactorId are initialized,
+//  Partially used by UIMultiFactorsCausalityResponse -- only IsBeliefCausal, BestLevelId & FactorId are initialized,)
 type UIFactor struct {
 	FactorId       string
 	Text           string
@@ -321,7 +319,7 @@ type UIRecordsSelectResponse struct {
 	UseDBRecordNoTwo    bool
 }
 
-func (rsr *UIRecordsSelectResponse) GetResponseText() string {
+func (rsr UIRecordsSelectResponse) GetResponseText() string {
 	responseText := ""
 	count := 0
 	if rsr.dbRecordNoOne.RecordNo != "" {
@@ -339,7 +337,7 @@ func (rsr *UIRecordsSelectResponse) GetResponseText() string {
 	return responseText
 }
 
-func (rsr *UIRecordsSelectResponse) GetResponseId() string {
+func (rsr UIRecordsSelectResponse) GetResponseId() string {
 	return rsr.Id
 }
 
@@ -348,7 +346,7 @@ type UIChartRecordSelectResponse struct {
 	dbRecord db.Record
 }
 
-func (rsr *UIChartRecordSelectResponse) GetResponseText() string {
+func (rsr UIChartRecordSelectResponse) GetResponseText() string {
 	responseText := ""
 	if rsr.RecordNo != "" {
 		responseText = "Record #" + rsr.RecordNo
@@ -357,24 +355,16 @@ func (rsr *UIChartRecordSelectResponse) GetResponseText() string {
 	return responseText
 }
 
-func (rsr *UIChartRecordSelectResponse) GetResponseId() string {
+func (rsr UIChartRecordSelectResponse) GetResponseId() string {
 	return rsr.RecordNo
 }
 
-// For Prior belief screen UI jsx
-// (Used by UIPriorBeliefResponse.BeliefFactors)
-type UIPriorBeliefFactor struct {
-	FactorId       string
-	IsBeliefCausal bool
-	BestLevelId    string
-}
-
-type UIPriorBeliefResponse struct {
-	BeliefFactors []*UIPriorBeliefFactor
+type UIMultiFactorsCausalityResponse struct {
+	BeliefFactors []UIFactor
 	Id            string
 }
 
-func (rsr *UIPriorBeliefResponse) GetResponseText() string {
+func (rsr UIMultiFactorsCausalityResponse) GetResponseText() string {
 	responseText := ""
 	count := 0
 	totalcausal := 0
@@ -405,7 +395,7 @@ func (rsr *UIPriorBeliefResponse) GetResponseText() string {
 	return responseText
 }
 
-func (rsr *UIPriorBeliefResponse) GetResponseId() string {
+func (rsr UIMultiFactorsCausalityResponse) GetResponseId() string {
 	return rsr.Id
 }
 
@@ -417,11 +407,11 @@ type UIMemoResponse struct {
 	FactorName string
 }
 
-func (rsr *UIMemoResponse) GetResponseText() string {
+func (rsr UIMemoResponse) GetResponseText() string {
 	return rsr.Memo
 }
 
-func (rsr *UIMemoResponse) GetResponseId() string {
+func (rsr UIMemoResponse) GetResponseId() string {
 	return rsr.Id
 }
 

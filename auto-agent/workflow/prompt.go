@@ -257,11 +257,12 @@ func (cp *GenericPrompt) updateMemo(uiUserData *UIUserData, r UIMemoResponse) {
 	uiUserData.State = cp.state
 }
 
-func (cp *GenericPrompt) updatePriorBeliefs(uiUserData *UIUserData, r UIPriorBeliefResponse) {
+func (cp *GenericPrompt) updateMultiFactorsCausalityResponse(uiUserData *UIUserData, r UIMultiFactorsCausalityResponse) {
 	causalFactors := []string{}
 	var hasCausal bool
 	var hasMultipleCausal bool
 	for i, v := range uiUserData.ContentFactors {
+		fmt.Fprintf(os.Stderr, "In the middle of updating each factor: %s\n\n", r.BeliefFactors[v.Order])
 		temp := uiUserData.ContentFactors[i]
 		temp.IsBeliefCausal = r.BeliefFactors[v.Order].IsBeliefCausal
 		temp.BestLevelId = r.BeliefFactors[v.Order].BestLevelId
@@ -291,6 +292,7 @@ func (cp *GenericPrompt) updatePriorBeliefs(uiUserData *UIUserData, r UIPriorBel
 		cp.state = s
 	}
 	uiUserData.State = cp.state
+	fmt.Fprintf(os.Stderr, "After state is updated: %s\n\n", uiUserData.ContentFactors)
 }
 
 func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserData) Prompt {

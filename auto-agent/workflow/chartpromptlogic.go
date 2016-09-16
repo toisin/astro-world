@@ -109,6 +109,20 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserD
 				cp.response = &response
 			}
 			break
+		case RESPONSE_FACTORS_SUMMARY, RESPONSE_FACTORS_SUMMARY_LEVELS:
+			for {
+				var beliefResponse UIMultiFactorsCausalityResponse
+				if err := dec.Decode(&beliefResponse); err == io.EOF {
+					break
+				} else if err != nil {
+					fmt.Fprintf(os.Stderr, "%s", err)
+					log.Fatal(err)
+					return
+				}
+				cp.updateMultiFactorsCausalityResponse(uiUserData, beliefResponse)
+				cp.response = &beliefResponse
+			}
+			break
 		default:
 			for {
 				var response SimpleResponse
