@@ -66,7 +66,7 @@ type StateEntities interface {
 	GetTargetFactor() FactorState
 	GetRemainingFactors() []UIFactor
 	GetLastMemo() UIMemoResponse
-	SetContentFactors(map[string]UIFactor)
+	SetContentFactors(*map[string]UIFactor)
 }
 
 type GenericState struct {
@@ -77,16 +77,18 @@ type GenericState struct {
 	RemainingFactors []UIFactor
 	Beliefs          BeliefsState
 	LastMemo         UIMemoResponse
-	ContentFactors   map[string]UIFactor // Using a pointer here in case if things change in UiUserData
+	ContentFactors   *map[string]UIFactor // Using a pointer here in case if things change in UiUserData
 }
 
 type BeliefsState struct {
 	HasCausalFactors         bool
-	CausalFactors            []string
+	CausalFactors            []UIFactor
+	IncorrectFactors         []UIFactor
 	HasMultipleCausalFactors bool
+	AllCorrect               bool
 }
 
-func (c *GenericState) SetContentFactors(p map[string]UIFactor) {
+func (c *GenericState) SetContentFactors(p *map[string]UIFactor) {
 	c.ContentFactors = p
 }
 
@@ -170,6 +172,10 @@ type ChartPhaseState struct {
 
 func (c *ChartPhaseState) GetPhaseId() string {
 	return appConfig.ChartPhase.Id
+}
+
+func (c *ChartPhaseState) initIncorrectCausalSummaryContents(factors []UIFactor) {
+	c.RemainingFactors = factors
 }
 
 func (c *ChartPhaseState) initContents(factors []Factor) {
@@ -296,7 +302,7 @@ func MakeUIUserData(u db.User) *UIUserData {
 	if uiUserData.State != nil && uiUserData.ContentFactors != nil {
 		// TODO - There is an order dependency here because uiUserData.ContentFactors
 		// is intialized in initPhase. Ugly for should work for now
-		uiUserData.State.SetContentFactors(uiUserData.ContentFactors)
+		uiUserData.State.SetContentFactors(&uiUserData.ContentFactors)
 	}
 	return uiUserData
 }

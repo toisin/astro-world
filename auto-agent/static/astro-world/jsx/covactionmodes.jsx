@@ -447,19 +447,28 @@ var RecordPerformance = React.createClass({
       if (record2 && !recordOneOnly) {
         record2Details = recordDetails(record2);
       }
-      return <div className ="hbox">
+      return <div className = "hbox">
                 {record1Details}
                 {record2Details}
               </div>;
   }
 });
 
-function CovMemoForm(props) {  
+function CovMemoForm(props) {
+  var targetFactorName;
+  if (props.user.getState().TargetFactor) {
+    targetFactorName = props.user.getState().TargetFactor.FactorName;
+  }
+  var investigatingFactorHeading;
+  if (targetFactorName) {
+    investigatingFactorHeading = <h3>Investigating Factor: <b>{targetFactorName}</b></h3>;
+  }
+
   return  <div>
-            <MemoForm user={user} onComplete={onComplete} app={app}/>
+            <MemoForm user={props.user} onComplete={props.onComplete} app={props.app}/>
             <div>
               {investigatingFactorHeading}
-              <RecordPerformance user={user} app={app}/>
+              <RecordPerformance user={props.user} app={props.app}/>
             </div>
            </div>;
 }

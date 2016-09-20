@@ -70,7 +70,7 @@ function Chart(props) {
   if (props.filterRecords && props.filterRecords.length > 0) {
     colFilters = props.filterRecords;
     xTitle = props.filterFactorName;
-    xLabels = props.filterLevels;
+    xLabels = props.filterLevelsLabels;
   } else if (props.showTargetFactorRecords) {
     var factors = user.getContentFactors();
     var targetFactorId;
@@ -459,25 +459,152 @@ function ChartFactorPromptOption(props) {
           <input type="radio" name="chartactioninput" value={option.ResponseId}/><br/>{option.Text}</label></td></tr>;
 }
 
-function FactorsSummaryForm(props) {
-  var question = "Select \"Yes\" for factor that you found makes a difference.";
-  var formName = "chartactionForm";
-  return <MultiFactorsCausality formName={formName} question={question} user={props.user} onComplete={props.onComplete} app={props.app}/>;
-}
+function ChartMemoForm(props) {
+  var targetFactorName;
+  if (props.user.getState().TargetFactor) {
+    targetFactorName = props.user.getState().TargetFactor.FactorName;
+  }
+  var investigatingFactorHeading;
+  if (targetFactorName) {
+    investigatingFactorHeading = <h3>Investigating Factor: <b>{targetFactorName}</b></h3>;
+  }
 
-function FactorsSummaryLevelsForm(props) {
-  var question = "Choose the level of the factor that you found would be best for performance.";
-  var formName = "chartactionForm";
-  return <MultiFactorsCausalityLevels formName={formName} question={question} user={props.user} onComplete={props.onComplete} app={props.app}/>;
-}
-
-function ChartMemoForm(props) {  
   return  <div>
-            <MemoForm user={user} onComplete={onComplete} app={app}/>
+            <MemoForm user={props.user} onComplete={props.onComplete} app={props.app}/>
             <div>
               {investigatingFactorHeading}
-              <Chart user={user} showTargetFactorRecords app={app} key={"TARGET_FACTOR_RECORDS"}/>
+              <Chart user={props.user} showTargetFactorRecords app={props.app} key={"CHART_MEMO_FORM"}/>
             </div>
            </div>;
 }
+
+function FactorsSummaryForm(props) {
+  var question = "Select \"Yes\" for factor that you found makes a difference.";
+  var formName = "chartactionForm";
+  return <div>
+          <MultiFactorsCausality formName={formName} question={question} user={props.user} onComplete={props.onComplete} app={props.app}/>
+          <ChartButtons user={props.user} app={props.app}/>
+        </div>;
+}
+
+function FactorsLevelsSummaryForm(props) {
+  var question = "Choose the level of the factor that you found would be best for performance.";
+  var formName = "chartactionForm";
+  return <div>
+          <MultiFactorsCausalityLevels formName={formName} question={question} user={props.user} onComplete={props.onComplete} app={props.app}/>
+          <ChartButtons user={props.user} app={props.app}/>
+        </div>;
+}
+
+var ChartButtons = React.createClass({
+  propTypes: {
+      fitness: React.PropTypes.object,
+      parentshealth: React.PropTypes.object,
+      familysize: React.PropTypes.object,
+      education: React.PropTypes.object,
+      homeclimate: React.PropTypes.object
+  },
+
+  getDefaultProps: function() {
+    return {
+      fitness: {
+        filterFactorName:"Fitness",
+        filterLevelsLabels:["Excellent","Average"],
+        filterRecords:["fitness:excellent","fitness:average"]
+      },
+      parentshealth: {
+        filterFactorName:"Parents' Health",
+        filterLevelsLabels:["Excellent","Fair"],
+        filterRecords:["parentshealth:excellent","parentshealth:fair"]
+      },
+      familysize: {
+        filterFactorName:"Family Size",
+        filterLevelsLabels:["Large","Small"],
+        filterRecords:["familysize:large","familysize:small"]
+      },
+      education: {
+        filterFactorName:"Education",
+        filterLevelsLabels:["College","Some College", "No College"],
+        filterRecords:["education:college","education:somecollege","education:nocollege"]
+      },
+      homeclimate: {
+        filterFactorName:"Home Climate",
+        filterLevelsLabels:["Hot", "Cold"],
+        filterRecords:["homeclimate:hot","homeclimate:cold"]
+      }
+    };
+  },
+
+  getInitialState: function() {
+    // var fitness = this.props.fitness;
+    // fitness.filterFactorName = "Fitness";
+    // fitness.filterLevelsLabels = ["Excellent","Average"];
+    // fitness.filterRecords = ["fitness:excellent","fitness:average"];
+    // var parentshealth = this.props.parentshealth;
+    // parentshealth.filterFactorName = "Parents' Health";
+    // parentshealth.filterLevelsLabels = ["Excellent", "Fair"];
+    // parentshealth.filterRecords = ["parentshealth:excellent","parentshealth:fair"];
+    // var familysize = this.props.familysize;
+    // familysize.filterFactorName = "Family Size";
+    // familysize.filterLevelsLabels = ["Large", "Small"];
+    // familysize.filterRecords = ["familysize:large","familysize:small"];
+    // var education = this.props.education;
+    // education.filterFactorName = "Education";
+    // education.filterLevelsLabels = ["College","Some College", "No College"];
+    // education.filterRecords = ["education:college","education:somecollege","education:nocollege"];
+    // var homeclimate = this.props.homeclimate;
+    // homeclimate.filterFactorName = "Home Climate";
+    // homeclimate.filterLevelsLabels = ["Hot", "Cold"];
+    // homeclimate.filterRecords = ["homeclimate:hot","homeclimate:cold"];
+
+    return {showChart: null};
+  },
+
+  changeState: function(chart) {
+    if (this.state.showChart == chart) {
+      // Toggle off if the same chart is selected
+      this.state.showChart = null;
+    } else {
+      // Toggle on the selected chart
+      this.state.showChart = chart;
+    }
+    this.setState(this.state); // This call triggers re-rendering
+  },
+
+  render: function() {
+    var self = this;
+    var state = this.state;
+    var user = this.props.user;
+    var app = this.props.app;
+    var fitnessOnClick = function() {self.changeState(self.props.fitness)};
+    var parentshealthOnClick = function() {self.changeState(self.props.parentshealth)};
+    var familysizeOnClick = function() {self.changeState(self.props.familysize)};
+    var educationOnClick = function() {self.changeState(self.props.education)};
+    var homeclimateOnClick = function() {self.changeState(self.props.homeclimate)};
+    var hideChartOnClick = function() {self.changeState(null)};
+
+    if (state.showChart) {
+      return <div className="frame">
+                <button onClick={fitnessOnClick}>{this.props.fitness.filterFactorName}</button>
+                <button onClick={parentshealthOnClick}>{this.props.parentshealth.filterFactorName}</button>
+                <button onClick={familysizeOnClick}>{this.props.familysize.filterFactorName}</button>
+                <button onClick={educationOnClick}>{this.props.education.filterFactorName}</button>
+                <button onClick={homeclimateOnClick}>{this.props.homeclimate.filterFactorName}</button>
+                <div className ="hbox">
+                  <Chart user={user} filterFactorName={state.showChart.filterFactorName} filterLevelsLabels={state.showChart.filterLevelsLabels} filterRecords={state.showChart.filterRecords} app={app} key={state.showChart.filterFactorName}/>
+                </div>
+                <button autoFocus onClick={hideChartOnClick}>Hide Chart</button>
+             </div>;
+    } else {
+      return <div className="frame">
+                <button onClick={fitnessOnClick}>{this.props.fitness.filterFactorName}</button>
+                <button onClick={parentshealthOnClick}>{this.props.parentshealth.filterFactorName}</button>
+                <button onClick={familysizeOnClick}>{this.props.familysize.filterFactorName}</button>
+                <button onClick={educationOnClick}>{this.props.education.filterFactorName}</button>
+                <button onClick={homeclimateOnClick}>{this.props.homeclimate.filterFactorName}</button>
+             </div>;
+    }
+    return null;
+  }
+});
 

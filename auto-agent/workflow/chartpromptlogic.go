@@ -109,7 +109,7 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserD
 				cp.response = &response
 			}
 			break
-		case RESPONSE_FACTORS_SUMMARY, RESPONSE_FACTORS_SUMMARY_LEVELS:
+		case RESPONSE_CAUSAL_CONCLUSION_FACTORS_SUMMARY, RESPONSE_CAUSAL_CONCLUSION_FACTORS_LEVELS_SUMMARY:
 			for {
 				var beliefResponse UIMultiFactorsCausalityResponse
 				if err := dec.Decode(&beliefResponse); err == io.EOF {
@@ -139,6 +139,22 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserD
 		if cp.response != nil {
 			cp.nextPrompt = cp.expectedResponseHandler.generateNextPrompt(cp.response, uiUserData)
 		}
+	}
+}
+
+// TODO - in progress
+func (cp *ChartPrompt) updateMultiFactorsCausalityResponse(uiUserData *UIUserData, r UIMultiFactorsCausalityResponse) {
+	cp.GenericPrompt.updateMultiFactorsCausalityResponse(uiUserData, r)
+	if cp.state != nil {
+		s := cp.state.(*ChartPhaseState)
+		factors := s.Beliefs.IncorrectFactors
+		s.initIncorrectCausalSummaryContents(factors)
+
+		// TODO - hard coding the first incorrect factor as target factor
+		// maybe too much UI logic. Would be better if it can be triggered
+		// by the workflow.json
+		fid := factors[0].FactorId
+		cp.updateStateCurrentFactor(uiUserData, fid)
 	}
 }
 
@@ -198,5 +214,5 @@ func (cp *ChartPrompt) updateState(uiUserData *UIUserData) {
 
 	// TODO - There is an order dependency here because assume
 	// uiUserData.ContentFactors is initialized. Ugly for should work for now
-	uiUserData.State.SetContentFactors(uiUserData.ContentFactors)
+	uiUserData.State.SetContentFactors(&uiUserData.ContentFactors)
 }

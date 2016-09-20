@@ -329,5 +329,5 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 
 	// TODO - There is an order dependency here because assume
 	// uiUserData.ContentFactors is initialized. Ugly for should work for now
-	uiUserData.State.SetContentFactors(uiUserData.ContentFactors)
+	uiUserData.State.SetContentFactors(&uiUserData.ContentFactors)
 }

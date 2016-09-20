@@ -359,10 +359,6 @@ var MemoForm = React.createClass({
     if (user.getState().TargetFactor) {
       targetFactorName = user.getState().TargetFactor.FactorName;
     }
-    var investigatingFactorHeading;
-    if (targetFactorName) {
-      investigatingFactorHeading = <h3>Investigating Factor: <b>{targetFactorName}</b></h3>;
-    }
 
     return <div className="mbox">
             <h3>Memo to the foundation</h3>

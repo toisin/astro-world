@@ -258,20 +258,24 @@ func (cp *GenericPrompt) updateMemo(uiUserData *UIUserData, r UIMemoResponse) {
 }
 
 func (cp *GenericPrompt) updateMultiFactorsCausalityResponse(uiUserData *UIUserData, r UIMultiFactorsCausalityResponse) {
-	causalFactors := []string{}
+	causalFactors := []UIFactor{}
+	incorrectFactors := []UIFactor{}
 	var hasCausal bool
 	var hasMultipleCausal bool
+	allCorrect := true
 	for i, v := range uiUserData.ContentFactors {
-		fmt.Fprintf(os.Stderr, "In the middle of updating each factor: %s\n\n", r.BeliefFactors[v.Order])
+		// fmt.Fprintf(os.Stderr, "In the middle of updating each factor: %s\n\n", r.BeliefFactors[v.Order])
 		temp := uiUserData.ContentFactors[i]
 		temp.IsBeliefCausal = r.BeliefFactors[v.Order].IsBeliefCausal
 		temp.BestLevelId = r.BeliefFactors[v.Order].BestLevelId
-		uiUserData.ContentFactors[i] = temp
-		// uiUserData.ContentFactors[i].IsBeliefCausal = r.BeliefFactors[v.Order].IsBeliefCausal
-		// uiUserData.ContentFactors[i].BestLevelId = r.BeliefFactors[v.Order].BestLevelId
-		if r.BeliefFactors[v.Order].IsBeliefCausal {
-			causalFactors = append(causalFactors, v.Text)
+		if temp.IsBeliefCausal != temp.IsCausal {
+			allCorrect = false
+			incorrectFactors = append(incorrectFactors, temp)
 		}
+		if temp.IsBeliefCausal {
+			causalFactors = append(causalFactors, temp)
+		}
+		uiUserData.ContentFactors[i] = temp
 	}
 	// invoking the initialization methods in the "subclass"
 	// in case if they have been overriden
@@ -288,11 +292,13 @@ func (cp *GenericPrompt) updateMultiFactorsCausalityResponse(uiUserData *UIUserD
 		s.setBeliefs(BeliefsState{
 			HasCausalFactors:         hasCausal,
 			CausalFactors:            causalFactors,
-			HasMultipleCausalFactors: hasMultipleCausal})
+			HasMultipleCausalFactors: hasMultipleCausal,
+			IncorrectFactors:         incorrectFactors,
+			AllCorrect:               allCorrect})
 		cp.state = s
 	}
 	uiUserData.State = cp.state
-	fmt.Fprintf(os.Stderr, "After state is updated: %s\n\n", uiUserData.ContentFactors)
+	// fmt.Fprintf(os.Stderr, "After state is updated: %s\n\n", uiUserData.ContentFactors)
 }
 
 func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserData) Prompt {
@@ -434,6 +440,8 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 			// This allows the logic for next prompt to be based on the current state
 			// regardless of what the most recent response was.
 			text := erh.currentPromptConfig.ExpectedResponses.CheckStateTemplateRef
+			fmt.Fprintf(os.Stderr, "CheckStateTemplateRef: %s\n\n", text)
+			// fmt.Fprintf(os.Stderr, "state: %s\n\n",
 			t := template.Must(template.New("expectedResponses").Parse(text))
 			var doc bytes.Buffer
 			err := t.Execute(&doc, uiUserData.State)
@@ -443,6 +451,7 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 				log.Println("executing expectedResponses CheckStateTemplateRef template:", err)
 			}
 			rid = doc.String()
+			fmt.Fprintf(os.Stderr, "CheckStateTemplateRef Result: %s\n\n", rid)
 		} else {
 			// If CheckStateTemplateRef is not provided, use the response id directly
 			// to find the matching expected response
