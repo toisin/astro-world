@@ -241,6 +241,34 @@ func (cp *GenericPrompt) updateStateCurrentFactorCausal(uiUserData *UIUserData, 
 		targetFactor.IsConcludeCausal = false
 		targetFactor.HasConclusion = true
 	}
+	// TODO - not sure if it's a good idea
+	// by changing the ContentFactors, we lose track of what the student originally believed
+	tempContentFactors := cp.state.GetContentFactors()
+	tempFactor := tempContentFactors[targetFactor.FactorId]
+	tempFactor.IsBeliefCausal = targetFactor.IsConcludeCausal
+	tempContentFactors[targetFactor.FactorId] = tempFactor
+
+	allCorrect := true
+	causalFactors := []UIFactor{}
+	incorrectFactors := []UIFactor{}
+
+	for _, v := range tempContentFactors {
+		if v.IsBeliefCausal != v.IsCausal {
+			allCorrect = false
+			incorrectFactors = append(incorrectFactors, v)
+		}
+		if v.IsBeliefCausal {
+			causalFactors = append(causalFactors, v)
+		}
+	}
+
+	tempBeliefs := cp.state.GetBeliefs()
+	tempBeliefs.IncorrectFactors = incorrectFactors
+	tempBeliefs.CausalFactors = causalFactors
+	tempBeliefs.AllCorrect = allCorrect
+	cp.state.setBeliefs(tempBeliefs)
+
+	cp.state.setContentFactors(tempContentFactors)
 	cp.state.setTargetFactor(targetFactor)
 	uiUserData.State = cp.state
 }
@@ -263,32 +291,30 @@ func (cp *GenericPrompt) updateMultiFactorsCausalityResponse(uiUserData *UIUserD
 	var hasCausal bool
 	var hasMultipleCausal bool
 	allCorrect := true
-	for i, v := range uiUserData.ContentFactors {
-		// fmt.Fprintf(os.Stderr, "In the middle of updating each factor: %s\n\n", r.BeliefFactors[v.Order])
-		temp := uiUserData.ContentFactors[i]
-		temp.IsBeliefCausal = r.BeliefFactors[v.Order].IsBeliefCausal
-		temp.BestLevelId = r.BeliefFactors[v.Order].BestLevelId
-		if temp.IsBeliefCausal != temp.IsCausal {
-			allCorrect = false
-			incorrectFactors = append(incorrectFactors, temp)
-		}
-		if temp.IsBeliefCausal {
-			causalFactors = append(causalFactors, temp)
-		}
-		uiUserData.ContentFactors[i] = temp
-	}
-	// invoking the initialization methods in the "subclass"
-	// in case if they have been overriden
-	cp.currentPrompt.updateState(uiUserData)
-	if len(causalFactors) > 0 {
-		hasCausal = true
-		if len(causalFactors) > 1 {
-			hasMultipleCausal = true
-		}
-	}
-
 	if cp.state != nil {
 		s := cp.state
+		tempContentFactors := s.GetContentFactors()
+		for i, v := range s.GetContentFactors() {
+			// fmt.Fprintf(os.Stderr, "In the middle of updating each factor: %s\n\n", r.BeliefFactors[v.Order])
+			v.IsBeliefCausal = r.BeliefFactors[v.Order].IsBeliefCausal
+			v.BestLevelId = r.BeliefFactors[v.Order].BestLevelId
+			if v.IsBeliefCausal != v.IsCausal {
+				allCorrect = false
+				incorrectFactors = append(incorrectFactors, v)
+			}
+			if v.IsBeliefCausal {
+				causalFactors = append(causalFactors, v)
+			}
+			tempContentFactors[i] = v
+		}
+		s.setContentFactors(tempContentFactors)
+
+		if len(causalFactors) > 0 {
+			hasCausal = true
+			if len(causalFactors) > 1 {
+				hasMultipleCausal = true
+			}
+		}
 		s.setBeliefs(BeliefsState{
 			HasCausalFactors:         hasCausal,
 			CausalFactors:            causalFactors,
@@ -297,6 +323,10 @@ func (cp *GenericPrompt) updateMultiFactorsCausalityResponse(uiUserData *UIUserD
 			AllCorrect:               allCorrect})
 		cp.state = s
 	}
+	// invoking the initialization methods in the "subclass"
+	// in case if they have been overriden
+	cp.currentPrompt.updateState(uiUserData)
+
 	uiUserData.State = cp.state
 	// fmt.Fprintf(os.Stderr, "After state is updated: %s\n\n", uiUserData.ContentFactors)
 }

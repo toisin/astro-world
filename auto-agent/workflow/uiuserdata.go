@@ -8,41 +8,21 @@ import (
 
 // Includes only the variables that are needed on the client side
 type UIUserData struct {
-	Username             string
-	Screenname           string
-	CurrentPhaseId       string
-	CurrentFactorId      string
-	History              []*db.Message
-	CurrentUIPrompt      UIPrompt
-	CurrentUIAction      UIAction
-	State                StateEntities
-	ContentFactors       map[string]UIFactor
+	Username        string
+	Screenname      string
+	CurrentPhaseId  string
+	CurrentFactorId string
+	History         []*db.Message
+	CurrentUIPrompt UIPrompt
+	CurrentUIAction UIAction
+	State           StateEntities
+	//	ContentFactors       map[string]UIFactor
 	ArchiveHistoryLength int
 }
 
 func (uiUserData *UIUserData) initPhase(pId string) {
 	if pId != "" && uiUserData.CurrentPhaseId != pId {
 		uiUserData.CurrentPhaseId = pId
-		uiUserData.ContentFactors = make(map[string]UIFactor, len(GetPhase(uiUserData.CurrentPhaseId).ContentRef.Factors))
-		for i, v := range GetPhase(uiUserData.CurrentPhaseId).ContentRef.Factors {
-			f := GetFactorConfig(v.Id)
-			uiUserData.ContentFactors[f.Id] = UIFactor{
-				FactorId: f.Id,
-				Text:     f.Name,
-				IsCausal: f.IsCausal,
-				Order:    i,
-			}
-			temp := uiUserData.ContentFactors[f.Id]
-			temp.Levels = make([]UIFactorOption, len(f.Levels))
-			for j := range f.Levels {
-				temp.Levels[j] = UIFactorOption{
-					FactorLevelId: f.Levels[j].Id,
-					Text:          f.Levels[j].Name,
-					ImgPath:       f.Levels[j].ImgPath,
-				}
-			}
-			uiUserData.ContentFactors[f.Id] = temp
-		}
 	}
 }
 
@@ -66,7 +46,8 @@ type StateEntities interface {
 	GetTargetFactor() FactorState
 	GetRemainingFactors() []UIFactor
 	GetLastMemo() UIMemoResponse
-	SetContentFactors(*map[string]UIFactor)
+	setContentFactors(map[string]UIFactor)
+	GetContentFactors() map[string]UIFactor
 }
 
 type GenericState struct {
@@ -77,7 +58,7 @@ type GenericState struct {
 	RemainingFactors []UIFactor
 	Beliefs          BeliefsState
 	LastMemo         UIMemoResponse
-	ContentFactors   *map[string]UIFactor // Using a pointer here in case if things change in UiUserData
+	ContentFactors   map[string]UIFactor
 }
 
 type BeliefsState struct {
@@ -88,8 +69,12 @@ type BeliefsState struct {
 	AllCorrect               bool
 }
 
-func (c *GenericState) SetContentFactors(p *map[string]UIFactor) {
+func (c *GenericState) setContentFactors(p map[string]UIFactor) {
 	c.ContentFactors = p
+}
+
+func (c *GenericState) GetContentFactors() map[string]UIFactor {
+	return c.ContentFactors
 }
 
 func (c *GenericState) GetPhaseId() string {
@@ -164,14 +149,33 @@ func (c *GenericState) updateRemainingFactors() {
 	}
 }
 
+func (c *GenericState) initContents() {
+	c.ContentFactors = make(map[string]UIFactor, len(GetPhase(c.PhaseId).ContentRef.Factors))
+	for i, v := range GetPhase(c.PhaseId).ContentRef.Factors {
+		f := GetFactorConfig(v.Id)
+		c.ContentFactors[f.Id] = UIFactor{
+			FactorId: f.Id,
+			Text:     f.Name,
+			IsCausal: f.IsCausal,
+			Order:    i,
+		}
+		temp := c.ContentFactors[f.Id]
+		temp.Levels = make([]UIFactorOption, len(f.Levels))
+		for j := range f.Levels {
+			temp.Levels[j] = UIFactorOption{
+				FactorLevelId: f.Levels[j].Id,
+				Text:          f.Levels[j].Name,
+				ImgPath:       f.Levels[j].ImgPath,
+			}
+		}
+		c.ContentFactors[f.Id] = temp
+	}
+}
+
 // Implements workflow.StateEntities
 type ChartPhaseState struct {
 	GenericState
 	Record RecordState
-}
-
-func (c *ChartPhaseState) GetPhaseId() string {
-	return appConfig.ChartPhase.Id
 }
 
 func (c *ChartPhaseState) initIncorrectCausalSummaryContents(factors []UIFactor) {
@@ -179,6 +183,8 @@ func (c *ChartPhaseState) initIncorrectCausalSummaryContents(factors []UIFactor)
 }
 
 func (c *ChartPhaseState) initContents(factors []Factor) {
+	c.setPhaseId(appConfig.ChartPhase.Id)
+	c.GenericState.initContents()
 	c.RemainingFactors = make([]UIFactor, len(factors))
 	for i, v := range factors {
 		// Lazy initialization RemainingFactors do not need
@@ -200,11 +206,9 @@ type CovPhaseState struct {
 	NonVaryingFactorIds    []string
 }
 
-func (c *CovPhaseState) GetPhaseId() string {
-	return appConfig.CovPhase.Id
-}
-
 func (c *CovPhaseState) initContents(factors []Factor) {
+	c.setPhaseId(appConfig.CovPhase.Id)
+	c.GenericState.initContents()
 	c.RemainingFactors = make([]UIFactor, len(factors))
 	for i, v := range factors {
 		// Lazy initialization RemainingFactors do not need
@@ -299,11 +303,11 @@ func MakeUIUserData(u db.User) *UIUserData {
 
 	uiUserData.initPhase(u.CurrentPhaseId)
 
-	if uiUserData.State != nil && uiUserData.ContentFactors != nil {
-		// TODO - There is an order dependency here because uiUserData.ContentFactors
-		// is intialized in initPhase. Ugly for should work for now
-		uiUserData.State.SetContentFactors(&uiUserData.ContentFactors)
-	}
+	// if uiUserData.State != nil && uiUserData.ContentFactors != nil {
+	// 	// TODO - There is an order dependency here because uiUserData.ContentFactors
+	// 	// is intialized in initPhase. Ugly for should work for now
+	// 	uiUserData.State.SetContentFactors(&uiUserData.ContentFactors)
+	// }
 	return uiUserData
 }
 

@@ -2102,7 +2102,7 @@
                                                                             "So, what does this tell you? Overall, does {{.TargetFactor.FactorName}} make a difference to performance in space?"
                                                                           ],
                                                                           "PromptType": "MC",
-                                                                          "ResponseType": "Basic",
+                                                                          "ResponseType": "CAUSAL_CONCLUSION",
                                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                                           "ExpectedResponses": {
                                                                             "Values": [
@@ -2898,7 +2898,7 @@
                   ],
                   "PromptType": "STRAIGHT_THROUGH",
                   "ResponseType": "Basic",
-                  "UIActionModeId": "FACTORS_SUMMARY",
+                  "UIActionModeId": "NO_UIACTION",
                   "ExpectedResponses": {
                     "Values": [
                       {
@@ -2908,15 +2908,15 @@
                           "Text": [
                             "Here is a chart for {{.TargetFactor.FactorName}}. What do you think? Does {{.TargetFactor.FactorName}} make a difference?"
                           ],
-                          "PromptType": "Text",
+                          "PromptType": "MC",
                           "ResponseType": "CAUSAL_CONCLUSION",
-                          "UIActionModeId": "FACTORS_SUMMARY_SHOW_CHART",
+                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
                           "ExpectedResponses": {
                             "DynamicOptionsTemplateRef": {
                               "Ids": "[\"true\", \"false\"]",
                               "Texts": "[\"Yes\", \"No\"]"
                             },
-                            "CheckStateTemplateRef": "{{$correct := true}}{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if ne .TargetFactor.IsConcludeCausal $factor.IsCausal}}{{$correct = false}}{{end}}{{$correct}}",
+                            "CheckStateTemplateRef": "{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if eq .TargetFactor.IsConcludeCausal $factor.IsCausal}}true{{else}}false{{end}}",
                             "Values": [
                               {
                                 "Id": "true",
@@ -2924,13 +2924,13 @@
                                 "NextPrompt": {
                                   "Id": "wrong.correct.1.1",
                                   "Text": [
-                                    "Ok, looks like you have changed your mind on {{.TargetFactor.FactorName}}. That is fine. Now, tell me again, what made you decide that?"
+                                    "Ok, looks like you have changed your mind on {{.TargetFactor.FactorName}}. That is fine. Now, tell me again, what made you decide that {{.TargetFactor.FactorName}} {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if $factor.IsCausal}}does{{else}}does not{{end}} make a difference to performance in space?"
                                   ],
                                   "PromptType": "Text",
-                                  "ResponseType": "Basic",
-                                  "UIActionModeId": "FACTORS_SUMMARY",
+                                  "ResponseType": "CAUSAL_CONCLUSION_NEXT_FACTOR",
+                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                   "ExpectedResponses": {
-                                    "CheckStateTemplateRef": "{{$all_correct := true}}{{range $k, $v := .ContentFactors}}{{ne eq $v.IsBeliefCausal $v.IsCausal}}{{$all_correct = false}}{{end}}{{$all_correct}}",
+                                    "CheckStateTemplateRef": "{{.Beliefs.AllCorrect}}",
                                     "Values": [
                                       {
                                         "Id": "false",
@@ -2941,7 +2941,7 @@
                                           ],
                                           "PromptType": "STRAIGHT_THROUGH",
                                           "ResponseType": "Basic",
-                                          "UIActionModeId": "FACTORS_SUMMARY",
+                                          "UIActionModeId": "NO_UIACTION",
                                           "ExpectedResponses": {
                                             "Values": [
                                               {
@@ -2974,7 +2974,7 @@
                                   ],
                                   "PromptType": "Text",
                                   "ResponseType": "Basic",
-                                  "UIActionModeId": "FACTORS_SUMMARY_SHOW_CHART",
+                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                   "ExpectedResponses": {
                                     "Values": [
                                       {
@@ -2986,7 +2986,7 @@
                                           ],
                                           "PromptType": "MC",
                                           "ResponseType": "Basic",
-                                          "UIActionModeId": "FACTORS_SUMMARY_SHOW_CHART",
+                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                           "ExpectedResponses": {
                                             "DynamicOptionsTemplateRef": {
                                               "Ids": "[\"better\",\"worse\",\"the same\"]",
@@ -3002,9 +3002,9 @@
                                                   ],
                                                   "PromptType": "STRAIGHT_THROUGH",
                                                   "ResponseType": "Basic",
-                                                  "UIActionModeId": "FACTORS_SUMMARY_SHOW_CHART",
+                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                   "ExpectedResponses": {
-                                                    "CheckStateTemplateRef": "{{$correct := false}}{{if eq .TargetFactor.IsConcludeCausal false}}{{$correct = true}}{{end}}{{$correct}}",
+                                                    "CheckStateTemplateRef": "{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if eq .TargetFactor.IsConcludeCausal $factor.IsCausal}}true{{else}}false{{end}}",
                                                     "Values": [
                                                       {
                                                         "Id": "false",
@@ -3015,9 +3015,9 @@
                                                             "Ok. Let's look at this more carefully together.",
                                                             "Look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
                                                           ],
-                                                          "PromptType": "STRAIGHT_THROUGH",
+                                                          "PromptType": "Text",
                                                           "ResponseType": "Basic",
-                                                          "UIActionModeId": "FACTORS_SUMMARY_SHOW_CHART",
+                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                           "ExpectedResponses": {
                                                             "Values": [
                                                               {
@@ -3029,13 +3029,13 @@
                                                                   ],
                                                                   "PromptType": "MC",
                                                                   "ResponseType": "CAUSAL_CONCLUSION",
-                                                                  "UIActionModeId": "FACTORS_SUMMARY_SHOW_CHART",
+                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                                   "ExpectedResponses": {
                                                                     "DynamicOptionsTemplateRef": {
                                                                       "Ids": "[\"true\", \"false\"]",
                                                                       "Texts": "[\"Yes\", \"No\"]"
                                                                     },
-                                                                    "CheckStateTemplateRef": "{{$correct := true}}{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if ne .TargetFactor.IsConcludeCausal $factor.IsCausal}}{{$correct = false}}{{end}}{{$correct}}",
+                                                                    "CheckStateTemplateRef": "{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if eq .TargetFactor.IsConcludeCausal $factor.IsCausal}}true{{else}}false{{end}}",
                                                                     "Values": [
                                                                       {
                                                                         "Id": "true",
@@ -3047,9 +3047,9 @@
                                                                           ],
                                                                           "PromptType": "STRAIGHT_THROUGH",
                                                                           "ResponseType": "Basic",
-                                                                          "UIActionModeId": "FACTORS_SUMMARY",
+                                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                                           "ExpectedResponses": {
-                                                                            "CheckStateTemplateRef": "{{$all_correct := true}}{{range $k, $v := .ContentFactors}}{{ne eq $v.IsBeliefCausal $v.IsCausal}}{{$all_correct = false}}{{end}}{{$all_correct}}",
+                                                                            "CheckStateTemplateRef": "{{.Beliefs.AllCorrect}}",
                                                                             "Values": [
                                                                               {
                                                                                 "Id": "false",
@@ -3077,7 +3077,7 @@
                                                                           ],
                                                                           "PromptType": "STRAIGHT_THROUGH",
                                                                           "ResponseType": "Basic",
-                                                                          "UIActionModeId": "FACTORS_SUMMARY_SHOW_CHART",
+                                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                                           "ExpectedResponses": {
                                                                             "CheckStateTemplateRef": "{{.TargetFactor.IsConcludeCausal}}",
                                                                             "Values": [
@@ -3086,17 +3086,17 @@
                                                                                 "NextPrompt": {
                                                                                   "Id": "wrong.wrong.wrong.wrong.causal.1.2.1.1.2.1",
                                                                                   "Text": [
-                                                                                    "Now, remember that when you look at the different levels of {{.TargetFactor.FactorName}} on the chart before, you noticed that the best was always A and the worst was always E for the levels? So, you thought that it didn't really matter which level to have for {{.TargetFactor.FactorName}}."
+                                                                                    "Now, when you looked at the different levels of {{.TargetFactor.FactorName}} on the chart before, we saw that the best and worst performance were the same for all levels. If all the different levels of {{.TargetFactor.FactorName}} have the same kind of performance, does it really matter what level of {{.TargetFactor.FactorName}} someone has?"
                                                                                   ],
                                                                                   "PromptType": "STRAIGHT_THROUGH",
                                                                                   "ResponseType": "Basic",
-                                                                                  "UIActionModeId": "FACTORS_SUMMARY_SHOW_CHART",
+                                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                                                   "ExpectedResponses": {
                                                                                     "Values": [
                                                                                       {
                                                                                         "Id": "ANY_RESPONSE",
                                                                                         "NextPromptRef": {
-                                                                                          "Id": "wrong.wrong.wrong.MC_is_causal.1.2.1"
+                                                                                          "Id": "wrong.wrong.wrong.MC_is_causal.1.2.1.1"
                                                                                         }
                                                                                       }
                                                                                     ]
@@ -3108,17 +3108,17 @@
                                                                                 "NextPrompt": {
                                                                                   "Id": "wrong.wrong.wrong.wrong.non-causal.1.2.1.1.2.2",
                                                                                   "Text": [
-                                                                                    "Now, remember that when you look at the different levels of {{.TargetFactor.FactorName}} on the chart before, you noticed that those who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, their best performance was A but those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} did not get any A performance. So, you thought that having different levels for {{.TargetFactor.FactorName}} would give you different performance."
+                                                                                    "Now, when you looked at the different levels of {{.TargetFactor.FactorName}} on the chart before, we saw that the best and worst performance were the different depending on which levels? If different levels of {{.TargetFactor.FactorName}} have different kind of performance, does it matterto performance what level of {{.TargetFactor.FactorName}} someone has?"
                                                                                   ],
                                                                                   "PromptType": "STRAIGHT_THROUGH",
                                                                                   "ResponseType": "Basic",
-                                                                                  "UIActionModeId": "FACTORS_SUMMARY_SHOW_CHART",
+                                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                                                   "ExpectedResponses": {
                                                                                     "Values": [
                                                                                       {
                                                                                         "Id": "ANY_RESPONSE",
                                                                                         "NextPromptRef": {
-                                                                                          "Id": "wrong.wrong.wrong.MC_is_causal.1.2.1"
+                                                                                          "Id": "wrong.wrong.wrong.MC_is_causal.1.2.1.1"
                                                                                         }
                                                                                       }
                                                                                     ]
@@ -3147,13 +3147,42 @@
                                                           ],
                                                           "PromptType": "STRAIGHT_THROUGH",
                                                           "ResponseType": "Basic",
-                                                          "UIActionModeId": "FACTORS_SUMMARY_SHOW_CHART",
+                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                           "ExpectedResponses": {
                                                             "Values": [
                                                               {
                                                                 "Id": "ANY_RESPONSE",
-                                                                "NextPromptRef": {
-                                                                  "Id": "wrong.wrong.wrong.MC_is_causal.1.2.1.1"
+                                                                "NextPrompt": {
+                                                                  "Id": "wrong.wrong.correct.MC_is_causal.1.2.1.2",
+                                                                  "Text": [
+                                                                    "So, what does this tell you? Overall, does {{.TargetFactor.FactorName}} make a difference to performance in space?"
+                                                                  ],
+                                                                  "PromptType": "MC",
+                                                                  "ResponseType": "CAUSAL_CONCLUSION",
+                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                  "ExpectedResponses": {
+                                                                    "DynamicOptionsTemplateRef": {
+                                                                      "Ids": "[\"true\", \"false\"]",
+                                                                      "Texts": "[\"Yes\", \"No\"]"
+                                                                    },
+                                                                    "CheckStateTemplateRef": "{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if eq .TargetFactor.IsConcludeCausal $factor.IsCausal}}true{{else}}false{{end}}",
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "false",
+                                                                        "Text": "Wrong",
+                                                                        "NextPromptRef": {
+                                                                          "Id": "wrong.wrong.wrong.Q_best_worst.1.2.1.1"
+                                                                        }
+                                                                      },
+                                                                      {
+                                                                        "Id": "true",
+                                                                        "Text": "Correct",
+                                                                        "NextPromptRef": {
+                                                                          "Id": "wrong.wrong.wrong.correct.1.2.1.1.1"
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
                                                                 }
                                                               }
                                                             ]
@@ -3173,9 +3202,9 @@
                                                   ],
                                                   "PromptType": "STRAIGHT_THROUGH",
                                                   "ResponseType": "Basic",
-                                                  "UIActionModeId": "FACTORS_SUMMARY_SHOW_CHART",
+                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                   "ExpectedResponses": {
-                                                    "CheckStateTemplateRef": "{{$correct := false}}{{if eq .TargetFactor.IsConcludeCausal false}}{{$correct = true}}{{end}}{{$correct}}",
+                                                    "CheckStateTemplateRef": "{{if eq .TargetFactor.IsConcludeCausal false}}true{{else}}false{{end}}",
                                                     "Values": [
                                                       {
                                                         "Id": "false",
@@ -3217,7 +3246,7 @@
                 "NextPrompt": {
                   "Id": "all_correct.Q_best_levels.2",
                   "Text": [
-                    "Ok, Now, for the factors that you thought would matter, tell me which level is best for performance.",
+                    "Ok, so you found that Fitness, Parents' Health and Education all matter. Now, for these factors, tell me which level is best for performance. If you need to look at a particular chart at any time, just click on the button that will show the chart for the factor.",
                     "Hit \"Enter\" when you are done."
                   ],
                   "PromptType": "NO_INPUT",

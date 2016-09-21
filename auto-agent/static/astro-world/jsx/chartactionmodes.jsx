@@ -536,27 +536,6 @@ var ChartButtons = React.createClass({
   },
 
   getInitialState: function() {
-    // var fitness = this.props.fitness;
-    // fitness.filterFactorName = "Fitness";
-    // fitness.filterLevelsLabels = ["Excellent","Average"];
-    // fitness.filterRecords = ["fitness:excellent","fitness:average"];
-    // var parentshealth = this.props.parentshealth;
-    // parentshealth.filterFactorName = "Parents' Health";
-    // parentshealth.filterLevelsLabels = ["Excellent", "Fair"];
-    // parentshealth.filterRecords = ["parentshealth:excellent","parentshealth:fair"];
-    // var familysize = this.props.familysize;
-    // familysize.filterFactorName = "Family Size";
-    // familysize.filterLevelsLabels = ["Large", "Small"];
-    // familysize.filterRecords = ["familysize:large","familysize:small"];
-    // var education = this.props.education;
-    // education.filterFactorName = "Education";
-    // education.filterLevelsLabels = ["College","Some College", "No College"];
-    // education.filterRecords = ["education:college","education:somecollege","education:nocollege"];
-    // var homeclimate = this.props.homeclimate;
-    // homeclimate.filterFactorName = "Home Climate";
-    // homeclimate.filterLevelsLabels = ["Hot", "Cold"];
-    // homeclimate.filterRecords = ["homeclimate:hot","homeclimate:cold"];
-
     return {showChart: null};
   },
 

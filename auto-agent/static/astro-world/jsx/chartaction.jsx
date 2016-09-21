@@ -43,7 +43,7 @@ var ChartAction = React.createClass({
           return <FactorsSummaryForm user={user} onComplete={onComplete} app={app}/>;
         case "FACTORS_LEVELS_SUMMARY_FORM":
           return <FactorsLevelsSummaryForm user={user} onComplete={onComplete} app={app}/>;
-        default:
+       default:
           return <div></div>;
       }
     }

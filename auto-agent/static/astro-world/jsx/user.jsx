@@ -39,7 +39,6 @@ function User(name) {
   this.CurrentPhaseId = "";
   this.CurrentUIPrompt = {};
   this.CurrentUIAction = {};
-  this.ContentFactors = {};
   this.State = {};
   this.ArchiveHistoryLength = 0;
   // this.AllPerformanceRecords = {};
@@ -76,7 +75,7 @@ User.prototype = {
   },
 
   getContentFactors: function() {
-    return this.ContentFactors;
+    return this.State.ContentFactors;
   },
 
   getScreenname: function() {
@@ -101,7 +100,6 @@ User.prototype = {
     this.CurrentUIPrompt = j.CurrentUIPrompt;
     this.CurrentUIAction = j.CurrentUIAction;
     this.CurrentPhaseId = j.CurrentPhaseId;
-    this.ContentFactors = j.ContentFactors;
     this.State = j.State;
     this.ArchiveHistoryLength = j.ArchiveHistoryLength;
   },
