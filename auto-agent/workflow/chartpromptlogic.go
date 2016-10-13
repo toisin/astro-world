@@ -231,8 +231,4 @@ func (cp *ChartPrompt) updateState(uiUserData *UIUserData) {
 		}
 	}
 	uiUserData.State = cp.state
-
-	// TODO - There is an order dependency here because assume
-	// uiUserData.ContentFactors is initialized. Ugly for should work for now
-	// uiUserData.State.SetContentFactors(&uiUserData.ContentFactors)
 }

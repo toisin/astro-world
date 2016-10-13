@@ -28,6 +28,8 @@ var Action = React.createClass({
         return  <div><CovAction user={user} onComplete={this.changeState} app={app}/></div>;
       case PHASE_CHART:
         return  <div><ChartAction user={user} onComplete={this.changeState} app={app}/></div>;
+      case PHASE_PREDICTION:
+        return  <div><PredictionAction user={user} onComplete={this.changeState} app={app}/></div>;
     }
   }
 });

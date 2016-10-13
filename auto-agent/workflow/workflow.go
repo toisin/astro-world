@@ -47,6 +47,9 @@ const (
 	RESPONSE_CAUSAL_CONCLUSION_FACTORS_SUMMARY        = "CAUSAL_CONCLUSION_FACTORS_SUMMARY"
 	RESPONSE_CAUSAL_CONCLUSION_FACTORS_LEVELS_SUMMARY = "CAUSAL_CONCLUSION_FACTORS_LEVELS_SUMMARY"
 	RESPONSE_CAUSAL_CONCLUSION_NEXT_FACTOR            = "CAUSAL_CONCLUSION_NEXT_FACTOR"
+	RESPONSE_CAUSAL_CONCLUSION_SUMMARY                = "CAUSAL_CONCLUSION_SUMMARY"
+	RESPONSE_PREDICTION_REQUESTED_FACTORS             = "PREDICTION_REQUESTED_FACTORS"
+	RESPONSE_PREDICTION_NEXT_FACTOR                   = "PREDICTION_NEXT_FACTOR"
 	RESPONSE_SYSTEM_GENERATED                         = "SYSTEM_GENERATED" // For when a submit is triggered by the system
 
 	EXPECTED_CONTENT_FACTOR_REF = "CONTENT_FACTOR_REF"
@@ -79,6 +82,16 @@ type ContentConfig struct {
 	RecordSize      int
 	Factors         []Factor
 	OutcomeVariable Factor
+	Applicants      []Applicant
+}
+
+type Applicant struct {
+	RecordName       string
+	FirstName        string
+	LastName         string
+	RecordNo         string
+	FactorLevels     []FactorState
+	PerformanceLevel int
 }
 
 type Factor struct {
@@ -162,6 +175,9 @@ func GetPhase(phaseId string) *PhaseConfig {
 	case PHASE_CHART:
 		currentPhase = &appConfig.ChartPhase
 		break
+	case PHASE_PREDICTION:
+		currentPhase = &appConfig.PredictionPhase
+		break
 	}
 	return currentPhase
 }
@@ -172,6 +188,7 @@ func WriteWorkflowText(w http.ResponseWriter) {
 
 	covPhaseConfig := appConfig.CovPhase
 	chartPhaseConfig := appConfig.ChartPhase
+	predictionPhaseConfig := appConfig.PredictionPhase
 
 	err := writer.Write([]string{"Cov Phase", "", "", "", "", ""})
 	if err != nil {
@@ -189,6 +206,15 @@ func WriteWorkflowText(w http.ResponseWriter) {
 
 	for i, _ := range chartPhaseConfig.OrderedSequences {
 		writePromptInText("", chartPhaseConfig.OrderedSequences[i].FirstPrompt, writer, 0, ExpectedResponseValue{})
+	}
+
+	err = writer.Write([]string{"Prediction Phase", "", "", "", "", ""})
+	if err != nil {
+		log.Fatal("Cannot write file", err)
+	}
+
+	for i, _ := range predictionPhaseConfig.OrderedSequences {
+		writePromptInText("", predictionPhaseConfig.OrderedSequences[i].FirstPrompt, writer, 0, ExpectedResponseValue{})
 	}
 
 	defer writer.Flush()
@@ -237,11 +263,15 @@ func InitWorkflow() {
 		}
 		covPhaseConfig := appConfig.CovPhase
 		chartPhaseConfig := appConfig.ChartPhase
+		predictionPhaseConfig := appConfig.PredictionPhase
 		for i, _ := range covPhaseConfig.OrderedSequences {
 			populatePromptConfigMap(&covPhaseConfig.OrderedSequences[i].FirstPrompt, covPhaseConfig.Id, i)
 		}
 		for i, _ := range chartPhaseConfig.OrderedSequences {
 			populatePromptConfigMap(&chartPhaseConfig.OrderedSequences[i].FirstPrompt, chartPhaseConfig.Id, i)
+		}
+		for i, _ := range predictionPhaseConfig.OrderedSequences {
+			populatePromptConfigMap(&predictionPhaseConfig.OrderedSequences[i].FirstPrompt, predictionPhaseConfig.Id, i)
 		}
 
 		contentConfig = appConfig.Content
@@ -250,6 +280,7 @@ func InitWorkflow() {
 
 	populateContentRef(&appConfig.CovPhase.ContentRef)
 	populateContentRef(&appConfig.ChartPhase.ContentRef)
+	populateContentRef(&appConfig.PredictionPhase.ContentRef)
 }
 
 func populatePromptConfigMap(pc *PromptConfig, phaseId string, sequenceOrder int) {
@@ -310,6 +341,8 @@ func MakePromptFromConfig(pc PromptConfig, uiUserData *UIUserData) Prompt {
 		return MakeCovPrompt(pc, uiUserData)
 	case PHASE_CHART:
 		return MakeChartPrompt(pc, uiUserData)
+	case PHASE_PREDICTION:
+		return MakePredictionPrompt(pc, uiUserData)
 	}
 	return nil
 }
@@ -414,6 +447,10 @@ func UnstringifyState(b []byte, phaseId string) (se StateEntities, err error) {
 			se = &cps
 		case appConfig.ChartPhase.Id:
 			var cps ChartPhaseState
+			err = unstringify(b, &cps)
+			se = &cps
+		case appConfig.PredictionPhase.Id:
+			var cps PredictionPhaseState
 			err = unstringify(b, &cps)
 			se = &cps
 		}

@@ -470,7 +470,7 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 			// This allows the logic for next prompt to be based on the current state
 			// regardless of what the most recent response was.
 			text := erh.currentPromptConfig.ExpectedResponses.CheckStateTemplateRef
-			fmt.Fprintf(os.Stderr, "CheckStateTemplateRef: %s\n\n", text)
+			// fmt.Fprintf(os.Stderr, "CheckStateTemplateRef: %s\n\n", text)
 			// fmt.Fprintf(os.Stderr, "state: %s\n\n",
 			t := template.Must(template.New("expectedResponses").Parse(text))
 			var doc bytes.Buffer
@@ -481,7 +481,7 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 				log.Println("executing expectedResponses CheckStateTemplateRef template:", err)
 			}
 			rid = doc.String()
-			fmt.Fprintf(os.Stderr, "CheckStateTemplateRef Result: %s\n\n", rid)
+			// fmt.Fprintf(os.Stderr, "CheckStateTemplateRef Result: %s\n\n", rid)
 		} else {
 			// If CheckStateTemplateRef is not provided, use the response id directly
 			// to find the matching expected response
@@ -511,7 +511,7 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 					valueRef := doc.String()
 
 					if util.ContainsWord(strings.ToLower(rid), strings.ToLower(valueRef)) > 0 {
-						fmt.Fprintf(os.Stderr, "matched: %s && %s, %k\n\n", valueRef, rid, k)
+						// fmt.Fprintf(os.Stderr, "matched: %s && %s, %k\n\n", valueRef, rid, k)
 						p = erh.expectedResponseMap[strings.ToLower(k)]
 						break
 					}
@@ -535,7 +535,7 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 							// otherwise, fall back on any response
 							// This leans on the safety of ANY_RESPONSE rather than a match when
 							// a "not value" also matches
-							fmt.Fprintf(os.Stderr, "matched again!!: %s && %s\n\n", valueRef, rid)
+							// fmt.Fprintf(os.Stderr, "matched again!!: %s && %s\n\n", valueRef, rid)
 							if erh.expectedResponseMap[strings.ToLower(EXPECTED_UNCLEAR_RESPONSE)] != nil {
 								p = erh.expectedResponseMap[strings.ToLower(EXPECTED_UNCLEAR_RESPONSE)]
 							} else {
@@ -550,7 +550,7 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 
 		// If there are no matching value, use ANY_RESPONSE if exists
 		if p == nil {
-			fmt.Fprintf(os.Stderr, "none matched %s!!\n\n", rid)
+			// fmt.Fprintf(os.Stderr, "none matched %s!!\n\n", rid)
 			p = erh.expectedResponseMap[strings.ToLower(EXPECTED_ANY_RESPONSE)]
 		}
 	}

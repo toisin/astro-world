@@ -124,7 +124,299 @@
           "Id": "E"
         }
       ]
-    }
+    },
+    "Applicants": [
+      {
+        "RecordName": "Kyle Scott",
+        "FirstName": "Kyle",
+        "LastName": "Scott",
+        "RecordNo": "1",
+        "FactorLevels": [
+          {
+            "FactorId": "fitness",
+            "SelectedLevelId": "excellent"
+          },
+          {
+            "FactorId": "parentshealth",
+            "SelectedLevelId": "excellent"
+          },
+          {
+            "FactorId": "familysize",
+            "SelectedLevelId": "small"
+          },
+          {
+            "FactorId": "education",
+            "SelectedLevelId": "college"
+          },
+          {
+            "FactorId": "homeclimate",
+            "SelectedLevelId": "cold"
+          }
+        ],
+        "PerformanceLevel": 0
+      },
+      {
+        "RecordName": "Casey Morris",
+        "FirstName": "Casey",
+        "LastName": "Morris",
+        "RecordNo": "2",
+        "FactorLevels": [
+          {
+            "FactorId": "fitness",
+            "SelectedLevelId": "average"
+          },
+          {
+            "FactorId": "parentshealth",
+            "SelectedLevelId": "fair"
+          },
+          {
+            "FactorId": "familysize",
+            "SelectedLevelId": "small"
+          },
+          {
+            "FactorId": "education",
+            "SelectedLevelId": "somecollege"
+          },
+          {
+            "FactorId": "homeclimate",
+            "SelectedLevelId": "cold"
+          }
+        ],
+        "PerformanceLevel": 4
+      },
+      {
+        "RecordName": "Kayden Powell",
+        "FirstName": "Kayden",
+        "LastName": "Powell",
+        "RecordNo": "3",
+        "FactorLevels": [
+          {
+            "FactorId": "fitness",
+            "SelectedLevelId": "excellent"
+          },
+          {
+            "FactorId": "parentshealth",
+            "SelectedLevelId": "fair"
+          },
+          {
+            "FactorId": "familysize",
+            "SelectedLevelId": "small"
+          },
+          {
+            "FactorId": "education",
+            "SelectedLevelId": "somecollege"
+          },
+          {
+            "FactorId": "homeclimate",
+            "SelectedLevelId": "cold"
+          }
+        ],
+        "PerformanceLevel": 3
+      },
+      {
+        "RecordName": "Jaylin Díaz",
+        "FirstName": "Jaylin",
+        "LastName": "Díaz",
+        "RecordNo": "4",
+        "FactorLevels": [
+          {
+            "FactorId": "fitness",
+            "SelectedLevelId": "excellent"
+          },
+          {
+            "FactorId": "parentshealth",
+            "SelectedLevelId": "fair"
+          },
+          {
+            "FactorId": "familysize",
+            "SelectedLevelId": "small"
+          },
+          {
+            "FactorId": "education",
+            "SelectedLevelId": "college"
+          },
+          {
+            "FactorId": "homeclimate",
+            "SelectedLevelId": "cold"
+          }
+        ],
+        "PerformanceLevel": 1
+      },
+      {
+        "RecordName": "Jamie Wright",
+        "FirstName": "Jamie",
+        "LastName": "Wright",
+        "RecordNo": "5",
+        "FactorLevels": [
+          {
+            "FactorId": "fitness",
+            "SelectedLevelId": "excellent"
+          },
+          {
+            "FactorId": "parentshealth",
+            "SelectedLevelId": "excellent"
+          },
+          {
+            "FactorId": "familysize",
+            "SelectedLevelId": "large"
+          },
+          {
+            "FactorId": "education",
+            "SelectedLevelId": "college"
+          },
+          {
+            "FactorId": "homeclimate",
+            "SelectedLevelId": "hot"
+          }
+        ],
+        "PerformanceLevel": 0
+      },
+      {
+        "RecordName": "Alex Sánchez",
+        "FirstName": "Alex",
+        "LastName": "Sánchez",
+        "RecordNo": "6",
+        "FactorLevels": [
+          {
+            "FactorId": "fitness",
+            "SelectedLevelId": "average"
+          },
+          {
+            "FactorId": "parentshealth",
+            "SelectedLevelId": "fair"
+          },
+          {
+            "FactorId": "familysize",
+            "SelectedLevelId": "large"
+          },
+          {
+            "FactorId": "education",
+            "SelectedLevelId": "nocollege"
+          },
+          {
+            "FactorId": "homeclimate",
+            "SelectedLevelId": "hot"
+          }
+        ],
+        "PerformanceLevel": 4
+      },
+      {
+        "RecordName": "Pedro Ramírez",
+        "FirstName": "Pedro",
+        "LastName": "Ramírez",
+        "RecordNo": "7",
+        "FactorLevels": [
+          {
+            "FactorId": "fitness",
+            "SelectedLevelId": "average"
+          },
+          {
+            "FactorId": "parentshealth",
+            "SelectedLevelId": "excellent"
+          },
+          {
+            "FactorId": "familysize",
+            "SelectedLevelId": "large"
+          },
+          {
+            "FactorId": "education",
+            "SelectedLevelId": "nocollege"
+          },
+          {
+            "FactorId": "homeclimate",
+            "SelectedLevelId": "hot"
+          }
+        ],
+        "PerformanceLevel": 3
+      },
+      {
+        "RecordName": "Riley Phillips",
+        "FirstName": "Riley",
+        "LastName": "Phillips",
+        "RecordNo": "8",
+        "FactorLevels": [
+          {
+            "FactorId": "fitness",
+            "SelectedLevelId": "average"
+          },
+          {
+            "FactorId": "parentshealth",
+            "SelectedLevelId": "excellent"
+          },
+          {
+            "FactorId": "familysize",
+            "SelectedLevelId": "large"
+          },
+          {
+            "FactorId": "education",
+            "SelectedLevelId": "college"
+          },
+          {
+            "FactorId": "homeclimate",
+            "SelectedLevelId": "hot"
+          }
+        ],
+        "PerformanceLevel": 1
+      },
+      {
+        "RecordName": "Charlie Evans",
+        "FirstName": "Charlie",
+        "LastName": "Evans",
+        "RecordNo": "9",
+        "FactorLevels": [
+          {
+            "FactorId": "fitness",
+            "SelectedLevelId": "excellent"
+          },
+          {
+            "FactorId": "parentshealth",
+            "SelectedLevelId": "excellent"
+          },
+          {
+            "FactorId": "familysize",
+            "SelectedLevelId": "large"
+          },
+          {
+            "FactorId": "education",
+            "SelectedLevelId": "somecollege"
+          },
+          {
+            "FactorId": "homeclimate",
+            "SelectedLevelId": "hot"
+          }
+        ],
+        "PerformanceLevel": 2
+      },
+      {
+        "RecordName": "Ariel Collins",
+        "FirstName": "Ariel",
+        "LastName": "Collins",
+        "RecordNo": "10",
+        "FactorLevels": [
+          {
+            "FactorId": "fitness",
+            "SelectedLevelId": "excellent"
+          },
+          {
+            "FactorId": "parentshealth",
+            "SelectedLevelId": "excellent"
+          },
+          {
+            "FactorId": "familysize",
+            "SelectedLevelId": "small"
+          },
+          {
+            "FactorId": "education",
+            "SelectedLevelId": "somecollege"
+          },
+          {
+            "FactorId": "homeclimate",
+            "SelectedLevelId": "hot"
+          }
+        ],
+        "PerformanceLevel": 2
+      }
+    ]
   },
   "CovPhase": {
     "Id": "Cov",
@@ -1340,7 +1632,7 @@
                   "Id": "intro need chart",
                   "Text": [
                     "Yeah. It would probably be a good idea if we can see if what we found before is actually true for a lot of people. Then we would really be able to make a good decision.",
-                    "But it's a little hard to see the records side by side if there are a lot of them. Luckily, there is a way for us to see them better. Press \"Enter\" to continue and I will show you."
+                    "But it's a little hard to see the records side by side if there are a lot of them. Luckily, there is a better way for us to look at them. Press \"Enter\" to continue and I will show you."
                   ],
                   "PromptType": "ENTER_TO_CONTINUE",
                   "ResponseType": "Basic",
@@ -1352,7 +1644,7 @@
                         "NextPrompt": {
                           "Id": "intro show all",
                           "Text": [
-                            "You see, this chart here shows all of the applicants. Each diamond is the same as one record you saw before. Do you see that they have different performance levels? What are performance levels you see?"
+                            "You see, this chart here shows all of the applicants. Each diamond is just like a record you saw before. Do you see that they have different performance levels? What are performance levels you see?"
                           ],
                           "PromptType": "Text",
                           "ResponseType": "Basic",
@@ -1437,7 +1729,7 @@
                                         "NextPrompt": {
                                           "Id": "intro highlight one record performance",
                                           "Text": [
-                                            "Great. Now, let's look at the chart more closely. Can you click on one of the diamonds that has a B performance?"
+                                            "Now, let's look at the chart more closely. Can you click on one of the diamonds that has a B performance?"
                                           ],
                                           "PromptType": "NO_INPUT",
                                           "ResponseType": "CHART_RECORD",
@@ -1785,15 +2077,32 @@
                                                                           "Text": [
                                                                             "Seems like you are not sure. That's ok. So we know they all have Average Fitness but they still have different performance. What could be a reason why these people have different performance?"
                                                                           ],
-                                                                          "PromptType": "Text",
+                                                                          "PromptType": "STRAIGHT_THROUGH",
                                                                           "ResponseType": "Basic",
                                                                           "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
                                                                           "ExpectedResponses": {
                                                                             "Values": [
                                                                               {
                                                                                 "Id": "ANY_RESPONSE",
-                                                                                "NextPromptRef": {
-                                                                                  "Id": "intro fitness only explain diff performance"
+                                                                                "NextPrompt": {
+                                                                                  "Id": "talk.to.partner",
+                                                                                  "Text": [
+                                                                                    "Be sure to talk with each other.",
+                                                                                    "So, what do you think?"
+                                                                                  ],
+                                                                                  "PromptType": "Text",
+                                                                                  "ResponseType": "Basic",
+                                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
+                                                                                  "ExpectedResponses": {
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "ANY_RESPONSE",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "intro fitness only explain diff performance"
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
                                                                                 }
                                                                               }
                                                                             ]
@@ -2879,8 +3188,8 @@
         "FirstPrompt": {
           "Id": "finding_summary",
           "Text": [
-            "You’ve worked hard to figure out what factors mattered to the applicants’ performance. Now, let’s make a summary for what you have figured out so that you can make use of that information later. If you cannot remember what you figured out and needed to look at a particular chart at any time, just click on the button that will show the chart for the factor.",
-            "On the screen, tell me which of the factors you found make a difference to performance in space. When you are done, just hit \"Enter\"."
+            "You worked hard to figure out what factors matter to the applicants’ performance. Now, let’s make a summary for what you found. On the screen, tell me which of the factors you found make a difference to performance in space.",
+            "If you don't remember what you decided, just click on one of the buttons for a factor to show the chart. When you are done, just hit \"Enter\"."
           ],
           "PromptType": "NO_INPUT",
           "ResponseType": "CAUSAL_CONCLUSION_FACTORS_SUMMARY",
@@ -3046,7 +3355,7 @@
                                                                             "Ok, so you think that {{.TargetFactor.FactorName}} {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if $factor.IsBeliefCausal}}makes{{else}}does not make{{end}} a difference to performance."
                                                                           ],
                                                                           "PromptType": "STRAIGHT_THROUGH",
-                                                                          "ResponseType": "Basic",
+                                                                          "ResponseType": "CAUSAL_CONCLUSION_NEXT_FACTOR",
                                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
                                                                           "ExpectedResponses": {
                                                                             "CheckStateTemplateRef": "{{.Beliefs.AllCorrect}}",
@@ -3246,8 +3555,8 @@
                 "NextPrompt": {
                   "Id": "all_correct.Q_best_levels.2",
                   "Text": [
-                    "Ok, so you found that Fitness, Parents' Health and Education all matter. Now, for these factors, tell me which level is best for performance. If you need to look at a particular chart at any time, just click on the button that will show the chart for the factor.",
-                    "Hit \"Enter\" when you are done."
+                    "Ok, so you found that Fitness, Parents' Health and Education matter but not Family Size and Home Climate. Now, for the ones that matter, tell me which level is best for performance.",
+                    "If you need to look at a chart, just click on the button for the factor. Hit \"Enter\" when you are done."
                   ],
                   "PromptType": "NO_INPUT",
                   "ResponseType": "CAUSAL_CONCLUSION_FACTORS_LEVELS_SUMMARY",
@@ -3263,8 +3572,152 @@
                           ],
                           "PromptType": "ENTER_TO_CONTINUE",
                           "ResponseType": "COMPLETE",
-                          "UIActionModeId": "FACTORS_SUMMARY_WITH LEVELS"
+                          "UIActionModeId": "NO_UIACTION"
                         }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "PredictionPhase": {
+    "Id": "Prediction",
+    "PreviousPhaseId": "Chart",
+    "NextPhaseId": "END",
+    "ContentRef": {
+      "Factors": [
+        {
+          "Id": "fitness"
+        },
+        {
+          "Id": "parentshealth"
+        },
+        {
+          "Id": "familysize"
+        },
+        {
+          "Id": "education"
+        },
+        {
+          "Id": "homeclimate"
+        }
+      ]
+    },
+    "OrderedSequences": [
+      {
+        "FirstPrompt": {
+          "Id": "intro_prediction",
+          "Text": [
+            "Good job with the summary.",
+            "Now, I have some new applicants here. You can use what you found to predict how well they will do and pick a best team of five!"
+          ],
+          "PromptType": "STRAIGHT_THROUGH",
+          "ResponseType": "Basic",
+          "UIActionModeId": "NO_UIACTION",
+          "ExpectedResponses": {
+            "Values": [
+              {
+                "Id": "ANY_RESPONSE",
+                "NextPrompt": {
+                  "Id": "choose_factors",
+                  "Text": [
+                    "Before we get started, what information about the applicant would you need to predict his/her performance?", "I can only tell you up to four things about the applicant. Which factors do you want to know about? Pick all of the ones you need so you can predict their performance.",
+                    "If you need to look at a chart, just click on the button for the factor. Hit \"Enter\" when you are done."
+                  ],
+                  "PromptType": "NO_INPUT",
+                  "ResponseType": "PREDICTION_REQUESTED_FACTORS",
+                  "UIActionModeId": "FACTORS_REQUEST_FORM",
+                  "ExpectedResponses": {
+                    "CheckStateTemplateRef": "{{.DisplayFactorsReady}}",
+                    "Values": [
+                      {
+                        "Id": "ANY_RESPONSE",
+                        "NextPrompt": {
+                          "Id": "wrong.diff_from_memos.1",
+                          "Text": [
+                            "Let's look at some of the charts again to double check that you have picked everything you need."
+                          ],
+                          "PromptType": "",
+                          "ResponseType": "Basic",
+                          "UIActionModeId": "NO_UIACTION",
+                          "ExpectedResponses": {
+                            "Values": [
+                              {
+                                "Id": "ANY_RESPONSE",
+                                "NextPrompt": {}
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "Id": "true",
+                        "NextPrompt": {
+                          "Id": "all_correct_causal.2",
+                          "Text": [
+                            "Ok, so you want to know about {{$length := len .RequestedFactors}}{{range $i, $v := .RequestedFactors}}{{if eq $i 2}}{{if eq $length 3}} and {{end}}{{else if eq $i 3}} and {{else if gt $i 0}} , {{end}}{{$v.Text}}{{end}}."
+                          ],
+                          "PromptType": "STRAIGHT_THROUGH",
+                          "ResponseType": "Basic",
+                          "UIActionModeId": "NO_UIACTION",
+                          "ExpectedResponses": {
+                            "Values": [
+                              {
+                                "Id": "ANY_RESPONSE",
+                                "NextPrompt": {
+                                  "Id": "end_choose_factors",
+                                  "Text": [
+                                    "Great. Now you are ready to make some predictions. Press \"Enter\" to continue."
+                                  ],
+                                  "PromptType": "ENTER_TO_CONTINUE",
+                                  "ResponseType": "COMPLETE",
+                                  "UIActionModeId": "NO_UIACTION"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "FirstPrompt": {
+          "Id": "start_prediction",
+          "Text": [
+            "Let's take a look at an applicant."
+          ],
+          "PromptType": "STRAIGHT_THROUGH",
+          "ResponseType": "Basic",
+          "UIActionModeId": "NO_UIACTION",
+          "ExpectedResponses": {
+            "Values": [
+              {
+                "Id": "ANY_RESPONSE",
+                "NextPrompt": {
+                  "Id": "MC_prediction",
+                  "Text": [
+                    "Here are the information about {{range $i, $v := .DisplayFactors}}{{if eq $i 3}} and {{else if gt $i 0}}, {{end}}{{$v.Text}}{{end}} for {{.TargetApplicant.Name}}.",
+                    "Now, look at the applicant on the screen. What do you think the applicant's performance will be?"
+                  ],
+                  "PromptType": "MC",
+                  "ResponseType": "Basic",
+                  "UIActionModeId": "APPLICANT_RECORD",
+                  "ExpectedResponses": {
+                    "Values": [
+                      {
+                        "Id": "ANY_RESPONSE",
+                        "NextPrompt": {}
                       }
                     ]
                   }

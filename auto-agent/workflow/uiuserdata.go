@@ -173,6 +173,85 @@ func (c *GenericState) initContents() {
 }
 
 // Implements workflow.StateEntities
+type PredictionPhaseState struct {
+	GenericState
+	DisplayFactorsReady       bool
+	DisplayFactors            []UIFactor       // all causal factors + 1 non-causal factor, which if not requested, is given
+	RequestedFactors          []UIFactor       // all requested factors, which keeps being updated as missing causal factors are corrected
+	MissingCausalFactors      []UIFactor       // all causal factors not requested, which keeps being updated as missing causal factors are corrected
+	RequestedNonCausalFactors []UIFactor       // all causal factors not requested, which keeps being updated as missing causal factors are corrected
+	TargetApplicant           ApplicantState   // applicant currently being worked on
+	RemainingApplicants       []ApplicantState // remaining applicants not worked on
+}
+
+func (c *PredictionPhaseState) initMissingCausalFactors(factors []UIFactor) {
+	c.MissingCausalFactors = factors
+}
+
+func (c *PredictionPhaseState) initRequestedNonCausalFactors(factors []UIFactor) {
+	c.RequestedNonCausalFactors = factors
+}
+
+func (c *PredictionPhaseState) initContents() {
+	c.setPhaseId(appConfig.PredictionPhase.Id)
+	c.GenericState.initContents()
+	causalCount := 0
+	for _, v := range appConfig.PredictionPhase.ContentRef.Factors {
+		if v.IsCausal {
+			causalCount++
+		}
+	}
+
+	causalFactors := make([]Factor, causalCount)
+
+	causalCount = 0
+	for _, v := range appConfig.PredictionPhase.ContentRef.Factors {
+		if v.IsCausal {
+			causalFactors[causalCount] = v
+			causalCount++
+		}
+	}
+
+	c.DisplayFactors = make([]UIFactor, 4)
+	for i, v := range causalFactors {
+		// Lazy initialization RemainingFactors do not need
+		// all the details
+		c.DisplayFactors[i] = UIFactor{
+			FactorId: v.Id,
+			Text:     v.Name}
+	}
+
+	// Copy over all new applicants in config file
+	c.RemainingApplicants = make([]ApplicantState, len(appConfig.PredictionPhase.ContentRef.Applicants))
+	for i, v := range appConfig.PredictionPhase.ContentRef.Applicants {
+		a := ApplicantState{}
+		a.RecordName = v.RecordName
+		a.FirstName = v.FirstName
+		a.LastName = v.LastName
+		a.RecordNo = v.RecordNo
+		a.PerformanceLevel = v.PerformanceLevel
+		a.FactorLevels = make(map[string]FactorState)
+		for _, vv := range v.FactorLevels {
+			a.FactorLevels[vv.FactorId] = vv
+		}
+		c.RemainingApplicants[i] = a
+	}
+}
+
+// Not applicable to all phases
+func (c *PredictionPhaseState) updateRemainingApplicants() {
+	recordNo := c.TargetApplicant.RecordNo
+	if c.RemainingApplicants != nil {
+		for i, v := range c.RemainingApplicants {
+			if v.RecordNo == recordNo {
+				c.RemainingApplicants = append(c.RemainingApplicants[:i], c.RemainingApplicants[i+1:]...)
+				break
+			}
+		}
+	}
+}
+
+// Implements workflow.StateEntities
 type ChartPhaseState struct {
 	GenericState
 	Record RecordState
@@ -232,6 +311,11 @@ type RecordState struct {
 	// "parentshealth",
 	// "education",
 	// "familysize"
+}
+
+type ApplicantState struct {
+	RecordState
+	PredictedPerformanceLevel int
 }
 
 // For workflow.json to reference
