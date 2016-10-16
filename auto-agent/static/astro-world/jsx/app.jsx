@@ -20,6 +20,7 @@ var App = React.createClass({
       if (!this.state.actionReady && (action.UIActionModeId != UIACTION_INACTIVE)) {
         switch (user.getCurrentPhaseId()) {
         case PHASE_CHART:
+        case PHASE_PREDICTION:
           if (!user.AllPerformanceRecords) {
             var performanceRecordsPromise = user.loadAllPerformanceRecords();
             performanceRecordsPromise.then(

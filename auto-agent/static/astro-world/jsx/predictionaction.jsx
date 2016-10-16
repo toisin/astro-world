@@ -26,8 +26,8 @@ function PredictionAction(props) {
       //   return  <Chart user={user} recordsToShow={recordsToShow} filterFactorName={"Fitness"} filterLevelsLabels={["Average"]} filterRecords={["fitness:average"]} app={app} key={"FITNESS_AVERAGE_RECORDS"}/>;
       // case "ALL_RECORDS":
       //   return  <Chart user={user} singleColumn app={app} key={"ALL_RECORDS"}/>;
-      // case "TARGET_FACTOR_RECORDS":
-      //   return  <Chart user={user} showTargetFactorRecords app={app} key={"TARGET_FACTOR_RECORDS"}/>;
+      case "TARGET_FACTOR_RECORDS":
+        return  <Chart user={user} showTargetFactorRecords app={app} key={"TARGET_FACTOR_RECORDS"}/>;
       // case "MEMO_FORM":
       //   return <ChartMemoForm user={user} onComplete={onComplete} app={app}/>;
       // case "MEMO":

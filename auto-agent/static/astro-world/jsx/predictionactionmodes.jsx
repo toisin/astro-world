@@ -549,7 +549,7 @@ var FactorsRequest = React.createClass({
     var response = {};
     response.BeliefFactors = this.getSelectedFactors();
 
-    var count
+    var count = 0;
     for (var i = 0; i < response.BeliefFactors.length; i++) {
       if (response.BeliefFactors[i].IsBeliefCausal) {
         count++;
@@ -557,7 +557,7 @@ var FactorsRequest = React.createClass({
     }
 
     if (count > 4) {
-      alert("You have selected more than 4 factors. Please try again.");
+      alert("You have selected more than 4 factors. Please remove at least 1 and try again.");
     } else {
       var jsonResponse = JSON.stringify(response);
       user.submitResponse(promptId, phaseId, jsonResponse, onComplete);

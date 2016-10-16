@@ -471,7 +471,6 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 			// regardless of what the most recent response was.
 			text := erh.currentPromptConfig.ExpectedResponses.CheckStateTemplateRef
 			// fmt.Fprintf(os.Stderr, "CheckStateTemplateRef: %s\n\n", text)
-			// fmt.Fprintf(os.Stderr, "state: %s\n\n",
 			t := template.Must(template.New("expectedResponses").Parse(text))
 			var doc bytes.Buffer
 			err := t.Execute(&doc, uiUserData.State)
@@ -565,6 +564,7 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 	if p.PhaseId != currentPhaseId {
 		uiUserData.ArchiveHistoryLength = -1
 	}
+	// fmt.Fprintf(os.Stderr, "Prompt: %s\n\n", p)
 	nextPrompt := MakePrompt(p.Id, p.PhaseId, uiUserData)
 	nextPrompt.initUIPromptDynamicText(uiUserData, r)
 

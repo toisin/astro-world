@@ -107,6 +107,13 @@ func (cp *PredictionPrompt) updateRequestedFactors(uiUserData *UIUserData, r UIM
 func (cp *PredictionPrompt) updateFirstNextFactor(uiUserData *UIUserData) {
 	if cp.state != nil {
 		s := cp.state.(*PredictionPhaseState)
+
+		// clear previous state in case if there are left over session data
+		// only happens is screen was refreshed before intro_predict has completed
+		s.RequestedFactors = make([]UIFactor, 0)
+		s.DisplayFactors = make([]UIFactor, 0)
+		s.DisplayFactorsReady = false
+
 		wrongFactors := s.Beliefs.IncorrectFactors
 
 		if len(wrongFactors) > 0 {
@@ -121,6 +128,11 @@ func (cp *PredictionPrompt) updateFirstNextFactor(uiUserData *UIUserData) {
 				}
 			}
 
+			// Enter this if statement to determine if any wrong factors should
+			// be presented to walk the student through the chart again
+			// Begins with the causal factors that were wrongly not requested,
+			// then if there were more than 1 non-causal factors that were wrongly requested,
+			// present the chart for that after all of the causal factors were re-examined.
 			if beliefNoncausalCount > 0 {
 				// there is at least 1 causal factors that were wrongly believed to be non-causal
 				factors := make([]UIFactor, beliefNoncausalCount)
@@ -166,6 +178,8 @@ func (cp *PredictionPrompt) updateFirstNextFactor(uiUserData *UIUserData) {
 					// by workflow.json
 					fid := factors[0].FactorId
 					cp.updateStateCurrentFactor(uiUserData, fid)
+					s.DisplayFactors = make([]UIFactor, 0)
+					s.DisplayFactorsReady = false
 					return
 				}
 			}

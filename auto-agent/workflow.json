@@ -3417,7 +3417,7 @@
                                                                                 "NextPrompt": {
                                                                                   "Id": "wrong.wrong.wrong.wrong.non-causal.1.2.1.1.2.2",
                                                                                   "Text": [
-                                                                                    "Now, when you looked at the different levels of {{.TargetFactor.FactorName}} on the chart before, we saw that the best and worst performance were the different depending on which levels? If different levels of {{.TargetFactor.FactorName}} have different kind of performance, does it matterto performance what level of {{.TargetFactor.FactorName}} someone has?"
+                                                                                    "Now, when you looked at the different levels of {{.TargetFactor.FactorName}} on the chart before, we saw that the best and worst performance were different depending on which level. If different levels of {{.TargetFactor.FactorName}} have different kind of performance, does it matter to performance what level of {{.TargetFactor.FactorName}} someone has?"
                                                                                   ],
                                                                                   "PromptType": "STRAIGHT_THROUGH",
                                                                                   "ResponseType": "Basic",
@@ -3626,7 +3626,8 @@
                 "NextPrompt": {
                   "Id": "choose_factors",
                   "Text": [
-                    "Before we get started, what information about the applicant would you need to predict his/her performance?", "I can only tell you up to four things about the applicant. Which factors do you want to know about? Pick all of the ones you need so you can predict their performance.",
+                    "Before we get started, what information about the applicant would you need to predict his/her performance?",
+                    "I can only tell you up to four things about the applicant. Which factors do you want to know about? Pick all of the ones you need so you can predict their performance.",
                     "If you need to look at a chart, just click on the button for the factor. Hit \"Enter\" when you are done."
                   ],
                   "PromptType": "NO_INPUT",
@@ -3642,14 +3643,345 @@
                           "Text": [
                             "Let's look at some of the charts again to double check that you have picked everything you need."
                           ],
-                          "PromptType": "",
+                          "PromptType": "STRAIGHT_THROUGH",
                           "ResponseType": "Basic",
                           "UIActionModeId": "NO_UIACTION",
                           "ExpectedResponses": {
                             "Values": [
                               {
                                 "Id": "ANY_RESPONSE",
-                                "NextPrompt": {}
+                                "NextPrompt": {
+                                  "Id": "wrong.show_chart.MC_is_needed.1",
+                                  "Text": [
+                                    "Now, you {{if .TargetFactor.IsCausal}}did not pick{{else}}picked{{end}} {{.TargetFactor.FactorName}}. Here is the chart for it. What do you think? Do we need to know about {{.TargetFactor.FactorName}} for an applicant if you want to predict the person's performance in space?"
+                                  ],
+                                  "PromptType": "MC",
+                                  "ResponseType": "CAUSAL_CONCLUSION",
+                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                  "ExpectedResponses": {
+                                    "DynamicOptionsTemplateRef": {
+                                      "Ids": "[\"true\", \"false\"]",
+                                      "Texts": "[\"Yes\", \"No\"]"
+                                    },
+                                    "CheckStateTemplateRef": "{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if eq .TargetFactor.IsConcludeCausal $factor.IsCausal}}true{{else}}false{{end}}",
+                                    "Values": [
+                                      {
+                                        "Id": "true",
+                                        "Text": "Correct",
+                                        "NextPrompt": {
+                                          "Id": "wrong.correct.1.1",
+                                          "Text": [
+                                            "Ok, looks like you have changed your mind on {{.TargetFactor.FactorName}}. That is fine. Now, tell me again, what made you decide that you will {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if eq $factor.IsCausal false}}not {{end}}need to know about {{.TargetFactor.FactorName}} to predict someone’s performance in space?"
+                                          ],
+                                          "PromptType": "Text",
+                                          "ResponseType": "PREDICTION_NEXT_FACTOR",
+                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                          "ExpectedResponses": {
+                                            "CheckStateTemplateRef": "{{.DisplayFactorsReady}}",
+                                            "Values": [
+                                              {
+                                                "Id": "false",
+                                                "NextPrompt": {
+                                                  "Id": "wrong.next_wrong_factor.1.1",
+                                                  "Text": [
+                                                    "Ok. Let's look at this other factor."
+                                                  ],
+                                                  "PromptType": "STRAIGHT_THROUGH",
+                                                  "ResponseType": "Basic",
+                                                  "UIActionModeId": "NO_UIACTION",
+                                                  "ExpectedResponses": {
+                                                    "Values": [
+                                                      {
+                                                        "Id": "ANY_RESPONSE",
+                                                        "NextPromptRef": {
+                                                          "Id": "wrong.show_chart.MC_is_needed.1"
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "Id": "true",
+                                                "NextPromptRef": {
+                                                  "Id": "all_correct_causal.2"
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "Id": "false",
+                                        "Text": "Wrong",
+                                        "NextPrompt": {
+                                          "Id": "wrong.wrong.1.2",
+                                          "Text": [
+                                            "Ok, so you think that we will {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if eq $factor.IsBeliefCausal false}}not {{end}}need to know about {{.TargetFactor.FactorName}} to predict someone’s performance in space. What makes you decide that?"
+                                          ],
+                                          "PromptType": "Text",
+                                          "ResponseType": "Basic",
+                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                          "ExpectedResponses": {
+                                            "Values": [
+                                              {
+                                                "Id": "ANY_RESPONSE",
+                                                "NextPrompt": {
+                                                  "Id": "wrong.wrong.MC_is_same_perf.1.2",
+                                                  "Text": [
+                                                    "Ok. Let me make sure I got that. Now, if you look at the chart, does it look like people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} would do better or worse or about the same as those who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}?"
+                                                  ],
+                                                  "PromptType": "MC",
+                                                  "ResponseType": "Basic",
+                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                  "ExpectedResponses": {
+                                                    "DynamicOptionsTemplateRef": {
+                                                      "Ids": "[\"better\",\"worse\",\"the same\"]",
+                                                      "Texts": "[\"Better\",\"Worse\",\"The Same\"]"
+                                                    },
+                                                    "Values": [
+                                                      {
+                                                        "Id": "the same",
+                                                        "NextPrompt": {
+                                                          "Id": "wrong.wrong.non-causal.1.2.1",
+                                                          "Text": [
+                                                            "So you think that their performance would be the same."
+                                                          ],
+                                                          "PromptType": "STRAIGHT_THROUGH",
+                                                          "ResponseType": "Basic",
+                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                          "ExpectedResponses": {
+                                                            "CheckStateTemplateRef": "{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if eq .TargetFactor.IsConcludeCausal $factor.IsCausal}}true{{else}}false{{end}}",
+                                                            "Values": [
+                                                              {
+                                                                "Id": "false",
+                                                                "Text": "Wrong",
+                                                                "NextPrompt": {
+                                                                  "Id": "wrong.wrong.wrong.Q_best_worst.1.2.1.1",
+                                                                  "Text": [
+                                                                    "Ok. Let's look at this more carefully together.",
+                                                                    "Look at the people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}}, what are the best and worst performance for these people? And what about the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}}? what are the best and worst performance for those people?"
+                                                                  ],
+                                                                  "PromptType": "Text",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPrompt": {
+                                                                          "Id": "wrong.wrong.wrong.MC_is_needed.1.2.1.1",
+                                                                          "Text": [
+                                                                            "So, what does this tell you? Given what you saw, would you need to know about {{.TargetFactor.FactorName}} to predict someone's performance in space?"
+                                                                          ],
+                                                                          "PromptType": "MC",
+                                                                          "ResponseType": "CAUSAL_CONCLUSION",
+                                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                          "ExpectedResponses": {
+                                                                            "DynamicOptionsTemplateRef": {
+                                                                              "Ids": "[\"true\", \"false\"]",
+                                                                              "Texts": "[\"Yes\", \"No\"]"
+                                                                            },
+                                                                            "CheckStateTemplateRef": "{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if eq .TargetFactor.IsConcludeCausal $factor.IsCausal}}true{{else}}false{{end}}",
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "true",
+                                                                                "Text": "Correct",
+                                                                                "NextPrompt": {
+                                                                                  "Id": "wrong.wrong.wrong.correct.1.2.1.1.1",
+                                                                                  "Text": [
+                                                                                    "Ok, so you think that we will {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if eq $factor.IsBeliefCausal false}}not {{end}}need to know about {{.TargetFactor.FactorName}} to predict someone’s performance in space."
+                                                                                  ],
+                                                                                  "PromptType": "STRAIGHT_THROUGH",
+                                                                                  "ResponseType": "PREDICTION_NEXT_FACTOR",
+                                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                                  "ExpectedResponses": {
+                                                                                    "CheckStateTemplateRef": "{{.DisplayFactorsReady}}",
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "false",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "wrong.next_wrong_factor.1.1"
+                                                                                        }
+                                                                                      },
+                                                                                      {
+                                                                                        "Id": "true",
+                                                                                        "NextPromptRef": {
+                                                                                          "Id": "all_correct_causal.2"
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              {
+                                                                                "Id": "false",
+                                                                                "Text": "Wrong",
+                                                                                "NextPrompt": {
+                                                                                  "Id": "wrong.wrong.wrong.wrong.1.2.1.1.2",
+                                                                                  "Text": [
+                                                                                    "Ok, so you think that we will {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if eq $factor.IsBeliefCausal false}}not {{end}}need to know about {{.TargetFactor.FactorName}} to predict someone’s performance in space."
+                                                                                  ],
+                                                                                  "PromptType": "STRAIGHT_THROUGH",
+                                                                                  "ResponseType": "Basic",
+                                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                                  "ExpectedResponses": {
+                                                                                    "CheckStateTemplateRef": "{{.TargetFactor.IsConcludeCausal}}",
+                                                                                    "Values": [
+                                                                                      {
+                                                                                        "Id": "true",
+                                                                                        "NextPrompt": {
+                                                                                          "Id": "wrong.wrong.wrong.wrong.causal.1.2.1.1.2.1",
+                                                                                          "Text": [
+                                                                                            "Now, when you looked at the different levels of {{.TargetFactor.FactorName}} on the chart before, we saw that the best and worst performance were the same for all levels. If all the different levels of {{.TargetFactor.FactorName}} have the same kind of performance, does it really matter what level of {{.TargetFactor.FactorName}} someone has?"
+                                                                                          ],
+                                                                                          "PromptType": "STRAIGHT_THROUGH",
+                                                                                          "ResponseType": "Basic",
+                                                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                                          "ExpectedResponses": {
+                                                                                            "Values": [
+                                                                                              {
+                                                                                                "Id": "ANY_RESPONSE",
+                                                                                                "NextPromptRef": {
+                                                                                                  "Id": "wrong.wrong.wrong.MC_is_needed.1.2.1.1"
+                                                                                                }
+                                                                                              }
+                                                                                            ]
+                                                                                          }
+                                                                                        }
+                                                                                      },
+                                                                                      {
+                                                                                        "Id": "false",
+                                                                                        "NextPrompt": {
+                                                                                          "Id": "wrong.wrong.wrong.wrong.non-causal.1.2.1.1.2.2",
+                                                                                          "Text": [
+                                                                                            "Now, when you looked at the different levels of {{.TargetFactor.FactorName}} on the chart before, we saw that the best and worst performance were different depending on which level. If different levels of {{.TargetFactor.FactorName}} have different kind of performance, does it matter to performance what level of {{.TargetFactor.FactorName}} someone has?"
+                                                                                          ],
+                                                                                          "PromptType": "STRAIGHT_THROUGH",
+                                                                                          "ResponseType": "Basic",
+                                                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                                          "ExpectedResponses": {
+                                                                                            "Values": [
+                                                                                              {
+                                                                                                "Id": "ANY_RESPONSE",
+                                                                                                "NextPromptRef": {
+                                                                                                  "Id": "wrong.wrong.wrong.MC_is_needed.1.2.1.1"
+                                                                                                }
+                                                                                              }
+                                                                                            ]
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "Id": "true",
+                                                                "Text": "Correct",
+                                                                "NextPrompt": {
+                                                                  "Id": "wrong.wrong.correct.1.2.1.2",
+                                                                  "Text": [
+                                                                    "I see."
+                                                                  ],
+                                                                  "PromptType": "STRAIGHT_THROUGH",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPrompt": {
+                                                                          "Id": "wrong.wrong.correct.MC_is_needed.1.2.1.2",
+                                                                          "Text": [
+                                                                            "So, what does this tell you? Given what you saw, would you need to know about {{.TargetFactor.FactorName}} to predict someone's performance in space?"
+                                                                          ],
+                                                                          "PromptType": "MC",
+                                                                          "ResponseType": "CAUSAL_CONCLUSION",
+                                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                          "ExpectedResponses": {
+                                                                            "DynamicOptionsTemplateRef": {
+                                                                              "Ids": "[\"true\", \"false\"]",
+                                                                              "Texts": "[\"Yes\", \"No\"]"
+                                                                            },
+                                                                            "CheckStateTemplateRef": "{{$factor := index .ContentFactors .TargetFactor.FactorId}}{{if eq .TargetFactor.IsConcludeCausal $factor.IsCausal}}true{{else}}false{{end}}",
+                                                                            "Values": [
+                                                                              {
+                                                                                "Id": "false",
+                                                                                "Text": "Wrong",
+                                                                                "NextPromptRef": {
+                                                                                  "Id": "wrong.wrong.wrong.Q_best_worst.1.2.1.1"
+                                                                                }
+                                                                              },
+                                                                              {
+                                                                                "Id": "true",
+                                                                                "Text": "Correct",
+                                                                                "NextPromptRef": {
+                                                                                  "Id": "wrong.wrong.wrong.correct.1.2.1.1.1"
+                                                                                }
+                                                                              }
+                                                                            ]
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "Id": "ANY_RESPONSE",
+                                                        "NextPrompt": {
+                                                          "Id": " wrong.wrong.causal.1.2.2",
+                                                          "Text": [
+                                                            "So you think that their performance would be different."
+                                                          ],
+                                                          "PromptType": "STRAIGHT_THROUGH",
+                                                          "ResponseType": "Basic",
+                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                          "ExpectedResponses": {
+                                                            "CheckStateTemplateRef": "{{if eq .TargetFactor.IsConcludeCausal false}}true{{else}}false{{end}}",
+                                                            "Values": [
+                                                              {
+                                                                "Id": "false",
+                                                                "Text": "Wrong",
+                                                                "NextPromptRef": {
+                                                                  "Id": "wrong.wrong.wrong.Q_best_worst.1.2.1.1"
+                                                                }
+                                                              },
+                                                              {
+                                                                "Id": "true",
+                                                                "Text": "Correct",
+                                                                "NextPromptRef": {
+                                                                  "Id": "wrong.wrong.correct.1.2.1.2"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
                               }
                             ]
                           }
@@ -3660,7 +3992,7 @@
                         "NextPrompt": {
                           "Id": "all_correct_causal.2",
                           "Text": [
-                            "Ok, so you want to know about {{$length := len .RequestedFactors}}{{range $i, $v := .RequestedFactors}}{{if eq $i 2}}{{if eq $length 3}} and {{end}}{{else if eq $i 3}} and {{else if gt $i 0}} , {{end}}{{$v.Text}}{{end}}."
+                            "Ok, so you want to know about {{$length := len .RequestedFactors}}{{range $i, $v := .RequestedFactors}}{{if eq $i 2}}{{if eq $length 3}} and {{else}}, {{end}}{{else if eq $i 3}} and {{else if gt $i 0}}, {{end}}{{$v.Text}}{{end}}."
                           ],
                           "PromptType": "STRAIGHT_THROUGH",
                           "ResponseType": "Basic",
