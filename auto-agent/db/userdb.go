@@ -50,11 +50,11 @@ type Message struct {
 
 // Currently hardcoded only 5 factors possible
 // TODO extend to allow more and maybe fix it at no more than 10
-type Applicant struct {
-	Id                        string
-	RecordNo                  string
-	PredictedPerformanceLevel int
-}
+// type Applicant struct {
+// 	Id                        string
+// 	RecordNo                  int
+// 	PredictedPerformanceLevel int
+// }
 
 // userlistKey returns the key used for all user entries.
 func UserLogsKey(c appengine.Context, username string) *datastore.Key {
@@ -72,9 +72,9 @@ func UserMemoKey(c appengine.Context, username string) *datastore.Key {
 }
 
 // userlistKey returns the key used for all user entries.
-func UserApplicantKey(c appengine.Context, username string) *datastore.Key {
-	return datastore.NewKey(c, "Applicant", username, 0, nil)
-}
+// func UserApplicantKey(c appengine.Context, username string) *datastore.Key {
+// 	return datastore.NewKey(c, "Applicant", username, 0, nil)
+// }
 
 // userKey returns the key used for all user entries.
 func UserKey(c appengine.Context) *datastore.Key {
@@ -144,11 +144,11 @@ func PutMemo(c appengine.Context, username string, m Memo) (err error) {
 	return
 }
 
-func PutApplicant(c appengine.Context, username string, a Applicant) (err error) {
-	applicants := []Applicant{a}
-	var keys = []*datastore.Key{
-		datastore.NewIncompleteKey(c, "Applicant", UserApplicantKey(c, username))}
+// func PutApplicant(c appengine.Context, username string, a Applicant) (err error) {
+// 	applicants := []Applicant{a}
+// 	var keys = []*datastore.Key{
+// 		datastore.NewIncompleteKey(c, "Applicant", UserApplicantKey(c, username))}
 
-	_, err = datastore.PutMulti(c, keys, applicants)
-	return
-}
+// 	_, err = datastore.PutMulti(c, keys, applicants)
+// 	return
+// }

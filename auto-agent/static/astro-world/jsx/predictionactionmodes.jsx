@@ -716,3 +716,76 @@ var FactorsRequest = React.createClass({
 //   }
 // });
 
+var PredictionRecord = React.createClass({
+
+  getInitialState: function() {
+    return {mode: 0};
+  },
+
+  render: function() {
+      var state = this.state;
+      var user = this.props.user;
+      var app = this.props.app;
+
+      var prompt = user.getPrompt();
+      var promptId = prompt.PromptId;
+      var phaseId = user.getCurrentPhaseId();
+      var record = user.getState().TargetPrediction;
+
+      var recordDetails = function(r) {
+        var factorOrder = [];
+        var tempfactors = user.getState().DisplayFactors.map(
+          function(v, i) {
+            var factor = v;
+            factorOrder[i] = factor.Order;
+            var fid = factor.FactorId;
+            var selectedf = r.FactorLevels[fid];
+            var SelectedLevelName = selectedf.SelectedLevel;
+
+            var size = factor.Levels.length;
+            if (size == 2) {
+              factor.Levels[2]=factor.Levels[1];
+              factor.Levels[1]="_";
+            }
+            var levels = factor.Levels.map(
+              function(level, j) {
+                if (level.ImgPath) {
+                  var imgPath = "/img/"+level.ImgPath;
+                  if (level.Text == SelectedLevelName) {
+                    return <td key={j}><label>
+                        <img src={imgPath}/><br/>{level.Text}</label></td>;
+                  }
+                }
+                return <td key={j}><label className="dimmed">
+                      <img src={imgPath}/><br/>{level.Text}</label></td>;
+              });
+
+            return <tr key={i}>
+                    <td className="factorNameFront">{factor.Text}</td>
+                    {levels}
+                  </tr>;
+          });
+        var factors = [];
+        for (var i = 0; i < tempfactors.length; i++) {
+          factors[factorOrder[i]] = tempfactors[i];
+        }
+
+        return r ? <div className="frame" key={r.RecordNo}>
+                <table className="record">
+                  <tbody>
+                    <tr>
+                      <td colSpan="4" className="robot">Applicant #{r.RecordNo} <b>{r.RecordName}</b></td>
+                    </tr>
+                    {factors}
+                  </tbody>
+                </table>
+              </div> : null;};
+              
+      var recordDetails
+      recordDetails = recordDetails(record);
+      return <div className = "hbox">
+                {recordDetails}
+              </div>;
+  }
+});
+

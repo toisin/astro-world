@@ -50,6 +50,7 @@ const (
 	RESPONSE_CAUSAL_CONCLUSION_SUMMARY                = "CAUSAL_CONCLUSION_SUMMARY"
 	RESPONSE_PREDICTION_REQUESTED_FACTORS             = "PREDICTION_REQUESTED_FACTORS"
 	RESPONSE_PREDICTION_NEXT_FACTOR                   = "PREDICTION_NEXT_FACTOR"
+	RESPONSE_PREDICTION_PERFORMANCE                   = "PREDICTION_PERFORMANCE"
 	RESPONSE_SYSTEM_GENERATED                         = "SYSTEM_GENERATED" // For when a submit is triggered by the system
 
 	EXPECTED_CONTENT_FACTOR_REF = "CONTENT_FACTOR_REF"
@@ -78,18 +79,18 @@ type AppConfig struct {
 }
 
 type ContentConfig struct {
-	RecordFileName  string
-	RecordSize      int
-	Factors         []Factor
-	OutcomeVariable Factor
-	Applicants      []Applicant
+	RecordFileName    string
+	RecordSize        int
+	Factors           []Factor
+	OutcomeVariable   Factor
+	PredictionRecords []PredictionRecord
 }
 
-type Applicant struct {
+type PredictionRecord struct {
 	RecordName       string
 	FirstName        string
 	LastName         string
-	RecordNo         string
+	RecordNo         int
 	FactorLevels     []FactorState
 	PerformanceLevel int
 }
@@ -325,7 +326,8 @@ func GetFirstPhase() *PhaseConfig {
 func MakeFirstPrompt(uiUserData *UIUserData) Prompt {
 	// Hardcoding the first prompt is the first prompt of CovPrompt
 	// p := MakePrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.CovPhase.Id, uiUserData)
-	p := MakePrompt(appConfig.ChartPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.ChartPhase.Id, uiUserData)
+	// p := MakePrompt(appConfig.ChartPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.ChartPhase.Id, uiUserData)
+	p := MakePrompt(appConfig.PredictionPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.PredictionPhase.Id, uiUserData)
 	return p
 }
 
@@ -368,7 +370,7 @@ func GetFactorConfig(factorId string) Factor {
 
 func CreateRecordStateFromDB(r db.Record) RecordState {
 	rs := RecordState{}
-	if r.RecordNo != "" {
+	if r.RecordNo != 0 {
 		rs.RecordName = r.Firstname + " " + r.Lastname
 		rs.FirstName = r.Firstname
 		rs.LastName = r.Lastname
@@ -400,7 +402,7 @@ func CreateRecordStateFromDB(r db.Record) RecordState {
 		}
 	} else {
 		rs.RecordName = ""
-		rs.RecordNo = ""
+		rs.RecordNo = 0
 		rs.FactorLevels = make(map[string]FactorState)
 	}
 	return rs

@@ -179,10 +179,10 @@ func (cp *ChartPrompt) updateFirstWrongSummaryFactor(uiUserData *UIUserData) {
 }
 
 func (cp *ChartPrompt) checkRecord(rsr *UIChartRecordSelectResponse, c appengine.Context) {
-	if rsr.RecordNo != "" {
+	if rsr.RecordNo != 0 {
 		record, _, err := db.GetRecordByRecordNo(c, rsr.RecordNo)
 		if err != nil {
-			fmt.Fprint(os.Stderr, "DB Error Getting A Record with Record #:"+rsr.RecordNo+" "+err.Error()+"!\n\n")
+			fmt.Fprintf(os.Stderr, "DB Error Getting A Record with Record #:%s , %s!\n\n", rsr.RecordNo, err.Error())
 			log.Fatal(err)
 			return
 		}
@@ -197,7 +197,7 @@ func (cp *ChartPrompt) updateStateRecord(uiUserData *UIUserData, r UIChartRecord
 	cp.updateState(uiUserData)
 	if cp.state != nil {
 		s := cp.state.(*ChartPhaseState)
-		if r.RecordNo != "" {
+		if r.RecordNo != 0 {
 			s.Record = CreateRecordStateFromDB(r.dbRecord)
 		} else {
 			s.Record = RecordState{}
@@ -217,18 +217,19 @@ func (cp *ChartPrompt) updateState(uiUserData *UIUserData) {
 	if cp.state == nil {
 		cps := &ChartPhaseState{}
 		cps.initContents(appConfig.ChartPhase.ContentRef.Factors)
+		// fmt.Fprintf(os.Stderr, "factors: %s", cps.RemainingFactors)
 		cp.state = cps
 		cp.state.setPhaseId(appConfig.ChartPhase.Id)
 		cp.state.setUsername(uiUserData.Username)
 		cp.state.setScreenname(uiUserData.Screenname)
-		fid := uiUserData.CurrentFactorId
-		if fid != "" {
-			cp.state.setTargetFactor(
-				FactorState{
-					FactorName: factorConfigMap[fid].Name,
-					FactorId:   fid,
-					IsCausal:   factorConfigMap[fid].IsCausal})
-		}
+		// fid := uiUserData.CurrentFactorId
+		// if fid != "" {
+		// 	cp.state.setTargetFactor(
+		// 		FactorState{
+		// 			FactorName: factorConfigMap[fid].Name,
+		// 			FactorId:   fid,
+		// 			IsCausal:   factorConfigMap[fid].IsCausal})
+		// }
 	}
 	uiUserData.State = cp.state
 }

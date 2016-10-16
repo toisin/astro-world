@@ -125,12 +125,12 @@
         }
       ]
     },
-    "Applicants": [
+    "PredictionRecords": [
       {
         "RecordName": "Kyle Scott",
         "FirstName": "Kyle",
         "LastName": "Scott",
-        "RecordNo": "1",
+        "RecordNo": 1,
         "FactorLevels": [
           {
             "FactorId": "fitness",
@@ -159,7 +159,7 @@
         "RecordName": "Casey Morris",
         "FirstName": "Casey",
         "LastName": "Morris",
-        "RecordNo": "2",
+        "RecordNo": 2,
         "FactorLevels": [
           {
             "FactorId": "fitness",
@@ -188,7 +188,7 @@
         "RecordName": "Kayden Powell",
         "FirstName": "Kayden",
         "LastName": "Powell",
-        "RecordNo": "3",
+        "RecordNo": 3,
         "FactorLevels": [
           {
             "FactorId": "fitness",
@@ -217,7 +217,7 @@
         "RecordName": "Jaylin Díaz",
         "FirstName": "Jaylin",
         "LastName": "Díaz",
-        "RecordNo": "4",
+        "RecordNo": 4,
         "FactorLevels": [
           {
             "FactorId": "fitness",
@@ -246,7 +246,7 @@
         "RecordName": "Jamie Wright",
         "FirstName": "Jamie",
         "LastName": "Wright",
-        "RecordNo": "5",
+        "RecordNo": 5,
         "FactorLevels": [
           {
             "FactorId": "fitness",
@@ -275,7 +275,7 @@
         "RecordName": "Alex Sánchez",
         "FirstName": "Alex",
         "LastName": "Sánchez",
-        "RecordNo": "6",
+        "RecordNo": 6,
         "FactorLevels": [
           {
             "FactorId": "fitness",
@@ -304,7 +304,7 @@
         "RecordName": "Pedro Ramírez",
         "FirstName": "Pedro",
         "LastName": "Ramírez",
-        "RecordNo": "7",
+        "RecordNo": 7,
         "FactorLevels": [
           {
             "FactorId": "fitness",
@@ -333,7 +333,7 @@
         "RecordName": "Riley Phillips",
         "FirstName": "Riley",
         "LastName": "Phillips",
-        "RecordNo": "8",
+        "RecordNo": 8,
         "FactorLevels": [
           {
             "FactorId": "fitness",
@@ -362,7 +362,7 @@
         "RecordName": "Charlie Evans",
         "FirstName": "Charlie",
         "LastName": "Evans",
-        "RecordNo": "9",
+        "RecordNo": 9,
         "FactorLevels": [
           {
             "FactorId": "fitness",
@@ -391,7 +391,7 @@
         "RecordName": "Ariel Collins",
         "FirstName": "Ariel",
         "LastName": "Collins",
-        "RecordNo": "10",
+        "RecordNo": 10,
         "FactorLevels": [
           {
             "FactorId": "fitness",
@@ -1044,7 +1044,7 @@
                                                                                                         "NextPrompt": {
                                                                                                           "Id": "memo done",
                                                                                                           "Text": [
-                                                                                                            "Great! Thank you for the memo to the foundation. Let's move on to the next factor then."
+                                                                                                            "Great! Thank you for the memo to the foundation. Let's move on to the next thing then."
                                                                                                           ],
                                                                                                           "PromptType": "ENTER_TO_CONTINUE",
                                                                                                           "ResponseType": "COMPLETE",
@@ -1183,7 +1183,7 @@
                                                                   "ResponseType": "Basic",
                                                                   "UIActionModeId": "RECORD_PERFORMANCE",
                                                                   "ExpectedResponses": {
-                                                                    "CheckStateTemplateRef": "{{.TargetFactor.IsCausal}}",
+                                                                    "CheckStateTemplateRef": "{{if ne .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}true{{else}}false{{end}}",
                                                                     "Values": [
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
@@ -2570,7 +2570,7 @@
                                                                                         "NextPrompt": {
                                                                                           "Id": "memo done",
                                                                                           "Text": [
-                                                                                            "Great! Thank you for the memo to the foundation. Let's move on to the next factor then."
+                                                                                            "Great! Thank you for the memo to the foundation. Let's move on to the next thing then."
                                                                                           ],
                                                                                           "PromptType": "ENTER_TO_CONTINUE",
                                                                                           "ResponseType": "COMPLETE",
@@ -3992,7 +3992,7 @@
                         "NextPrompt": {
                           "Id": "all_correct_causal.2",
                           "Text": [
-                            "Ok, so you want to know about {{$length := len .RequestedFactors}}{{range $i, $v := .RequestedFactors}}{{if eq $i 2}}{{if eq $length 3}} and {{else}}, {{end}}{{else if eq $i 3}} and {{else if gt $i 0}}, {{end}}{{$v.Text}}{{end}}."
+                            "Alright, you want to know about {{$length := len .RequestedFactors}}{{range $i, $v := .RequestedFactors}}{{if eq $i 2}}{{if eq $length 3}} and {{else}}, {{end}}{{else if eq $i 3}} and {{else if gt $i 0}}, {{end}}{{$v.Text}}{{end}}."
                           ],
                           "PromptType": "STRAIGHT_THROUGH",
                           "ResponseType": "Basic",
@@ -4027,7 +4027,7 @@
         "FirstPrompt": {
           "Id": "start_prediction",
           "Text": [
-            "Let's take a look at an applicant."
+            "Let's take a look at Applicant #{{.TargetPrediction.RecordNo}},  {{.TargetPrediction.RecordName}}"
           ],
           "PromptType": "STRAIGHT_THROUGH",
           "ResponseType": "Basic",
@@ -4039,17 +4039,58 @@
                 "NextPrompt": {
                   "Id": "MC_prediction",
                   "Text": [
-                    "Here are the information about {{range $i, $v := .DisplayFactors}}{{if eq $i 3}} and {{else if gt $i 0}}, {{end}}{{$v.Text}}{{end}} for {{.TargetApplicant.Name}}.",
-                    "Now, look at the applicant on the screen. What do you think the applicant's performance will be?"
+                    "Here are the information about {{range $i, $v := .DisplayFactors}}{{if eq $i 3}} and {{else if gt $i 0}}, {{end}}{{$v.Text}}{{end}} for {{.TargetPrediction.RecordName}}. What do you think {{.TargetPrediction.FirstName}}'s performance will be?"
                   ],
                   "PromptType": "MC",
-                  "ResponseType": "Basic",
-                  "UIActionModeId": "APPLICANT_RECORD",
+                  "ResponseType": "PREDICTION_PERFORMANCE",
+                  "UIActionModeId": "PREDICTION_RECORD",
                   "ExpectedResponses": {
+                    "DynamicOptionsTemplateRef": {
+                      "Ids": "[\"0\",\"1\",\"2\",\"3\",\"4\"]",
+                      "Texts": "[\"A\",\"B\",\"C\",\"D\",\"E\"]"
+                    },
+                    "CheckStateTemplateRef": "{{if eq .TargetPrediction.PredictedPerformanceLevel .TargetPrediction.PerformanceLevel}}true{{else}}false{{end}}",
                     "Values": [
                       {
                         "Id": "ANY_RESPONSE",
-                        "NextPrompt": {}
+                        "NextPrompt": {
+                          "Id": "incorrect_perf.1",
+                          "Text": [
+                            "Ok, you think {{.TargetPrediction.FirstName}} will have {{.TargetPrediction.PredictedPerformanceLevel}}."
+                          ],
+                          "PromptType": "Text",
+                          "ResponseType": "Basic",
+                          "UIActionModeId": "PREDICTION_RECORD",
+                          "ExpectedResponses": {
+                            "Values": [
+                              {
+                                "Id": "ANY_RESPONSE",
+                                "NextPrompt": {}
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "Id": "true",
+                        "Text": "Correct",
+                        "NextPrompt": {
+                          "Id": "correct_perf.2",
+                          "Text": [
+                            "Ok, you think {{.TargetPrediction.FirstName}} will have {{.TargetPrediction.PredictedPerformanceLevel}}. Which of the four factors you have data on mattered to your prediction?"
+                          ],
+                          "PromptType": "MC",
+                          "ResponseType": "Basic",
+                          "UIActionModeId": "PREDICTION_RECORD",
+                          "ExpectedResponses": {
+                            "Values": [
+                              {
+                                "Id": "ANY_RESPONSE",
+                                "NextPrompt": {}
+                              }
+                            ]
+                          }
+                        }
                       }
                     ]
                   }

@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -540,9 +541,9 @@ func ImportRecordsDB(c appengine.Context) {
 				log.Fatal(err)
 				return
 			}
-			recordNo := arecord[0]  // First column is the record number
-			firstname := arecord[1] // Second column is the first name
-			lastname := arecord[2]  // Third column is the last name
+			recordNo, _ := strconv.Atoi(arecord[0]) // First column is the record number
+			firstname := arecord[1]                 // Second column is the first name
+			lastname := arecord[2]                  // Third column is the last name
 			factorIds := make([]string, len(factorColIndex))
 			factorLevels := make([]string, len(factorColIndex))
 			for k, v := range factorColIndex {

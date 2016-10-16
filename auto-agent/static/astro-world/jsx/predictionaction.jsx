@@ -36,6 +36,10 @@ function PredictionAction(props) {
         return <FactorsRequestForm user={user} onComplete={onComplete} app={app}/>;
       // case "FACTORS_LEVELS_SUMMARY_FORM":
       //   return <FactorsLevelsSummaryForm user={user} onComplete={onComplete} app={app}/>;
+      case "PREDICTION_RECORD":
+        return <div>
+                <PredictionRecord user={user} onComplete={onComplete} app={app}/>
+              </div>;
     default:
         return <div></div>;
     }

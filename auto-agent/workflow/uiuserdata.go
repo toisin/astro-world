@@ -4,6 +4,7 @@ import (
 	"db"
 	"fmt"
 	"os"
+	"strconv"
 )
 
 // Includes only the variables that are needed on the client side
@@ -176,12 +177,12 @@ func (c *GenericState) initContents() {
 type PredictionPhaseState struct {
 	GenericState
 	DisplayFactorsReady       bool
-	DisplayFactors            []UIFactor       // all causal factors + 1 non-causal factor, which if not requested, is given
-	RequestedFactors          []UIFactor       // all requested factors, which keeps being updated as missing causal factors are corrected
-	MissingCausalFactors      []UIFactor       // all causal factors not requested, which keeps being updated as missing causal factors are corrected
-	RequestedNonCausalFactors []UIFactor       // all causal factors not requested, which keeps being updated as missing causal factors are corrected
-	TargetApplicant           ApplicantState   // applicant currently being worked on
-	RemainingApplicants       []ApplicantState // remaining applicants not worked on
+	DisplayFactors            []UIFactor              // all causal factors + 1 non-causal factor, which if not requested, is given
+	RequestedFactors          []UIFactor              // all requested factors, which keeps being updated as missing causal factors are corrected
+	MissingCausalFactors      []UIFactor              // all causal factors not requested, which keeps being updated as missing causal factors are corrected
+	RequestedNonCausalFactors []UIFactor              // all causal factors not requested, which keeps being updated as missing causal factors are corrected
+	TargetPrediction          PredictionRecordState   // prediction currently being worked on
+	AllPredictionRecords      []PredictionRecordState // all prediction records
 }
 
 func (c *PredictionPhaseState) initMissingCausalFactors(factors []UIFactor) {
@@ -221,10 +222,10 @@ func (c *PredictionPhaseState) initContents() {
 			Text:     v.Name}
 	}
 
-	// Copy over all new applicants in config file
-	c.RemainingApplicants = make([]ApplicantState, len(appConfig.PredictionPhase.ContentRef.Applicants))
-	for i, v := range appConfig.PredictionPhase.ContentRef.Applicants {
-		a := ApplicantState{}
+	// Copy over all new prediction records in config file
+	c.AllPredictionRecords = make([]PredictionRecordState, len(appConfig.Content.PredictionRecords))
+	for i, v := range appConfig.Content.PredictionRecords {
+		a := PredictionRecordState{}
 		a.RecordName = v.RecordName
 		a.FirstName = v.FirstName
 		a.LastName = v.LastName
@@ -232,23 +233,26 @@ func (c *PredictionPhaseState) initContents() {
 		a.PerformanceLevel = v.PerformanceLevel
 		a.FactorLevels = make(map[string]FactorState)
 		for _, vv := range v.FactorLevels {
-			a.FactorLevels[vv.FactorId] = vv
+			a.FactorLevels[vv.FactorId] = CreateSelectedLevelFactorState(vv.FactorId, vv.SelectedLevelId, vv.Order)
 		}
-		c.RemainingApplicants[i] = a
+		c.AllPredictionRecords[i] = a
 	}
+
+	c.TargetPrediction = c.AllPredictionRecords[0]
 }
 
 // Not applicable to all phases
-func (c *PredictionPhaseState) updateRemainingApplicants() {
-	recordNo := c.TargetApplicant.RecordNo
-	if c.RemainingApplicants != nil {
-		for i, v := range c.RemainingApplicants {
-			if v.RecordNo == recordNo {
-				c.RemainingApplicants = append(c.RemainingApplicants[:i], c.RemainingApplicants[i+1:]...)
-				break
-			}
-		}
-	}
+func (c *PredictionPhaseState) updateToNextTargetPrediction() {
+	// recordNo := c.TargetApplicant.RecordNo
+	// newTargetApplicant := c.AllApplicants[recordNo]
+	// c.TargetApplicant = newTargetApplicant
+}
+
+func (c *PredictionPhaseState) isContentCompleted() bool {
+	// if c.TargetApplicant.RecordNo <= len(c.AllApplicants) {
+	// 	return false
+	// }
+	return true
 }
 
 // Implements workflow.StateEntities
@@ -302,7 +306,7 @@ type RecordState struct {
 	RecordName       string
 	FirstName        string
 	LastName         string
-	RecordNo         string
+	RecordNo         int
 	FactorLevels     map[string]FactorState // factor id as key
 	Performance      string
 	PerformanceLevel int
@@ -313,7 +317,7 @@ type RecordState struct {
 	// "familysize"
 }
 
-type ApplicantState struct {
+type PredictionRecordState struct {
 	RecordState
 	PredictedPerformanceLevel int
 }
@@ -416,15 +420,15 @@ type UIRecordsSelectResponse struct {
 func (rsr UIRecordsSelectResponse) GetResponseText() string {
 	responseText := ""
 	count := 0
-	if rsr.dbRecordNoOne.RecordNo != "" {
-		responseText = "Record #" + rsr.dbRecordNoOne.RecordNo
+	if rsr.dbRecordNoOne.RecordNo != 0 {
+		responseText = "Record #" + strconv.Itoa(rsr.dbRecordNoOne.RecordNo)
 		count++
 	}
-	if rsr.dbRecordNoTwo.RecordNo != "" {
+	if rsr.dbRecordNoTwo.RecordNo != 0 {
 		if count > 0 {
-			responseText = responseText + " and " + "Record #" + rsr.dbRecordNoTwo.RecordNo
+			responseText = responseText + " and " + "Record #" + strconv.Itoa(rsr.dbRecordNoTwo.RecordNo)
 		} else {
-			responseText = "Record #" + rsr.dbRecordNoTwo.RecordNo
+			responseText = "Record #" + strconv.Itoa(rsr.dbRecordNoTwo.RecordNo)
 		}
 	}
 
@@ -436,21 +440,21 @@ func (rsr UIRecordsSelectResponse) GetResponseId() string {
 }
 
 type UIChartRecordSelectResponse struct {
-	RecordNo string
+	RecordNo int
 	dbRecord db.Record
 }
 
 func (rsr UIChartRecordSelectResponse) GetResponseText() string {
 	responseText := ""
-	if rsr.RecordNo != "" {
-		responseText = "Record #" + rsr.RecordNo
+	if rsr.RecordNo != 0 {
+		responseText = "Record #" + strconv.Itoa(rsr.RecordNo)
 	}
 
 	return responseText
 }
 
 func (rsr UIChartRecordSelectResponse) GetResponseId() string {
-	return rsr.RecordNo
+	return strconv.Itoa(rsr.RecordNo)
 }
 
 type UIMultiFactorsCausalityResponse struct {

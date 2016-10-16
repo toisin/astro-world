@@ -14,7 +14,7 @@ import (
 // Currently hardcoded only 5 factors possible
 // TODO extend to allow more and maybe fix it at no more than 10
 type Record struct {
-	RecordNo          string
+	RecordNo          int
 	ID                string
 	Firstname         string
 	Lastname          string
@@ -79,7 +79,7 @@ func GetRecord(c appengine.Context, factorLevels []string) (r Record, k *datasto
 	return
 }
 
-func GetRecordByRecordNo(c appengine.Context, recordNo string) (r Record, k *datastore.Key, err error) {
+func GetRecordByRecordNo(c appengine.Context, recordNo int) (r Record, k *datastore.Key, err error) {
 
 	q := datastore.NewQuery("Record")
 	q = q.Filter("RecordNo=", recordNo)

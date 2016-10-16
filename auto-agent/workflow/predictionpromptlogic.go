@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"appengine"
@@ -30,7 +31,7 @@ func MakePredictionPrompt(p PromptConfig, uiUserData *UIUserData) *PredictionPro
 func (cp *PredictionPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
 	if cp.promptConfig.ResponseType == RESPONSE_END {
 		// TODO - how to handle final phase
-		//		uiUserData.State.(*CovPhaseState).updateRemainingFactors()
+		uiUserData.State.(*PredictionPhaseState).updateToNextTargetPrediction()
 		cp.nextPrompt = cp.generateFirstPromptInNextSequence(uiUserData)
 	} else if r != "" {
 		dec := json.NewDecoder(strings.NewReader(r))
@@ -61,6 +62,20 @@ func (cp *PredictionPrompt) ProcessResponse(r string, u *db.User, uiUserData *UI
 					return
 				}
 				cp.updateStateCurrentFactorCausal(uiUserData, response.GetResponseId())
+				cp.response = &response
+			}
+			break
+		case RESPONSE_PREDICTION_PERFORMANCE:
+			for {
+				var response SimpleResponse
+				if err := dec.Decode(&response); err == io.EOF {
+					break
+				} else if err != nil {
+					fmt.Fprintf(os.Stderr, "%s", err)
+					log.Fatal(err)
+					return
+				}
+				cp.updateStateCurrentPredictionPerformance(uiUserData, response.GetResponseId())
 				cp.response = &response
 			}
 			break
@@ -178,8 +193,6 @@ func (cp *PredictionPrompt) updateFirstNextFactor(uiUserData *UIUserData) {
 					// by workflow.json
 					fid := factors[0].FactorId
 					cp.updateStateCurrentFactor(uiUserData, fid)
-					s.DisplayFactors = make([]UIFactor, 0)
-					s.DisplayFactorsReady = false
 					return
 				}
 			}
@@ -229,6 +242,51 @@ func (cp *PredictionPrompt) updateFirstNextFactor(uiUserData *UIUserData) {
 
 }
 
+func (cp *PredictionPrompt) updateStateCurrentPredictionPerformance(uiUserData *UIUserData, performanceResponse string) {
+	// invoking the initialization methods in the "subclass"
+	// in case if they have been overriden
+	cp.currentPrompt.updateState(uiUserData)
+	s := cp.state.(*PredictionPhaseState)
+	s.TargetPrediction.PredictedPerformanceLevel, _ = strconv.Atoi(performanceResponse)
+	// if isCausalResponse == "true" {
+	// 	targetFactor.IsConcludeCausal = true
+	// 	targetFactor.HasConclusion = true
+	// } else if isCausalResponse == "false" {
+	// 	targetFactor.IsConcludeCausal = false
+	// 	targetFactor.HasConclusion = true
+	// }
+	// // TODO - not sure if it's a good idea
+	// // by changing the ContentFactors, we lose track of what the student originally believed
+	// tempContentFactors := cp.state.GetContentFactors()
+	// tempFactor := tempContentFactors[targetFactor.FactorId]
+	// tempFactor.IsBeliefCausal = targetFactor.IsConcludeCausal
+	// tempContentFactors[targetFactor.FactorId] = tempFactor
+
+	// allCorrect := true
+	// causalFactors := []UIFactor{}
+	// incorrectFactors := []UIFactor{}
+
+	// for _, v := range tempContentFactors {
+	// 	if v.IsBeliefCausal != v.IsCausal {
+	// 		allCorrect = false
+	// 		incorrectFactors = append(incorrectFactors, v)
+	// 	}
+	// 	if v.IsBeliefCausal {
+	// 		causalFactors = append(causalFactors, v)
+	// 	}
+	// }
+
+	// tempBeliefs := cp.state.GetBeliefs()
+	// tempBeliefs.IncorrectFactors = incorrectFactors
+	// tempBeliefs.CausalFactors = causalFactors
+	// tempBeliefs.AllCorrect = allCorrect
+	// cp.state.setBeliefs(tempBeliefs)
+
+	// cp.state.setContentFactors(tempContentFactors)
+	// cp.state.setTargetFactor(targetFactor)
+	uiUserData.State = cp.state
+}
+
 // func (cp *PredictionPrompt) updateAppilcant(uiUserData *UIUserData, r UIChartRecordSelectResponse) {
 // cp.updateState(uiUserData)
 // if cp.state != nil {
@@ -261,14 +319,14 @@ func (cp *PredictionPrompt) updateState(uiUserData *UIUserData) {
 		// TODO - hard coding the first incorrect factor as target factor
 		// maybe too much UI logic. Would be better if it can be triggered
 		// by workflow.json
-		fid := uiUserData.CurrentFactorId
-		if fid != "" {
-			cp.state.setTargetFactor(
-				FactorState{
-					FactorName: factorConfigMap[fid].Name,
-					FactorId:   fid,
-					IsCausal:   factorConfigMap[fid].IsCausal})
-		}
+		// fid := uiUserData.CurrentFactorId
+		// if fid != "" {
+		// 	cp.state.setTargetFactor(
+		// 		FactorState{
+		// 			FactorName: factorConfigMap[fid].Name,
+		// 			FactorId:   fid,
+		// 			IsCausal:   factorConfigMap[fid].IsCausal})
+		// }
 	}
 	uiUserData.State = cp.state
 }
