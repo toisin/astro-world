@@ -218,6 +218,11 @@ body {
   margin: 10px;
 }
 
+.action .no-border-frame > * {
+  margin: 10px;
+}
+
+
 .action table td{
   white-space: nowrap;
   padding: 2px 8px;

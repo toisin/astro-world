@@ -111,7 +111,7 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserD
 			break
 		case RESPONSE_CAUSAL_CONCLUSION_FACTORS_SUMMARY, RESPONSE_CAUSAL_CONCLUSION_FACTORS_LEVELS_SUMMARY:
 			for {
-				var beliefResponse UIMultiFactorsCausalityResponse
+				var beliefResponse UIMultiFactorsResponse
 				if err := dec.Decode(&beliefResponse); err == io.EOF {
 					break
 				} else if err != nil {
@@ -156,7 +156,7 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserD
 	}
 }
 
-func (cp *ChartPrompt) updateMultiFactorsCausalityResponse(uiUserData *UIUserData, r UIMultiFactorsCausalityResponse) {
+func (cp *ChartPrompt) updateMultiFactorsCausalityResponse(uiUserData *UIUserData, r UIMultiFactorsResponse) {
 	cp.GenericPrompt.updateMultiFactorsCausalityResponse(uiUserData, r)
 	cp.updateFirstWrongSummaryFactor(uiUserData)
 }

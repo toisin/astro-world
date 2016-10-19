@@ -31,15 +31,15 @@ func MakePredictionPrompt(p PromptConfig, uiUserData *UIUserData) *PredictionPro
 func (cp *PredictionPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
 	if cp.promptConfig.ResponseType == RESPONSE_END {
 		// TODO - how to handle final phase
-		uiUserData.State.(*PredictionPhaseState).updateToNextTargetPrediction()
 		cp.nextPrompt = cp.generateFirstPromptInNextSequence(uiUserData)
 	} else if r != "" {
 		dec := json.NewDecoder(strings.NewReader(r))
 		pc := cp.promptConfig
 		switch pc.ResponseType {
 		case RESPONSE_PREDICTION_REQUESTED_FACTORS:
+			// For during intro prediction and requesting factors
 			for {
-				var beliefResponse UIMultiFactorsCausalityResponse
+				var beliefResponse UIMultiFactorsResponse
 				if err := dec.Decode(&beliefResponse); err == io.EOF {
 					break
 				} else if err != nil {
@@ -52,6 +52,8 @@ func (cp *PredictionPrompt) ProcessResponse(r string, u *db.User, uiUserData *UI
 			}
 			break
 		case RESPONSE_CAUSAL_CONCLUSION:
+			// For during intro prediction and requesting one factor,
+			// most likely because it was previously wrongly requested
 			for {
 				var response SimpleResponse
 				if err := dec.Decode(&response); err == io.EOF {
@@ -66,6 +68,7 @@ func (cp *PredictionPrompt) ProcessResponse(r string, u *db.User, uiUserData *UI
 			}
 			break
 		case RESPONSE_PREDICTION_PERFORMANCE:
+			// For during prediction and predicting performance
 			for {
 				var response SimpleResponse
 				if err := dec.Decode(&response); err == io.EOF {
@@ -79,7 +82,39 @@ func (cp *PredictionPrompt) ProcessResponse(r string, u *db.User, uiUserData *UI
 				cp.response = &response
 			}
 			break
+		case RESPONSE_PREDICTION_FACTORS:
+			// For during prediction and making attribution to factors
+			for {
+				var beliefResponse UIMultiFactorsResponse
+				if err := dec.Decode(&beliefResponse); err == io.EOF {
+					break
+				} else if err != nil {
+					fmt.Fprintf(os.Stderr, "%s", err)
+					log.Fatal(err)
+					return
+				}
+				cp.updateContributingFactors(uiUserData, beliefResponse)
+				cp.response = &beliefResponse
+			}
+		case RESPONSE_PREDICTION_FACTOR_CONCLUSION:
+			// For during prediction and making attribution to one factor (most likely one that
+			// was previously wrongly attributed
+			for {
+				var response SimpleResponse
+				if err := dec.Decode(&response); err == io.EOF {
+					break
+				} else if err != nil {
+					fmt.Fprintf(os.Stderr, "%s", err)
+					log.Fatal(err)
+					return
+				}
+				cp.updateCurrentContributingFactorCausal(uiUserData, response.GetResponseId())
+				cp.response = &response
+			}
+			break
 		case RESPONSE_PREDICTION_NEXT_FACTOR:
+			// For during intro prediction and requesting factor
+			// Moves to the next wrongly requested factor
 			for {
 				var response SimpleResponse
 				if err := dec.Decode(&response); err == io.EOF {
@@ -92,6 +127,22 @@ func (cp *PredictionPrompt) ProcessResponse(r string, u *db.User, uiUserData *UI
 				cp.response = &response
 			}
 			cp.updateFirstNextFactor(uiUserData)
+			break
+		case RESPONSE_PREDICTION_NEXT_ATTRIBUTING_FACTOR:
+			// For during prediction and attributing factor
+			// Moves to the next wrongly attributed factor
+			for {
+				var response SimpleResponse
+				if err := dec.Decode(&response); err == io.EOF {
+					break
+				} else if err != nil {
+					fmt.Fprintf(os.Stderr, "%s", err)
+					log.Fatal(err)
+					return
+				}
+				cp.response = &response
+			}
+			cp.updateFirstNextWrongContributingFactor(uiUserData)
 			break
 		default:
 			for {
@@ -112,7 +163,16 @@ func (cp *PredictionPrompt) ProcessResponse(r string, u *db.User, uiUserData *UI
 	}
 }
 
-func (cp *PredictionPrompt) updateRequestedFactors(uiUserData *UIUserData, r UIMultiFactorsCausalityResponse) {
+func (cp *PredictionPrompt) updateRequestedFactors(uiUserData *UIUserData, r UIMultiFactorsResponse) {
+	if cp.state != nil {
+		s := cp.state.(*PredictionPhaseState)
+		s.RequestedFactors = make([]UIFactor, 0)
+		for _, v := range r.BeliefFactors {
+			if v.IsBeliefCausal {
+				s.RequestedFactors = append(s.RequestedFactors, s.ContentFactors[v.FactorId])
+			}
+		}
+	}
 	// Re-use updateMultiFactorsCausalityResponse, assume students requested only causal factors
 	cp.GenericPrompt.updateMultiFactorsCausalityResponse(uiUserData, r)
 	cp.updateFirstNextFactor(uiUserData)
@@ -125,7 +185,6 @@ func (cp *PredictionPrompt) updateFirstNextFactor(uiUserData *UIUserData) {
 
 		// clear previous state in case if there are left over session data
 		// only happens is screen was refreshed before intro_predict has completed
-		s.RequestedFactors = make([]UIFactor, 0)
 		s.DisplayFactors = make([]UIFactor, 0)
 		s.DisplayFactorsReady = false
 
@@ -224,10 +283,8 @@ func (cp *PredictionPrompt) updateFirstNextFactor(uiUserData *UIUserData) {
 		if len(wrongFactors) > 0 {
 			// if there is a non-causal factor requested, include it for display
 			tempFactors[count] = wrongFactors[0]
-			s.RequestedFactors = tempFactors
 		} else {
 			// no non-causal factor was requested, add one to display
-			s.RequestedFactors = tempFactors
 			for _, v := range s.GetContentFactors() {
 				if !v.IsCausal {
 					tempFactors[count] = v
@@ -239,7 +296,55 @@ func (cp *PredictionPrompt) updateFirstNextFactor(uiUserData *UIUserData) {
 		s.DisplayFactors = tempFactors
 		s.DisplayFactorsReady = true
 	}
+}
 
+func (cp *PredictionPrompt) updateCurrentContributingFactorCausal(uiUserData *UIUserData, isCausalResponse string) {
+	cp.currentPrompt.updateState(uiUserData)
+	s := cp.state.(*PredictionPhaseState)
+	var isCausal bool
+	if isCausalResponse == "true" {
+		isCausal = true
+	} else if isCausalResponse == "false" {
+		isCausal = false
+	}
+	targetFactor := cp.state.GetTargetFactor()
+	targetFactor.IsConcludeCausal = isCausal
+	targetFactor.HasConclusion = true
+	cp.state.setTargetFactor(targetFactor)
+	for i, v := range s.TargetPrediction.ContributingFactors {
+		if v.FactorId == targetFactor.FactorId {
+			s.TargetPrediction.ContributingFactors[i].IsBeliefCausal = isCausal
+		}
+	}
+	uiUserData.State = cp.state
+}
+
+// This is to update the next factor of causal factor not attributed
+func (cp *PredictionPrompt) updateFirstNextWrongContributingFactor(uiUserData *UIUserData) {
+	if cp.state != nil {
+		s := cp.state.(*PredictionPhaseState)
+		factors := s.TargetPrediction.ContributingFactors
+		for _, v := range factors {
+			if v.IsBeliefCausal != s.GetContentFactors()[v.FactorId].IsCausal {
+				cp.updateStateCurrentFactor(uiUserData, v.FactorId)
+				s.TargetPrediction.IsContributingFactorsComplete = false
+				return
+			}
+		}
+		s.TargetPrediction.IsContributingFactorsComplete = true
+		// There are no more wrongly attributed factors
+		cp.updateStateCurrentFactor(uiUserData, "")
+	}
+}
+
+func (cp *PredictionPrompt) updateContributingFactors(uiUserData *UIUserData, r UIMultiFactorsResponse) {
+	// invoking the initialization methods in the "subclass"
+	// in case if they have been overriden
+	cp.currentPrompt.updateState(uiUserData)
+	s := cp.state.(*PredictionPhaseState)
+	s.TargetPrediction.ContributingFactors = r.BeliefFactors
+	uiUserData.State = cp.state
+	cp.updateFirstNextWrongContributingFactor(uiUserData)
 }
 
 func (cp *PredictionPrompt) updateStateCurrentPredictionPerformance(uiUserData *UIUserData, performanceResponse string) {
@@ -248,58 +353,9 @@ func (cp *PredictionPrompt) updateStateCurrentPredictionPerformance(uiUserData *
 	cp.currentPrompt.updateState(uiUserData)
 	s := cp.state.(*PredictionPhaseState)
 	s.TargetPrediction.PredictedPerformanceLevel, _ = strconv.Atoi(performanceResponse)
-	// if isCausalResponse == "true" {
-	// 	targetFactor.IsConcludeCausal = true
-	// 	targetFactor.HasConclusion = true
-	// } else if isCausalResponse == "false" {
-	// 	targetFactor.IsConcludeCausal = false
-	// 	targetFactor.HasConclusion = true
-	// }
-	// // TODO - not sure if it's a good idea
-	// // by changing the ContentFactors, we lose track of what the student originally believed
-	// tempContentFactors := cp.state.GetContentFactors()
-	// tempFactor := tempContentFactors[targetFactor.FactorId]
-	// tempFactor.IsBeliefCausal = targetFactor.IsConcludeCausal
-	// tempContentFactors[targetFactor.FactorId] = tempFactor
-
-	// allCorrect := true
-	// causalFactors := []UIFactor{}
-	// incorrectFactors := []UIFactor{}
-
-	// for _, v := range tempContentFactors {
-	// 	if v.IsBeliefCausal != v.IsCausal {
-	// 		allCorrect = false
-	// 		incorrectFactors = append(incorrectFactors, v)
-	// 	}
-	// 	if v.IsBeliefCausal {
-	// 		causalFactors = append(causalFactors, v)
-	// 	}
-	// }
-
-	// tempBeliefs := cp.state.GetBeliefs()
-	// tempBeliefs.IncorrectFactors = incorrectFactors
-	// tempBeliefs.CausalFactors = causalFactors
-	// tempBeliefs.AllCorrect = allCorrect
-	// cp.state.setBeliefs(tempBeliefs)
-
-	// cp.state.setContentFactors(tempContentFactors)
-	// cp.state.setTargetFactor(targetFactor)
+	s.TargetPrediction.PredictedPerformance = GetContentConfig().OutcomeVariable.Levels[s.TargetPrediction.PredictedPerformanceLevel].Name
 	uiUserData.State = cp.state
 }
-
-// func (cp *PredictionPrompt) updateAppilcant(uiUserData *UIUserData, r UIChartRecordSelectResponse) {
-// cp.updateState(uiUserData)
-// if cp.state != nil {
-// 	s := cp.state.(*ChartPhaseState)
-// 	if r.RecordNo != "" {
-// 		s.Record = CreateRecordStateFromDB(r.dbRecord)
-// 	} else {
-// 		s.Record = RecordState{}
-// 	}
-// 	cp.state = s
-// }
-// uiUserData.State = cp.state
-// }
 
 func (cp *PredictionPrompt) updateState(uiUserData *UIUserData) {
 	if uiUserData.State != nil {
@@ -315,18 +371,6 @@ func (cp *PredictionPrompt) updateState(uiUserData *UIUserData) {
 		cp.state.setPhaseId(appConfig.PredictionPhase.Id)
 		cp.state.setUsername(uiUserData.Username)
 		cp.state.setScreenname(uiUserData.Screenname)
-
-		// TODO - hard coding the first incorrect factor as target factor
-		// maybe too much UI logic. Would be better if it can be triggered
-		// by workflow.json
-		// fid := uiUserData.CurrentFactorId
-		// if fid != "" {
-		// 	cp.state.setTargetFactor(
-		// 		FactorState{
-		// 			FactorName: factorConfigMap[fid].Name,
-		// 			FactorId:   fid,
-		// 			IsCausal:   factorConfigMap[fid].IsCausal})
-		// }
 	}
 	uiUserData.State = cp.state
 }

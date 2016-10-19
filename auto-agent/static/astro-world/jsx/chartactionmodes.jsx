@@ -563,7 +563,7 @@ var ChartButtons = React.createClass({
     var hideChartOnClick = function() {self.changeState(null)};
 
     if (state.showChart) {
-      return <div className="frame">
+      return <div className="no-border-frame">
                 <button onClick={fitnessOnClick}>{this.props.fitness.filterFactorName}</button>
                 <button onClick={parentshealthOnClick}>{this.props.parentshealth.filterFactorName}</button>
                 <button onClick={familysizeOnClick}>{this.props.familysize.filterFactorName}</button>
@@ -575,7 +575,7 @@ var ChartButtons = React.createClass({
                 <button autoFocus onClick={hideChartOnClick}>Hide Chart</button>
              </div>;
     } else {
-      return <div className="frame">
+      return <div className="no-border-frame">
                 <button onClick={fitnessOnClick}>{this.props.fitness.filterFactorName}</button>
                 <button onClick={parentshealthOnClick}>{this.props.parentshealth.filterFactorName}</button>
                 <button onClick={familysizeOnClick}>{this.props.familysize.filterFactorName}</button>

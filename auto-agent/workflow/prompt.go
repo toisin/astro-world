@@ -225,6 +225,13 @@ func (cp *GenericPrompt) updateStateCurrentFactor(uiUserData *UIUserData, fid st
 				FactorName: factorConfigMap[fid].Name,
 				FactorId:   fid,
 				IsCausal:   factorConfigMap[fid].IsCausal})
+	} else {
+		// Overwrite what was in the state previously in updateState()
+		cp.state.setTargetFactor(
+			FactorState{
+				FactorName: "",
+				FactorId:   "",
+				IsCausal:   false})
 	}
 	uiUserData.State = cp.state
 }
@@ -285,7 +292,7 @@ func (cp *GenericPrompt) updateMemo(uiUserData *UIUserData, r UIMemoResponse) {
 	uiUserData.State = cp.state
 }
 
-func (cp *GenericPrompt) updateMultiFactorsCausalityResponse(uiUserData *UIUserData, r UIMultiFactorsCausalityResponse) {
+func (cp *GenericPrompt) updateMultiFactorsCausalityResponse(uiUserData *UIUserData, r UIMultiFactorsResponse) {
 	causalFactors := []UIFactor{}
 	incorrectFactors := []UIFactor{}
 	var hasCausal bool
@@ -349,6 +356,7 @@ func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserDat
 		// Check if all content has been through the current sequence
 		// if not, go to the next content, otherwise, repeat sequence for the remaining content
 		if !cp.state.isContentCompleted() {
+			cp.state.updateToNextContent()
 			nextS = currentS
 		}
 	}

@@ -4024,6 +4024,7 @@
         }
       },
       {
+        "RepeatOverContent": true,
         "FirstPrompt": {
           "Id": "start_prediction",
           "Text": [
@@ -4039,7 +4040,8 @@
                 "NextPrompt": {
                   "Id": "MC_prediction",
                   "Text": [
-                    "Here are the information about {{range $i, $v := .DisplayFactors}}{{if eq $i 3}} and {{else if gt $i 0}}, {{end}}{{$v.Text}}{{end}} for {{.TargetPrediction.RecordName}}. What do you think {{.TargetPrediction.FirstName}}'s performance will be?"
+                    "Here are the information about {{range $i, $v := .DisplayFactors}}{{if eq $i 3}} and {{else if gt $i 0}}, {{end}}{{$v.Text}}{{end}} for {{.TargetPrediction.RecordName}}. How well do you think {{.TargetPrediction.FirstName}} will perform?",
+                    "Click on the button for a factor if you want to see the chart again."
                   ],
                   "PromptType": "MC",
                   "ResponseType": "PREDICTION_PERFORMANCE",
@@ -4049,14 +4051,14 @@
                       "Ids": "[\"0\",\"1\",\"2\",\"3\",\"4\"]",
                       "Texts": "[\"A\",\"B\",\"C\",\"D\",\"E\"]"
                     },
-                    "CheckStateTemplateRef": "{{if eq .TargetPrediction.PredictedPerformanceLevel .TargetPrediction.PerformanceLevel}}true{{else}}false{{end}}",
+                    "CheckStateTemplateRef": "{{if eq .TargetPrediction.PredictedPerformanceLevel .TargetPrediction.PerformanceLevel}}true{{else if lt .TargetPrediction.PredictedPerformanceLevel 2}}{{if lt .TargetPrediction.PerformanceLevel 2}}true{{else}}false{{end}}{{else}}{{if ge .TargetPrediction.PerformanceLevel 2}}true{{else}}false{{end}}{{end}}",
                     "Values": [
                       {
                         "Id": "ANY_RESPONSE",
                         "NextPrompt": {
                           "Id": "incorrect_perf.1",
                           "Text": [
-                            "Ok, you think {{.TargetPrediction.FirstName}} will have {{.TargetPrediction.PredictedPerformanceLevel}}."
+                            "Ok, you think {{.TargetPrediction.FirstName}} will have {{.TargetPrediction.PredictedPerformance}}."
                           ],
                           "PromptType": "Text",
                           "ResponseType": "Basic",
@@ -4077,16 +4079,191 @@
                         "NextPrompt": {
                           "Id": "correct_perf.2",
                           "Text": [
-                            "Ok, you think {{.TargetPrediction.FirstName}} will have {{.TargetPrediction.PredictedPerformanceLevel}}. Which of the four factors you have data on mattered to your prediction?"
+                            "Ok, you think {{.TargetPrediction.FirstName}} will have {{.TargetPrediction.PredictedPerformance}}. Which of the four factors you have data on mattered to your prediction?",
+                            "Be sure to choose all of the ones that mattered."
                           ],
-                          "PromptType": "MC",
-                          "ResponseType": "Basic",
-                          "UIActionModeId": "PREDICTION_RECORD",
+                          "PromptType": "NO_INPUT",
+                          "ResponseType": "PREDICTION_FACTORS",
+                          "UIActionModeId": "CONTRIBUTING_FACTORS_FORM",
                           "ExpectedResponses": {
+                            "CheckStateTemplateRef": "{{.TargetPrediction.IsContributingFactorsComplete}}",
                             "Values": [
                               {
                                 "Id": "ANY_RESPONSE",
-                                "NextPrompt": {}
+                                "NextPrompt": {
+                                  "Id": "correct_perf.wrong_factors.show_chart.2.1",
+                                  "Text": [
+                                    "Ok. Let's look at some of the charts again to double check that you considered all the factors that mattered so that you made an accurate prediction."
+                                  ],
+                                  "PromptType": "STRAIGHT_THROUGH",
+                                  "ResponseType": "Basic",
+                                  "UIActionModeId": "NO_UIACTION",
+                                  "ExpectedResponses": {
+                                    "Values": [
+                                      {
+                                        "Id": "ANY_RESPONSE",
+                                        "NextPrompt": {
+                                          "Id": "correct_perf.next_wrong_factors.2.1.1",
+                                          "Text": [
+                                            "Now, you {{if .TargetFactor.IsCausal}}did not pick{{else}}picked{{end}} {{.TargetFactor.FactorName}}. Here is the chart for it."
+                                          ],
+                                          "PromptType": "STRAIGHT_THROUGH",
+                                          "ResponseType": "Basic",
+                                          "UIActionModeId": "NO_UIACTION",
+                                          "ExpectedResponses": {
+                                            "Values": [
+                                              {
+                                                "Id": "ANY_RESPONSE",
+                                                "NextPrompt": {
+                                                  "Id": "correct_perf.MC_mattered.2.1",
+                                                  "Text": [
+                                                    "Think about whether your prediction would be accurate if you didn't know the level of {{.TargetFactor.FactorName}} that {{.TargetPrediction.FirstName}}. Do we need to know about {{.TargetFactor.FactorName}} if you want to predict {{.TargetPrediction.FirstName}}'s performance in space?"
+                                                  ],
+                                                  "PromptType": "MC",
+                                                  "ResponseType": "PREDICTION_FACTOR_CONCLUSION",
+                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                  "ExpectedResponses": {
+                                                    "DynamicOptionsTemplateRef": {
+                                                      "Ids": "[\"true\", \"false\"]",
+                                                      "Texts": "[\"Yes\", \"No\"]"
+                                                    },
+                                                    "CheckStateTemplateRef": "{{if eq .TargetFactor.IsCausal .TargetFactor.IsConcludeCausal}}true{{else}}false{{end}}",
+                                                    "Values": [
+                                                      {
+                                                        "Id": "ANY_RESPONSE",
+                                                        "NextPrompt": {
+                                                          "Id": "correct_perf.wrong_factor.wrong.MC_is_same_perf.2.1.2",
+                                                          "Text": [
+                                                            "{{.TargetPrediction.FirstName}} had {{$factorId := .TargetFactor.FactorId}}{{$factor := index .TargetPrediction.FactorLevels $factorId}}{{$factor.SelectedLevel}} for {{.TargetFactor.FactorName}}. If {{.TargetPrediction.FirstName}} had {{$factor.OppositeLevel}} instead, what do you think would happen to {{.TargetPrediction.FirstName}}'s performance?",
+                                                            "Do you think performance will go up, go down, or be the same?"
+                                                          ],
+                                                          "PromptType": "MC",
+                                                          "ResponseType": "PREDICTION_FACTOR_CONCLUSION",
+                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                          "ExpectedResponses": {
+                                                            "DynamicOptionsTemplateRef": {
+                                                              "Ids": "[\"true\", \"true\", \"false\"]",
+                                                              "Texts": "[\"Up\", \"Down\", \"The Same\"]"
+                                                            },
+                                                            "CheckStateTemplateRef": "{{if eq .TargetFactor.IsCausal .TargetFactor.IsConcludeCausal}}true{{else}}false{{end}}",
+                                                            "Values": [
+                                                              {
+                                                                "Id": "ANY_RESPONSE",
+                                                                "NextPrompt": {
+                                                                  "Id": "correct_perf.wrong_factor.wrong.wrong.2.1.2.2",
+                                                                  "Text": [
+                                                                    "Look at the chart more closely, do the people who have {{$factorId := .TargetFactor.FactorId}}{{$factor := index .TargetPrediction.FactorLevels $factorId}}{{$factor.SelectedLevel}} and those who have {{$factor.OppositeLevel}} have similar or different performances?"
+                                                                  ],
+                                                                  "PromptType": "Text",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPromptRef": {
+                                                                          "Id": "correct_perf.wrong_factor.wrong.MC_is_same_perf.2.1.2"
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "Id": "true",
+                                                                "NextPrompt": {
+                                                                  "Id": "correct_perf.wrong_factor.wrong.correct.2.1.2.1",
+                                                                  "Text": [
+                                                                    "So you think that {{.TargetPrediction.FirstName}} would have {{if .TargetFactor.IsCausal}}a different{{else}}the same{{end}} performance if {{.TargetPrediction.FirstName}}'s {{.TargetFactor.FactorName}} had a different level."
+                                                                  ],
+                                                                  "PromptType": "STRAIGHT_THROUGH",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPromptRef": {
+                                                                          "Id": "correct_perf.MC_mattered.2.1"
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "Id": "true",
+                                                        "NextPrompt": {
+                                                          "Id": "correct_perf.wrong_factor.correct.2.1.1",
+                                                          "Text": [
+                                                            "Ok, looks like you have changed your mind and that {{.TargetFactor.FactorName}} {{if .TargetFactor.IsCausal}}mattered{{else}}did not mattter{{end}} to your prediction. That is fine."
+                                                          ],
+                                                          "PromptType": "STRAIGHT_THROUGH",
+                                                          "ResponseType": "PREDICTION_NEXT_ATTRIBUTING_FACTOR",
+                                                          "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                          "ExpectedResponses": {
+                                                            "CheckStateTemplateRef": "{{.TargetPrediction.IsContributingFactorsComplete}}",
+                                                            "Values": [
+                                                              {
+                                                                "Id": "ANY_RESPONSE",
+                                                                "NextPrompt": {
+                                                                  "Id": "correct_perf.more_wrong_factor.2.1.1",
+                                                                  "Text": [
+                                                                    "Let's look at this other factor."
+                                                                  ],
+                                                                  "PromptType": "STRAIGHT_THROUGH",
+                                                                  "ResponseType": "Basic",
+                                                                  "UIActionModeId": "NO_UIACTION",
+                                                                  "ExpectedResponses": {
+                                                                    "Values": [
+                                                                      {
+                                                                        "Id": "ANY_RESPONSE",
+                                                                        "NextPromptRef": {
+                                                                          "Id": "correct_perf.next_wrong_factors.2.1.1"
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              },
+                                                              {
+                                                                "Id": "true",
+                                                                "NextPromptRef": {
+                                                                  "Id": "correct_perf.correct_factors.2.2"
+                                                                }
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              },
+                              {
+                                "Id": "true",
+                                "NextPrompt": {
+                                  "Id": "correct_perf.correct_factors.2.2",
+                                  "Text": [
+                                    "So Fitness, Parents' Health and Education mattered to your prediction for {{.TargetPrediction.RecordName}}'s performance. Ok, got it.",
+                                    "Let's look at another prediction. Press \"Enter\" to continue."
+                                  ],
+                                  "PromptType": "ENTER_TO_CONTINUE",
+                                  "ResponseType": "COMPLETE",
+                                  "UIActionModeId": "PREDICTION_RECORD"
+                                }
                               }
                             ]
                           }

@@ -66,7 +66,7 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 			break
 		case RESPONSE_PRIOR_BELIEF_FACTORS, RESPONSE_PRIOR_BELIEF_LEVELS:
 			for {
-				var beliefResponse UIMultiFactorsCausalityResponse
+				var beliefResponse UIMultiFactorsResponse
 				if err := dec.Decode(&beliefResponse); err == io.EOF {
 					break
 				} else if err != nil {

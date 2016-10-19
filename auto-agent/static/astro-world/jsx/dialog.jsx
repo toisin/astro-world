@@ -116,22 +116,18 @@ var OldHistory = React.createClass({
 });
 
 
-// Render the title of the chat window
-var Title = React.createClass({
-
-  render: function() {
-    var user = this.props.user;
-    var human = user.getScreenname() ? this.props.user.getScreenname() : this.props.user.getUsername();
-    var welcomeText = this.props.welcomeText;
-    return  <div className="researcher">
-              <div className="name">{DisplayText[MSG_ROBOT]}</div>
-              <div className="message">
-                Hello {human}.<br/>
-                {welcomeText}<br/>
-              </div>
-            </div>;
-  }
-});
+function Title(props) {
+  var user = props.user;
+  var human = user.getScreenname() ? props.user.getScreenname() : props.user.getUsername();
+  var welcomeText = props.welcomeText;
+  return  <div className="researcher">
+            <div className="name">{DisplayText[MSG_ROBOT]}</div>
+            <div className="message">
+              Hello {human}.<br/>
+              {welcomeText}<br/>
+            </div>
+          </div>;
+}
 
 
 // Render each message
@@ -256,7 +252,6 @@ var Message = React.createClass({
   }
 });
 
-// Renter Prompt
 var Prompt = React.createClass({
   getInitialState: function() {
     return {completePrompt: false};
@@ -311,19 +306,15 @@ var Prompt = React.createClass({
   },
 });
 
-var PromptOption = React.createClass({
-
-  render: function() {
-    var option = this.props.option;
-      return  <label>
-                <input type="radio" name="dialoginput" value={option.ResponseId}/>
-                {option.Text}&nbsp;&nbsp;&nbsp;
-              </label>
-  },
-});
+function PromptOption(props) {
+  var option = props.option;
+  return  <label>
+            <input type="radio" name="dialoginput" value={option.ResponseId}/>
+            {option.Text}&nbsp;&nbsp;&nbsp;
+          </label>
+}
 
 
-// Renter input window
 var Input = React.createClass({
   getInitialState: function() {
     return {enabled: false, passthrough: true};

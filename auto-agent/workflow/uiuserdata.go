@@ -44,6 +44,7 @@ type StateEntities interface {
 	GetPhaseId() string
 	GetBeliefs() BeliefsState
 	isContentCompleted() bool
+	updateToNextContent()
 	GetTargetFactor() FactorState
 	GetRemainingFactors() []UIFactor
 	GetLastMemo() UIMemoResponse
@@ -135,6 +136,9 @@ func (cp *GenericState) isContentCompleted() bool {
 		return false
 	}
 	return true
+}
+
+func (c *GenericState) updateToNextContent() {
 }
 
 // Not applicable to all phases
@@ -231,6 +235,7 @@ func (c *PredictionPhaseState) initContents() {
 		a.LastName = v.LastName
 		a.RecordNo = v.RecordNo
 		a.PerformanceLevel = v.PerformanceLevel
+		a.Performance = appConfig.Content.OutcomeVariable.Levels[v.PerformanceLevel].Name
 		a.FactorLevels = make(map[string]FactorState)
 		for _, vv := range v.FactorLevels {
 			a.FactorLevels[vv.FactorId] = CreateSelectedLevelFactorState(vv.FactorId, vv.SelectedLevelId, vv.Order)
@@ -243,16 +248,20 @@ func (c *PredictionPhaseState) initContents() {
 
 // Not applicable to all phases
 func (c *PredictionPhaseState) updateToNextTargetPrediction() {
-	// recordNo := c.TargetApplicant.RecordNo
-	// newTargetApplicant := c.AllApplicants[recordNo]
-	// c.TargetApplicant = newTargetApplicant
+	recordNo := c.TargetPrediction.RecordNo
+	newTargetPrediction := c.AllPredictionRecords[recordNo]
+	c.TargetPrediction = newTargetPrediction
 }
 
 func (c *PredictionPhaseState) isContentCompleted() bool {
-	// if c.TargetApplicant.RecordNo <= len(c.AllApplicants) {
-	// 	return false
-	// }
+	if c.TargetPrediction.RecordNo <= len(c.AllPredictionRecords) {
+		return false
+	}
 	return true
+}
+
+func (c *PredictionPhaseState) updateToNextContent() {
+	c.updateToNextTargetPrediction()
 }
 
 // Implements workflow.StateEntities
@@ -319,7 +328,10 @@ type RecordState struct {
 
 type PredictionRecordState struct {
 	RecordState
-	PredictedPerformanceLevel int
+	PredictedPerformanceLevel     int
+	PredictedPerformance          string
+	ContributingFactors           []UIFactor
+	IsContributingFactorsComplete bool
 }
 
 // For workflow.json to reference
@@ -351,7 +363,7 @@ func (fs FactorState) String() string {
 // in the workflow.json
 // (Used by UIUserData.ContentFactors &
 //  Partially used by GenericState.ReaminingFactors -- only Text & FactorId are initialized,
-//  Partially used by UIMultiFactorsCausalityResponse -- only IsBeliefCausal, BestLevelId & FactorId are initialized,)
+//  Partially used by UIMultiFactorsResponse -- only IsBeliefCausal, BestLevelId & FactorId are initialized,)
 type UIFactor struct {
 	FactorId       string
 	Text           string
@@ -457,12 +469,12 @@ func (rsr UIChartRecordSelectResponse) GetResponseId() string {
 	return strconv.Itoa(rsr.RecordNo)
 }
 
-type UIMultiFactorsCausalityResponse struct {
+type UIMultiFactorsResponse struct {
 	BeliefFactors []UIFactor
 	Id            string
 }
 
-func (rsr UIMultiFactorsCausalityResponse) GetResponseText() string {
+func (rsr UIMultiFactorsResponse) GetResponseText() string {
 	responseText := ""
 	count := 0
 	totalcausal := 0
@@ -493,7 +505,7 @@ func (rsr UIMultiFactorsCausalityResponse) GetResponseText() string {
 	return responseText
 }
 
-func (rsr UIMultiFactorsCausalityResponse) GetResponseId() string {
+func (rsr UIMultiFactorsResponse) GetResponseId() string {
 	return rsr.Id
 }
 
