@@ -24,6 +24,7 @@ function PredictionAction(props) {
         return <div>
                 <PredictionRecord user={user} onComplete={onComplete} app={app}/>
                 <ChartButtons user={user} app={app}/>
+                <PredictionRecord user={user} onComplete={onComplete} app={app} predictionHistory showPerformancePrediction/>
               </div>;
       case "PREDICTION_RECORD_SHOW_PREDICTION":
         return <PredictionRecord user={user} onComplete={onComplete} app={app} showPerformancePrediction/>;

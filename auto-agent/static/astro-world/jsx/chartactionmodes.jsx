@@ -576,11 +576,11 @@ var ChartButtons = React.createClass({
              </div>;
     } else {
       return <div className="no-border-frame">
-                <button onClick={fitnessOnClick}>{this.props.fitness.filterFactorName}</button>
-                <button onClick={parentshealthOnClick}>{this.props.parentshealth.filterFactorName}</button>
-                <button onClick={familysizeOnClick}>{this.props.familysize.filterFactorName}</button>
-                <button onClick={educationOnClick}>{this.props.education.filterFactorName}</button>
-                <button onClick={homeclimateOnClick}>{this.props.homeclimate.filterFactorName}</button>
+                <button autoFocus onClick={fitnessOnClick}>{this.props.fitness.filterFactorName}</button>
+                <button autoFocus onClick={parentshealthOnClick}>{this.props.parentshealth.filterFactorName}</button>
+                <button autoFocus onClick={familysizeOnClick}>{this.props.familysize.filterFactorName}</button>
+                <button autoFocus onClick={educationOnClick}>{this.props.education.filterFactorName}</button>
+                <button autoFocus onClick={homeclimateOnClick}>{this.props.homeclimate.filterFactorName}</button>
              </div>;
     }
     return null;

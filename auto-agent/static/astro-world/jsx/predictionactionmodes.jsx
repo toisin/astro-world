@@ -326,21 +326,23 @@ var PredictionRecord = React.createClass({
   render: function() {
       var state = this.state;
       var user = this.props.user;
+      var app = this.props.app;
       var record = this.props.record;
       var showPerformancePrediction = this.props.showPerformancePrediction;
+      var predictionHistory = this.props.predictionHistory;
 
       var prompt = user.getPrompt();
       var promptId = prompt.PromptId;
       var phaseId = user.getCurrentPhaseId();
       record = record ? record : user.getState().TargetPrediction;
-      var recordName = record.RecordName;
 
-      var performancePrediction = function(r) {
-        return showPerformancePrediction ? <p className="predicted-performance-level">You predicted {recordName}'s performance to be:
-                    <span className="grade">{r.PredictedPerformance}</span>
-                  </p> : null;};
 
       var recordDetails = function(r) {
+        var performancePrediction = function(rr) {
+          return showPerformancePrediction ? <p className="predicted-performance-level">You predicted {rr.RecordName}'s performance to be:
+                      <span className="grade">{rr.PredictedPerformance}</span>
+                    </p> : null;};
+
         var factorOrder = [];
         var tempfactors = user.getState().DisplayFactors.map(
           function(v, i) {
@@ -378,23 +380,37 @@ var PredictionRecord = React.createClass({
           factors[factorOrder[i]] = tempfactors[i];
         }
 
-        return r ? <div className="frame" key={r.RecordNo}>
-                <table className="record">
-                  <tbody>
-                    <tr>
-                      <td colSpan="4" className="robot">Applicant #{r.RecordNo} <b>{r.RecordName}</b></td>
-                    </tr>
-                    {factors}
-                  </tbody>
-                </table>
-                {performancePrediction(record)}
-              </div> : null;};
-              
-      var recordDetails
-      recordDetails = recordDetails(record);
-      return <div className = "hbox">
-                {recordDetails}
+        return r ? <div className = "hbox">
+                      <div className="frame" key={r.RecordNo}>
+                      <table className="record">
+                        <tbody>
+                          <tr>
+                            <td colSpan="4" className="robot">Applicant #{r.RecordNo} <b>{r.RecordName}</b></td>
+                          </tr>
+                          {factors}
+                        </tbody>
+                      </table>
+                      {performancePrediction(r)}
+                    </div></div> : null;
+      };
+
+      var targetRecordDetails = recordDetails(record);
+      var allPreviousRecordsDetails = user.getState().AllPredictionRecords.map(
+        function(v, i) {
+          if (v.RecordNo < record.RecordNo) {
+            return recordDetails(v);
+          }
+          return null;
+        });
+
+      if (predictionHistory) {
+        return <div>
+              <h3 className="recordHeading">Your Prediction History</h3> 
+                {allPreviousRecordsDetails}
               </div>;
+      } else {
+        return <div>{targetRecordDetails}</div>;
+      }
   }
 });
 
