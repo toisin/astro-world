@@ -324,6 +324,22 @@ body {
   text-align: right;
 }
 
+.predicted-performance-level {
+  border: 1px solid #ddd;
+  padding: 5px;
+}
+
+.predicted-performance-level > .grade {
+  font-size: 300%;
+  display: block;
+  margin: 5px;
+  text-align: right;
+}
+
+.prediction-team table {
+  border: 1px solid #ddd;
+}
+
 .action .chart img {
   width: 800px;
 }

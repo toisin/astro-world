@@ -144,6 +144,20 @@ func (cp *PredictionPrompt) ProcessResponse(r string, u *db.User, uiUserData *UI
 			}
 			cp.updateFirstNextWrongContributingFactor(uiUserData)
 			break
+		case RESPONSE_PREDICTION_SELECT_BEST:
+			// For during prediction and making attribution to factors
+			for {
+				var multiPredictionResponse UIMultiPredictionsResponse
+				if err := dec.Decode(&multiPredictionResponse); err == io.EOF {
+					break
+				} else if err != nil {
+					fmt.Fprintf(os.Stderr, "%s", err)
+					log.Fatal(err)
+					return
+				}
+				cp.updateSelectedPredictions(uiUserData, multiPredictionResponse)
+				cp.response = &multiPredictionResponse
+			}
 		default:
 			for {
 				var response SimpleResponse
@@ -159,6 +173,38 @@ func (cp *PredictionPrompt) ProcessResponse(r string, u *db.User, uiUserData *UI
 		}
 		if cp.response != nil {
 			cp.nextPrompt = cp.expectedResponseHandler.generateNextPrompt(cp.response, uiUserData)
+		}
+	}
+}
+
+func (cp *PredictionPrompt) updateStateCurrentFactorCausal(uiUserData *UIUserData, isCausalResponse string) {
+	cp.GenericPrompt.updateStateCurrentFactorCausal(uiUserData, isCausalResponse)
+	if cp.state != nil {
+		s := cp.state.(*PredictionPhaseState)
+		// TODO a little bit overloading the meaning of requested factors here
+		// Potentially, it is possible to think that something is causal
+		// but do not request it
+		// At the moment the UI does not do that.
+		if s.TargetFactor.IsConcludeCausal {
+			// If it was concluded causal, add factor to the list of requested factors
+			hasFactor := false
+			for _, v := range s.RequestedFactors {
+				if v.FactorId == s.TargetFactor.FactorId {
+					hasFactor = true
+					break
+				}
+			}
+			if !hasFactor {
+				s.RequestedFactors = append(s.RequestedFactors, s.ContentFactors[s.TargetFactor.FactorId])
+			}
+		} else {
+			// If it was concluded non-causal, remove factor from the list of requested factors
+			for i, v := range s.RequestedFactors {
+				if v.FactorId == s.TargetFactor.FactorId {
+					s.RequestedFactors = append(s.RequestedFactors[:i], s.RequestedFactors[i+1:]...)
+					break
+				}
+			}
 		}
 	}
 }
@@ -337,6 +383,17 @@ func (cp *PredictionPrompt) updateFirstNextWrongContributingFactor(uiUserData *U
 	}
 }
 
+func (cp *PredictionPrompt) updateSelectedPredictions(uiUserData *UIUserData, r UIMultiPredictionsResponse) {
+	// invoking the initialization methods in the "subclass"
+	// in case if they have been overriden
+	cp.currentPrompt.updateState(uiUserData)
+	s := cp.state.(*PredictionPhaseState)
+	for i, v := range s.AllPredictionRecords {
+		v.IsSelected = r.Predictions[i].IsSelected
+		s.AllPredictionRecords[i] = v
+	}
+}
+
 func (cp *PredictionPrompt) updateContributingFactors(uiUserData *UIUserData, r UIMultiFactorsResponse) {
 	// invoking the initialization methods in the "subclass"
 	// in case if they have been overriden
@@ -354,6 +411,7 @@ func (cp *PredictionPrompt) updateStateCurrentPredictionPerformance(uiUserData *
 	s := cp.state.(*PredictionPhaseState)
 	s.TargetPrediction.PredictedPerformanceLevel, _ = strconv.Atoi(performanceResponse)
 	s.TargetPrediction.PredictedPerformance = GetContentConfig().OutcomeVariable.Levels[s.TargetPrediction.PredictedPerformanceLevel].Name
+	s.AllPredictionRecords[s.TargetPrediction.RecordNo-1] = s.TargetPrediction
 	uiUserData.State = cp.state
 }
 

@@ -4262,12 +4262,47 @@
                                   ],
                                   "PromptType": "ENTER_TO_CONTINUE",
                                   "ResponseType": "COMPLETE",
-                                  "UIActionModeId": "PREDICTION_RECORD"
+                                  "UIActionModeId": "PREDICTION_RECORD_SHOW_PREDICTION"
                                 }
                               }
                             ]
                           }
                         }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "FirstPrompt": {
+          "Id": "pick_team",
+          "Text": [
+            "Great work making all the predictions! On the screen, you can see "
+          ],
+          "PromptType": "NO_INPUT",
+          "ResponseType": "PREDICTION_SELECT_BEST",
+          "UIActionModeId": "SELECT_TEAM",
+          "ExpectedResponses": {
+            "Values": [
+              {
+                "Id": "ANY_RESPONSE",
+                "NextPrompt": {
+                  "Id": "done",
+                  "Text": [
+                    "Congratulations! You have completed the project!"
+                  ],
+                  "PromptType": "NO_INPUT",
+                  "ResponseType": "Basic",
+                  "UIActionModeId": "NO_UIACTION",
+                  "ExpectedResponses": {
+                    "Values": [
+                      {
+                        "Id": "ANY_RESPONSE",
+                        "NextPrompt": {}
                       }
                     ]
                   }

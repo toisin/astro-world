@@ -25,8 +25,12 @@ function PredictionAction(props) {
                 <PredictionRecord user={user} onComplete={onComplete} app={app}/>
                 <ChartButtons user={user} app={app}/>
               </div>;
+      case "PREDICTION_RECORD_SHOW_PREDICTION":
+        return <PredictionRecord user={user} onComplete={onComplete} app={app} showPerformancePrediction/>;
       case "CONTRIBUTING_FACTORS_FORM":
-        return <ContributingFactorsForm user={user} onComplete={onComplete} app={app}/>;      
+        return <ContributingFactorsForm user={user} onComplete={onComplete} app={app}/>; 
+      case "SELECT_TEAM":
+        return <SelectTeam user={user} onComplete={onComplete} app={app}/>; 
     default:
         return <div></div>;
     }

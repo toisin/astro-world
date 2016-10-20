@@ -98,8 +98,10 @@ var MultipleFactorsSelect = React.createClass({
 
     var count = 0;
     for (var i = 0; i < response.BeliefFactors.length; i++) {
-      if (response.BeliefFactors[i].IsBeliefCausal) {
-        count++;
+      if (response.BeliefFactors[i]) {
+        if (response.BeliefFactors[i].IsBeliefCausal) {
+          count++;
+        }
       }
     }
 
@@ -172,6 +174,149 @@ var MultipleFactorsSelect = React.createClass({
   },
 });
 
+var SelectTeam = React.createClass({
+  getInitialState: function() {
+    return {enabled: false, showRecord: false, record: null};
+  },
+
+  isEnabled: function() {
+    return this.state.enabled;
+  },
+
+  handleChange: function(event) {
+    this.setState({enabled:true});
+  },
+
+  showRecord: function(record) {
+    this.state.showRecord = true;
+    this.state.record = record;
+    this.setState(this.state);
+  },
+
+  hideRecord: function() {
+    this.state.showRecord = false;
+    this.state.record = null;
+    this.setState(this.state);
+  },
+
+  getSelectedRecords: function() {
+    var user = this.props.user;
+    var formName = "predictionactionForm";
+
+    var prompt = user.getPrompt();
+    var form = document.getElementById(formName);
+
+    var records = user.getState().AllPredictionRecords.map(
+      function(v, i) {
+        var r = form.elements[v.RecordName];
+        if (r) {
+          var f = {};
+          f.RecordNo = v.RecordNo;
+          f.IsSelected = r.checked;
+          return f;
+        }
+      });
+
+    return records;
+  },
+
+  handleSubmit: function(event) {
+    event.preventDefault();
+    var user = this.props.user;
+    var formName = "predictionactionForm";
+
+    var prompt = user.getPrompt();
+    var onComplete = this.props.onComplete;
+
+    var e = document.getElementById("promptId");
+    var promptId = e ? e.value : "";
+    var e = document.getElementById("phaseId");
+    var phaseId = e ? e.value : "";
+    var f = document.getElementById(formName);
+
+    var response = {};
+    response.Predictions = this.getSelectedRecords();
+
+    var count = 0;
+    for (var i = 0; i < response.Predictions.length; i++) {
+      if (response.Predictions[i]) {
+        if (response.Predictions[i].IsSelected) {
+          count++;
+        }
+      }
+    }
+
+    if ((count < 5) || (count > 5)) {
+      alert("You should select exactly 5 applicants. Please try again.");
+    } else {
+      var jsonResponse = JSON.stringify(response);
+      user.submitResponse(promptId, phaseId, jsonResponse, onComplete);
+    }
+  },
+
+  render: function() {
+    var self = this;
+
+    var user = this.props.user;
+
+    var prompt = user.getPrompt();
+    var question = "Check the box for up to five applicants that you would like to be in your team.";
+    var formName = "predictionactionForm";
+
+    var promptId = prompt.PromptId;
+    var phaseId = user.getCurrentPhaseId();
+
+    var applicants = user.getState().AllPredictionRecords.map(
+      function(record, i) {
+        var recordOnClick = function() {self.showRecord(record)};
+        return <tr  key={i}>
+                <td><label>
+                  <input type="checkbox" name={record.RecordName}/>
+                </label></td>
+                <td className="factorNameFront"># {record.RecordNo}</td>
+                <td className="factorNameFront"><button type="button" onClick={recordOnClick}>{record.RecordName}</button></td>
+                <td className="factorNameFront">{record.PredictedPerformance}</td>
+              </tr>;
+      });
+
+    var recordDetails =  self.state.showRecord ?  <div className="no-border-frame">
+                <div className ="hbox">
+                  <PredictionRecord user={user} record={self.state.record} showPerformancePrediction key={self.state.record.RecordNo}/>
+                </div><button autoFocus onClick={self.hideRecord}>Hide Record</button>
+             </div> : null;
+
+
+    return <div>
+    <form id={formName} onSubmit={this.handleSubmit} onChange={this.handleChange}>
+      <div className ="hbox">
+        <div className="frame">
+            <table className="prediction-team">
+              <tbody>
+              <tr>
+                <td colSpan="4" className="question">{question}</td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+                <td className="factorNameFront">Record Number</td>
+                <td className="factorNameFront">Applicant's Name</td>
+                <td className="factorNameFront">Performance You Predicted</td>
+              </tr>
+              {applicants}
+              </tbody>
+            </table>
+        </div>
+      </div>
+      <p>
+        <input type="hidden" id="promptId" value={promptId}/>
+        <input type="hidden" id="phaseId" value={phaseId}/>
+        <button type="submit" disabled={!this.isEnabled()} key={"MultipleFactorsSelect"}>Enter</button>
+      </p>
+      </form>
+      {recordDetails}
+    </div>;
+  },
+});
+
 var PredictionRecord = React.createClass({
 
   getInitialState: function() {
@@ -181,12 +326,19 @@ var PredictionRecord = React.createClass({
   render: function() {
       var state = this.state;
       var user = this.props.user;
-      var app = this.props.app;
+      var record = this.props.record;
+      var showPerformancePrediction = this.props.showPerformancePrediction;
 
       var prompt = user.getPrompt();
       var promptId = prompt.PromptId;
       var phaseId = user.getCurrentPhaseId();
-      var record = user.getState().TargetPrediction;
+      record = record ? record : user.getState().TargetPrediction;
+      var recordName = record.RecordName;
+
+      var performancePrediction = function(r) {
+        return showPerformancePrediction ? <p className="predicted-performance-level">You predicted {recordName}'s performance to be:
+                    <span className="grade">{r.PredictedPerformance}</span>
+                  </p> : null;};
 
       var recordDetails = function(r) {
         var factorOrder = [];
@@ -235,6 +387,7 @@ var PredictionRecord = React.createClass({
                     {factors}
                   </tbody>
                 </table>
+                {performancePrediction(record)}
               </div> : null;};
               
       var recordDetails

@@ -254,7 +254,7 @@ func (c *PredictionPhaseState) updateToNextTargetPrediction() {
 }
 
 func (c *PredictionPhaseState) isContentCompleted() bool {
-	if c.TargetPrediction.RecordNo <= len(c.AllPredictionRecords) {
+	if c.TargetPrediction.RecordNo < len(c.AllPredictionRecords) {
 		return false
 	}
 	return true
@@ -332,6 +332,7 @@ type PredictionRecordState struct {
 	PredictedPerformance          string
 	ContributingFactors           []UIFactor
 	IsContributingFactorsComplete bool
+	IsSelected                    bool
 }
 
 // For workflow.json to reference
@@ -467,6 +468,43 @@ func (rsr UIChartRecordSelectResponse) GetResponseText() string {
 
 func (rsr UIChartRecordSelectResponse) GetResponseId() string {
 	return strconv.Itoa(rsr.RecordNo)
+}
+
+type UIMultiPredictionsResponse struct {
+	Predictions []PredictionRecordState
+	Id          string
+}
+
+func (rsr UIMultiPredictionsResponse) GetResponseText() string {
+	responseText := ""
+	count := 0
+	total := 0
+
+	for _, v := range rsr.Predictions {
+		// quickly count number of causal
+		if v.IsSelected {
+			total++
+		}
+	}
+
+	for _, v := range rsr.Predictions {
+		if v.IsSelected {
+			r := "#" + strconv.Itoa(v.RecordNo)
+			if count == 0 {
+				responseText = r
+			} else if count == (total - 1) {
+				responseText = responseText + " and " + r
+			} else {
+				responseText = responseText + ", " + r
+			}
+			count++
+		}
+	}
+	return responseText
+}
+
+func (rsr UIMultiPredictionsResponse) GetResponseId() string {
+	return rsr.Id
 }
 
 type UIMultiFactorsResponse struct {
