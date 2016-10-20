@@ -2196,7 +2196,7 @@
                         "NextPrompt": {
                           "Id": "MC_is_causal",
                           "Text": [
-                            "So, what do you think? Overall do you think {{.TargetFactor.FactorName}} makes a difference to performance in space?"
+                            "So, what do you think? Overall does {{.TargetFactor.FactorName}} a difference to performance in space?"
                           ],
                           "PromptType": "MC",
                           "ResponseType": "CAUSAL_CONCLUSION",
@@ -2440,7 +2440,7 @@
                                                                                         "NextPrompt": {
                                                                                           "Id": "non-causal.correct.correct.Q_how_chart_look_if_non-causal.2.3.2",
                                                                                           "Text": [
-                                                                                            "I see. Now, how do you think the chart would look different if {{.TargetFactor.FactorName}} does make a difference to performance in space?"
+                                                                                            "I see. Now, how would the chart look different if {{.TargetFactor.FactorName}} does make a difference to performance in space?"
                                                                                           ],
                                                                                           "PromptType": "Text",
                                                                                           "ResponseType": "Basic",
@@ -2546,7 +2546,7 @@
                                                                         "NextPrompt": {
                                                                           "Id": "causal.correct.correct.Q_how_chart_look_if_non-causal.1.1",
                                                                           "Text": [
-                                                                            "I see. Now, how do you think the chart would look different if {{.TargetFactor.FactorName}} makes no difference to performance?"
+                                                                            "I see. Now, how would the chart look different if {{.TargetFactor.FactorName}} makes no difference to performance?"
                                                                           ],
                                                                           "PromptType": "Text",
                                                                           "ResponseType": "Basic",
@@ -3215,7 +3215,7 @@
                         "NextPrompt": {
                           "Id": "wrong.show_chart.MC_is_causal.1",
                           "Text": [
-                            "Here is a chart for {{.TargetFactor.FactorName}}. What do you think? Does {{.TargetFactor.FactorName}} make a difference?"
+                            "Here is a chart for {{.TargetFactor.FactorName}}. Does {{.TargetFactor.FactorName}} make a difference?"
                           ],
                           "PromptType": "MC",
                           "ResponseType": "CAUSAL_CONCLUSION",
@@ -3653,7 +3653,7 @@
                                 "NextPrompt": {
                                   "Id": "wrong.show_chart.MC_is_needed.1",
                                   "Text": [
-                                    "Now, you {{if .TargetFactor.IsCausal}}did not pick{{else}}picked{{end}} {{.TargetFactor.FactorName}}. Here is the chart for it. What do you think? Do we need to know about {{.TargetFactor.FactorName}} for an applicant if you want to predict the person's performance in space?"
+                                    "Now, you {{if .TargetFactor.IsCausal}}did not pick{{else}}picked{{end}} {{.TargetFactor.FactorName}}. Here is the chart for it. Do we need to know about {{.TargetFactor.FactorName}} for an applicant if you want to predict the person's performance in space?"
                                   ],
                                   "PromptType": "MC",
                                   "ResponseType": "CAUSAL_CONCLUSION",
@@ -4040,7 +4040,7 @@
                 "NextPrompt": {
                   "Id": "MC_prediction",
                   "Text": [
-                    "Here are the information about {{range $i, $v := .DisplayFactors}}{{if eq $i 3}} and {{else if gt $i 0}}, {{end}}{{$v.Text}}{{end}} for {{.TargetPrediction.RecordName}}. How well do you think {{.TargetPrediction.FirstName}} will perform?",
+                    "Here are the information about {{range $i, $v := .DisplayFactors}}{{if eq $i 3}} and {{else if gt $i 0}}, {{end}}{{$v.Text}}{{end}} for {{.TargetPrediction.RecordName}}. How well will {{.TargetPrediction.FirstName}} perform?",
                     "Click on the button for a factor if you want to see the chart again."
                   ],
                   "PromptType": "MC",
@@ -4134,8 +4134,8 @@
                                                         "NextPrompt": {
                                                           "Id": "correct_perf.wrong_factor.wrong.MC_is_same_perf.2.1.2",
                                                           "Text": [
-                                                            "{{.TargetPrediction.FirstName}} had {{$factorId := .TargetFactor.FactorId}}{{$factor := index .TargetPrediction.FactorLevels $factorId}}{{$factor.SelectedLevel}} for {{.TargetFactor.FactorName}}. If {{.TargetPrediction.FirstName}} had {{$factor.OppositeLevel}} instead, what do you think would happen to {{.TargetPrediction.FirstName}}'s performance?",
-                                                            "Do you think performance will go up, go down, or be the same?"
+                                                            "Look at the chart. {{.TargetPrediction.FirstName}} had {{$factorId := .TargetFactor.FactorId}}{{$factor := index .TargetPrediction.FactorLevels $factorId}}{{$factor.SelectedLevel}} for {{.TargetFactor.FactorName}}. If {{.TargetPrediction.FirstName}} had {{$factor.OppositeLevel}} instead, what would happen to {{.TargetPrediction.FirstName}}'s performance?",
+                                                            "Will performance go up, go down, or be the same?"
                                                           ],
                                                           "PromptType": "MC",
                                                           "ResponseType": "PREDICTION_FACTOR_CONCLUSION",
@@ -4281,7 +4281,7 @@
         "FirstPrompt": {
           "Id": "pick_team",
           "Text": [
-            "Great work making all the predictions! On the screen, you can see "
+            "Great work making all the predictions! On the screen, you can see the predictions you made for all the new applicants.","Now, pick the 5 best applicants who you would want to be on your team. If you want to look at their records again, just click on their names."
           ],
           "PromptType": "NO_INPUT",
           "ResponseType": "PREDICTION_SELECT_BEST",
@@ -4296,16 +4296,8 @@
                     "Congratulations! You have completed the project!"
                   ],
                   "PromptType": "NO_INPUT",
-                  "ResponseType": "Basic",
-                  "UIActionModeId": "NO_UIACTION",
-                  "ExpectedResponses": {
-                    "Values": [
-                      {
-                        "Id": "ANY_RESPONSE",
-                        "NextPrompt": {}
-                      }
-                    ]
-                  }
+                  "ResponseType": "COMPLETE",
+                  "UIActionModeId": "SELECT_TEAM_SUMMARY"
                 }
               }
             ]

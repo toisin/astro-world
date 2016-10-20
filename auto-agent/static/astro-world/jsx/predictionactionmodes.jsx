@@ -258,6 +258,7 @@ var SelectTeam = React.createClass({
     var self = this;
 
     var user = this.props.user;
+    var isSummary = this.props.isSummary;
 
     var prompt = user.getPrompt();
     var question = "Check the box for up to five applicants that you would like to be in your team.";
@@ -269,6 +270,14 @@ var SelectTeam = React.createClass({
     var applicants = user.getState().AllPredictionRecords.map(
       function(record, i) {
         var recordOnClick = function() {self.showRecord(record)};
+        if (isSummary) {
+        return <tr  key={i}>
+                <td>&nbsp;</td>
+                <td className="factorNameFront"># {record.RecordNo}</td>
+                <td className="factorNameFront"><button type="button" onClick={recordOnClick}>{record.RecordName}</button></td>
+                <td className="factorNameFront">{record.PredictedPerformance}</td>
+              </tr>;
+        }
         return <tr  key={i}>
                 <td><label>
                   <input type="checkbox" name={record.RecordName}/>
@@ -284,6 +293,7 @@ var SelectTeam = React.createClass({
                   <PredictionRecord user={user} record={self.state.record} showPerformancePrediction key={self.state.record.RecordNo}/>
                 </div><button autoFocus onClick={self.hideRecord}>Hide Record</button>
              </div> : null;
+    var submitButton = isSummary ? null : <button type="submit" disabled={!this.isEnabled()} key={"MultipleFactorsSelect"}>Enter</button>;
 
 
     return <div>
@@ -309,7 +319,7 @@ var SelectTeam = React.createClass({
       <p>
         <input type="hidden" id="promptId" value={promptId}/>
         <input type="hidden" id="phaseId" value={phaseId}/>
-        <button type="submit" disabled={!this.isEnabled()} key={"MultipleFactorsSelect"}>Enter</button>
+        {submitButton}
       </p>
       </form>
       {recordDetails}

@@ -30,6 +30,8 @@ function PredictionAction(props) {
         return <PredictionRecord user={user} onComplete={onComplete} app={app} showPerformancePrediction/>;
       case "CONTRIBUTING_FACTORS_FORM":
         return <ContributingFactorsForm user={user} onComplete={onComplete} app={app}/>; 
+      case "SELECT_TEAM_SUMMARY":
+        return <SelectTeam user={user} onComplete={onComplete} app={app} isSummary/>; 
       case "SELECT_TEAM":
         return <SelectTeam user={user} onComplete={onComplete} app={app}/>; 
     default:
