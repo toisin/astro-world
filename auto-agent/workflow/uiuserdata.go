@@ -44,7 +44,7 @@ type StateEntities interface {
 	GetPhaseId() string
 	GetBeliefs() BeliefsState
 	isContentCompleted() bool
-	updateToNextContent()
+	updateToNextContent(bool)
 	GetTargetFactor() FactorState
 	GetRemainingFactors() []UIFactor
 	GetLastMemo() UIMemoResponse
@@ -138,7 +138,15 @@ func (cp *GenericState) isContentCompleted() bool {
 	return true
 }
 
-func (c *GenericState) updateToNextContent() {
+func (c *GenericState) updateToNextContent(autoUpdate bool) {
+	if autoUpdate {
+		fid := c.RemainingFactors[0].FactorId
+		c.setTargetFactor(
+			FactorState{
+				FactorName: factorConfigMap[fid].Name,
+				FactorId:   fid,
+				IsCausal:   factorConfigMap[fid].IsCausal})
+	}
 }
 
 // Not applicable to all phases
@@ -174,6 +182,12 @@ func (c *GenericState) initContents() {
 			}
 		}
 		c.ContentFactors[f.Id] = temp
+		// fid := temp.FactorId
+		// c.setTargetFactor(
+		// 	FactorState{
+		// 		FactorName: factorConfigMap[fid].Name,
+		// 		FactorId:   fid,
+		// 		IsCausal:   factorConfigMap[fid].IsCausal})
 	}
 }
 
@@ -187,6 +201,7 @@ type PredictionPhaseState struct {
 	RequestedNonCausalFactors []UIFactor              // all causal factors not requested, which keeps being updated as missing causal factors are corrected
 	TargetPrediction          PredictionRecordState   // prediction currently being worked on
 	AllPredictionRecords      []PredictionRecordState // all prediction records
+	SelectedRecords           []PredictionRecordState // selected prediction records
 }
 
 func (c *PredictionPhaseState) initMissingCausalFactors(factors []UIFactor) {
@@ -260,7 +275,7 @@ func (c *PredictionPhaseState) isContentCompleted() bool {
 	return true
 }
 
-func (c *PredictionPhaseState) updateToNextContent() {
+func (c *PredictionPhaseState) updateToNextContent(autoUpdate bool) {
 	c.updateToNextTargetPrediction()
 }
 

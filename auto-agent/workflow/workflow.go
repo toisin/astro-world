@@ -126,6 +126,8 @@ type PhaseConfig struct {
 
 type Sequence struct {
 	RepeatOverContent bool // If true, repeat content over the list of contents sepecify in ContentRef
+	KeepChatHistory   bool // If true, do not collapse chat history
+	AutoSelectContent bool // If true, automatically selects the next target factor at the end of the sequence
 	FirstPrompt       PromptConfig
 }
 
@@ -329,9 +331,9 @@ func GetFirstPhase() *PhaseConfig {
 
 func MakeFirstPrompt(uiUserData *UIUserData) Prompt {
 	// Hardcoding the first prompt is the first prompt of CovPrompt
-	// p := MakePrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.CovPhase.Id, uiUserData)
+	p := MakePrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.CovPhase.Id, uiUserData)
 	// p := MakePrompt(appConfig.ChartPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.ChartPhase.Id, uiUserData)
-	p := MakePrompt(appConfig.PredictionPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.PredictionPhase.Id, uiUserData)
+	// p := MakePrompt(appConfig.PredictionPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.PredictionPhase.Id, uiUserData)
 	return p
 }
 

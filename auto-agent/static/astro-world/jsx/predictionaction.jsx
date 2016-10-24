@@ -19,7 +19,10 @@ function PredictionAction(props) {
       case "TARGET_FACTOR_RECORDS":
         return  <Chart user={user} showTargetFactorRecords app={app} key={"TARGET_FACTOR_RECORDS"}/>;
       case "FACTORS_REQUEST_FORM":
-        return <FactorsRequestForm user={user} onComplete={onComplete} app={app}/>;
+        return <div>
+                  <FactorsRequestForm user={user} onComplete={onComplete} app={app}/>
+                  <ChartButtons user={props.user} app={props.app}/>
+              </div>;
       case "PREDICTION_RECORD":
         return <div>
                 <PredictionRecord user={user} onComplete={onComplete} app={app}/>
@@ -29,7 +32,11 @@ function PredictionAction(props) {
       case "PREDICTION_RECORD_SHOW_PREDICTION":
         return <PredictionRecord user={user} onComplete={onComplete} app={app} showPerformancePrediction/>;
       case "CONTRIBUTING_FACTORS_FORM":
-        return <ContributingFactorsForm user={user} onComplete={onComplete} app={app}/>; 
+        return <div>
+                <ContributingFactorsForm user={user} onComplete={onComplete} app={app}/>
+                <ChartButtons user={props.user} app={props.app}/>
+                <PredictionRecord user={props.user} onComplete={props.onComplete} app={props.app}/>
+              </div>;
       case "SELECT_TEAM_SUMMARY":
         return <SelectTeam user={user} onComplete={onComplete} app={app} isSummary/>; 
       case "SELECT_TEAM":

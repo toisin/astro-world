@@ -339,10 +339,6 @@ func (cp *GenericPrompt) updateMultiFactorsCausalityResponse(uiUserData *UIUserD
 }
 
 func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserData) Prompt {
-	// TODO - Not the cleanest way to do this
-	// Reset ArchieveHistoryLength to let the server deal with setting the new value
-	uiUserData.ArchiveHistoryLength = -1
-
 	phaseId := cp.promptConfig.PhaseId
 	currentPhase := GetPhase(phaseId)
 
@@ -352,11 +348,17 @@ func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserDat
 	sequenceOrder := cp.promptConfig.sequenceOrder
 	currentS = &currentPhase.OrderedSequences[sequenceOrder]
 
+	// TODO - Not the cleanest way to do this
+	// Reset ArchieveHistoryLength to let the server deal with setting the new value
+	if !currentS.KeepChatHistory {
+		uiUserData.ArchiveHistoryLength = -1
+	}
+
 	if currentS.RepeatOverContent {
 		// Check if all content has been through the current sequence
 		// if not, go to the next content, otherwise, repeat sequence for the remaining content
 		if !cp.state.isContentCompleted() {
-			cp.state.updateToNextContent()
+			cp.state.updateToNextContent(currentS.AutoSelectContent)
 			nextS = currentS
 		}
 	}

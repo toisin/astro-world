@@ -369,7 +369,7 @@ var MemoForm = React.createClass({
                 We recommend that you &nbsp;
                 <input type="text" name="ask" size="20" autofocus className="con" placeholder="Enter ask/do not ask"/> &nbsp;
                 applicants about <u>{targetFactorName}</u> because &nbsp;
-                <input type="text" name="memo" autofocus className="con" placeholder="Enter if it does/does not make a difference."/><br/>
+                <input type="text" name="memo" size="50" autofocus className="con" placeholder="Enter if it does/does not make a difference."/><br/>
                 <br/>
                 Our evidence for claiming this is:<br/>
                 <textarea name="evidence" className="evid" onKeyDown={this.handleEnter} placeholder="Enter your answer here"></textarea>

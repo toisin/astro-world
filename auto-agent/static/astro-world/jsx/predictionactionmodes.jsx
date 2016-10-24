@@ -7,21 +7,14 @@
 function FactorsRequestForm(props) {
   var question = "Check the box for up to four factors that you would like to know about an applicant.";
   var formName = "predictionactionForm";
-  return <div>
-          <MultipleFactorsSelect formName={formName} question={question} user={props.user} onComplete={props.onComplete} app={props.app}/>
-          <ChartButtons user={props.user} app={props.app}/>
-        </div>;
+  return <MultipleFactorsSelect formName={formName} question={question} user={props.user} onComplete={props.onComplete} app={props.app}/>;
 }
 
 function ContributingFactorsForm(props) {
   var question = "Which of the four factors you have data on mattered to your prediction?";
   var formName = "predictionactionForm";
   var factors = props.user.getState().DisplayFactors;
-  return <div>
-          <MultipleFactorsSelect formName={formName} factors={factors} question={question} user={props.user} onComplete={props.onComplete} app={props.app}/>
-          <ChartButtons user={props.user} app={props.app}/>
-          <PredictionRecord user={props.user} onComplete={props.onComplete} app={props.app}/>
-        </div>;
+  return <MultipleFactorsSelect formName={formName} factors={factors} question={question} user={props.user} onComplete={props.onComplete} app={props.app}/>;
 }
 
 var MultipleFactorsSelect = React.createClass({
@@ -271,8 +264,11 @@ var SelectTeam = React.createClass({
       function(record, i) {
         var recordOnClick = function() {self.showRecord(record)};
         if (isSummary) {
-        return <tr  key={i}>
-                <td>&nbsp;</td>
+          var isSelectedRecord = record.IsSelected ? <label><input type="checkbox" checked/></label> : <label>&nbsp;</label>;
+        return <tr key={i}>
+                <td><label>
+                  {isSelectedRecord}
+                </label></td>
                 <td className="factorNameFront"># {record.RecordNo}</td>
                 <td className="factorNameFront"><button type="button" onClick={recordOnClick}>{record.RecordName}</button></td>
                 <td className="factorNameFront">{record.PredictedPerformance}</td>
@@ -405,18 +401,26 @@ var PredictionRecord = React.createClass({
       };
 
       var targetRecordDetails = recordDetails(record);
+      var hasHistory = false;
       var allPreviousRecordsDetails = user.getState().AllPredictionRecords.map(
         function(v, i) {
           if (v.RecordNo < record.RecordNo) {
+            hasHistory = true;
             return recordDetails(v);
           }
           return null;
         });
+      // Show previous records in reverse order
+      var reversePreviousRecordsDetails = allPreviousRecordsDetails.map(
+        function(v, i) {
+          return allPreviousRecordsDetails[allPreviousRecordsDetails.length-i-1];
+        });
+      var title = hasHistory ? <h3 className="recordHeading">Your Prediction History</h3> : null;
 
       if (predictionHistory) {
         return <div>
-              <h3 className="recordHeading">Your Prediction History</h3> 
-                {allPreviousRecordsDetails}
+                {title}
+                {reversePreviousRecordsDetails}
               </div>;
       } else {
         return <div>{targetRecordDetails}</div>;

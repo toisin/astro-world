@@ -563,24 +563,30 @@ var ChartButtons = React.createClass({
     var hideChartOnClick = function() {self.changeState(null)};
 
     if (state.showChart) {
-      return <div className="no-border-frame">
+      return <div>
+              <div className="no-border-frame">
                 <button onClick={fitnessOnClick}>{this.props.fitness.filterFactorName}</button>
                 <button onClick={parentshealthOnClick}>{this.props.parentshealth.filterFactorName}</button>
                 <button onClick={familysizeOnClick}>{this.props.familysize.filterFactorName}</button>
                 <button onClick={educationOnClick}>{this.props.education.filterFactorName}</button>
                 <button onClick={homeclimateOnClick}>{this.props.homeclimate.filterFactorName}</button>
+              </div>
+                <label>Click on the button for a factor if you want to see the chart for the factor.</label>
                 <div className ="hbox">
                   <Chart user={user} filterFactorName={state.showChart.filterFactorName} filterLevelsLabels={state.showChart.filterLevelsLabels} filterRecords={state.showChart.filterRecords} app={app} key={state.showChart.filterFactorName}/>
                 </div>
                 <button autoFocus onClick={hideChartOnClick}>Hide Chart</button>
              </div>;
     } else {
-      return <div className="no-border-frame">
+      return <div>
+              <div className="no-border-frame">
                 <button autoFocus onClick={fitnessOnClick}>{this.props.fitness.filterFactorName}</button>
                 <button autoFocus onClick={parentshealthOnClick}>{this.props.parentshealth.filterFactorName}</button>
                 <button autoFocus onClick={familysizeOnClick}>{this.props.familysize.filterFactorName}</button>
                 <button autoFocus onClick={educationOnClick}>{this.props.education.filterFactorName}</button>
                 <button autoFocus onClick={homeclimateOnClick}>{this.props.homeclimate.filterFactorName}</button>
+              </div>
+              <label>Click on the button for a factor if you want to see the chart for the factor.</label>
              </div>;
     }
     return null;

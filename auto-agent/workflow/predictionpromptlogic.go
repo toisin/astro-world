@@ -388,8 +388,12 @@ func (cp *PredictionPrompt) updateSelectedPredictions(uiUserData *UIUserData, r 
 	// in case if they have been overriden
 	cp.currentPrompt.updateState(uiUserData)
 	s := cp.state.(*PredictionPhaseState)
+	s.SelectedRecords = make([]PredictionRecordState, 0)
 	for i, v := range s.AllPredictionRecords {
 		v.IsSelected = r.Predictions[i].IsSelected
+		if v.IsSelected {
+			s.SelectedRecords = append(s.SelectedRecords, v)
+		}
 		s.AllPredictionRecords[i] = v
 	}
 }
