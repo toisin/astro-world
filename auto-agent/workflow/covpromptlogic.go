@@ -88,9 +88,10 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 					log.Fatal(err)
 					return
 				}
-				uiUserData.CurrentFactorId = response.Id
-				u.CurrentFactorId = uiUserData.CurrentFactorId
-				cp.updateStateCurrentFactor(uiUserData, uiUserData.CurrentFactorId)
+				// uiUserData.CurrentFactorId = response.Id
+				// u.CurrentFactorId = uiUserData.CurrentFactorId
+				// cp.updateStateCurrentFactor(uiUserData, uiUserData.CurrentFactorId)
+				cp.updateStateCurrentFactor(uiUserData, response.Id)
 				cp.response = &response
 			}
 			break
@@ -104,7 +105,8 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 					log.Fatal(err)
 					return
 				}
-				cp.checkRecords(&recordsResponse, uiUserData.CurrentFactorId, c)
+				// cp.checkRecords(&recordsResponse, uiUserData.CurrentFactorId, c)
+				cp.checkRecords(&recordsResponse, c)
 				cp.updateStateRecords(uiUserData, recordsResponse)
 				cp.response = &recordsResponse
 			}
@@ -142,7 +144,9 @@ func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserDat
 	}
 }
 
-func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, currentFactorId string, c appengine.Context) {
+// func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, currentFactorId string, c appengine.Context) {
+func (cp *CovPrompt) checkRecords(rsr *UIRecordsSelectResponse, c appengine.Context) {
+	currentFactorId := cp.state.GetTargetFactor().FactorId
 	rsr.NonVaryingFactorIds = make([]string, len(appConfig.CovPhase.ContentRef.Factors))
 	rsr.VaryingFactorIds = make([]string, len(appConfig.CovPhase.ContentRef.Factors))
 	rsr.VaryingFactorsCount = 0
@@ -316,14 +320,15 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 		cp.state.setPhaseId(appConfig.CovPhase.Id)
 		cp.state.setUsername(uiUserData.Username)
 		cp.state.setScreenname(uiUserData.Screenname)
-		fid := uiUserData.CurrentFactorId
-		if fid != "" {
-			cp.state.setTargetFactor(
-				FactorState{
-					FactorName: factorConfigMap[fid].Name,
-					FactorId:   fid,
-					IsCausal:   factorConfigMap[fid].IsCausal})
-		}
+		// fid := uiUserData.CurrentFactorId
+		// fid := uiUserData.CurrentFactorId
+		// if fid != "" {
+		// 	cp.state.setTargetFactor(
+		// 		FactorState{
+		// 			FactorName: factorConfigMap[fid].Name,
+		// 			FactorId:   fid,
+		// 			IsCausal:   factorConfigMap[fid].IsCausal})
+		// }
 	}
 	uiUserData.State = cp.state
 }

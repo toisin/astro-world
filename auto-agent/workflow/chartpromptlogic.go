@@ -74,9 +74,10 @@ func (cp *ChartPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserD
 					log.Fatal(err)
 					return
 				}
-				uiUserData.CurrentFactorId = response.Id
-				u.CurrentFactorId = uiUserData.CurrentFactorId
-				cp.updateStateCurrentFactor(uiUserData, uiUserData.CurrentFactorId)
+				//				uiUserData.CurrentFactorId = response.Id
+				//				u.CurrentFactorId = uiUserData.CurrentFactorId
+				// cp.updateStateCurrentFactor(uiUserData, uiUserData.CurrentFactorId)
+				cp.updateStateCurrentFactor(uiUserData, response.Id)
 				cp.response = &response
 			}
 			break

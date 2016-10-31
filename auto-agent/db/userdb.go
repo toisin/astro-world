@@ -23,7 +23,7 @@ type User struct {
 	CurrentPhaseId       string
 	CurrentSequenceOrder int
 	CurrentPromptId      string
-	CurrentFactorId      string
+	// CurrentFactorId      string
 	UIState              []byte // Do not store as string because string type has a limit of 500 characters
 	ArchiveHistoryLength int
 }

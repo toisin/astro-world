@@ -9,10 +9,10 @@ import (
 
 // Includes only the variables that are needed on the client side
 type UIUserData struct {
-	Username        string
-	Screenname      string
-	CurrentPhaseId  string
-	CurrentFactorId string
+	Username       string
+	Screenname     string
+	CurrentPhaseId string
+	// CurrentFactorId string
 	History         []*db.Message
 	CurrentUIPrompt UIPrompt
 	CurrentUIAction UIAction
@@ -182,12 +182,6 @@ func (c *GenericState) initContents() {
 			}
 		}
 		c.ContentFactors[f.Id] = temp
-		// fid := temp.FactorId
-		// c.setTargetFactor(
-		// 	FactorState{
-		// 		FactorName: factorConfigMap[fid].Name,
-		// 		FactorId:   fid,
-		// 		IsCausal:   factorConfigMap[fid].IsCausal})
 	}
 }
 
@@ -300,6 +294,13 @@ func (c *ChartPhaseState) initContents(factors []Factor) {
 			FactorId: v.Id,
 			Text:     v.Name}
 	}
+	fid := c.RemainingFactors[0].FactorId
+	c.setTargetFactor(
+		FactorState{
+			FactorName: factorConfigMap[fid].Name,
+			FactorId:   fid,
+			IsCausal:   factorConfigMap[fid].IsCausal})
+
 }
 
 // Implements workflow.StateEntities
@@ -324,6 +325,12 @@ func (c *CovPhaseState) initContents(factors []Factor) {
 			FactorId: v.Id,
 			Text:     v.Name}
 	}
+	fid := c.RemainingFactors[0].FactorId
+	c.setTargetFactor(
+		FactorState{
+			FactorName: factorConfigMap[fid].Name,
+			FactorId:   fid,
+			IsCausal:   factorConfigMap[fid].IsCausal})
 }
 
 type RecordState struct {
@@ -406,7 +413,7 @@ func MakeUIUserData(u db.User) *UIUserData {
 	// update new UserData with everything that is available on db.User
 	uiUserData.Username = u.Username
 	uiUserData.Screenname = u.Screenname
-	uiUserData.CurrentFactorId = u.CurrentFactorId
+	// uiUserData.CurrentFactorId = u.CurrentFactorId
 
 	if u.UIState != nil {
 		s, err := UnstringifyState(u.UIState, u.CurrentPhaseId)

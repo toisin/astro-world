@@ -197,7 +197,7 @@ func WriteWorkflowText(w http.ResponseWriter) {
 	chartPhaseConfig := appConfig.ChartPhase
 	predictionPhaseConfig := appConfig.PredictionPhase
 
-	err := writer.Write([]string{"Cov Phase", "", "", "", "", ""})
+	err := writer.Write([]string{"Cov Phase", "", "", "", "", "", ""})
 	if err != nil {
 		log.Fatal("Cannot write file", err)
 	}
@@ -206,7 +206,7 @@ func WriteWorkflowText(w http.ResponseWriter) {
 		writePromptInText("", covPhaseConfig.OrderedSequences[i].FirstPrompt, writer, 0, ExpectedResponseValue{})
 	}
 
-	err = writer.Write([]string{"Chart Phase", "", "", "", "", ""})
+	err = writer.Write([]string{"Chart Phase", "", "", "", "", "", ""})
 	if err != nil {
 		log.Fatal("Cannot write file", err)
 	}
@@ -215,7 +215,7 @@ func WriteWorkflowText(w http.ResponseWriter) {
 		writePromptInText("", chartPhaseConfig.OrderedSequences[i].FirstPrompt, writer, 0, ExpectedResponseValue{})
 	}
 
-	err = writer.Write([]string{"Prediction Phase", "", "", "", "", ""})
+	err = writer.Write([]string{"Prediction Phase", "", "", "", "", "", ""})
 	if err != nil {
 		log.Fatal("Cannot write file", err)
 	}
@@ -229,17 +229,19 @@ func WriteWorkflowText(w http.ResponseWriter) {
 
 func writePromptInText(pId string, pc PromptConfig, writer *csv.Writer, level int, evalue ExpectedResponseValue) {
 	indent := ""
+	pPromptType := ""
 	for i := 0; i < level; i++ {
 		indent = indent + "    "
 	}
 	if pId == "" {
 		pId = pc.Id
+		pPromptType = pc.PromptType
 	}
 	pId = indent + pId
 	pText := pc.Text
-	var value = []string{strconv.Itoa(level), pId, evalue.Id, "", "", ""}
+	var value = []string{strconv.Itoa(level), pId, pPromptType, evalue.Id, "", "", ""}
 	for i, v := range pText {
-		value[3+i] = v
+		value[4+i] = v
 	}
 	err := writer.Write(value)
 	if err != nil {
