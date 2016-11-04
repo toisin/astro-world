@@ -30,8 +30,6 @@ func MakeCovPrompt(p PromptConfig, uiUserData *UIUserData) *CovPrompt {
 
 func (cp *CovPrompt) ProcessResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
 	if cp.promptConfig.ResponseType == RESPONSE_END {
-		// Sequence has ended. Update remaining factors
-		uiUserData.State.(*CovPhaseState).updateRemainingFactors()
 		cp.nextPrompt = cp.generateFirstPromptInNextSequence(uiUserData)
 	} else if r != "" {
 		dec := json.NewDecoder(strings.NewReader(r))

@@ -355,6 +355,9 @@ func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserDat
 	}
 
 	if currentS.RepeatOverContent {
+		// Sequence has ended. Update remaining Contents
+		uiUserData.State.updateRemainingContents()
+
 		// Check if all content has been through the current sequence
 		// if not, go to the next content, otherwise, repeat sequence for the remaining content
 		if !cp.state.isContentCompleted() {

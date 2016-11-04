@@ -38,13 +38,13 @@ type StateEntities interface {
 	setUsername(string)
 	setScreenname(string)
 	setTargetFactor(FactorState)
-	setRemainingFactors([]UIFactor)
 	setBeliefs(BeliefsState)
 	setLastMemo(UIMemoResponse)
 	GetPhaseId() string
 	GetBeliefs() BeliefsState
 	isContentCompleted() bool
 	updateToNextContent(bool)
+	updateRemainingContents()
 	GetTargetFactor() FactorState
 	GetRemainingFactors() []UIFactor
 	GetLastMemo() UIMemoResponse
@@ -255,7 +255,9 @@ func (c *PredictionPhaseState) initContents() {
 	c.TargetPrediction = c.AllPredictionRecords[0]
 }
 
-// Not applicable to all phases
+func (c *PredictionPhaseState) updateRemainingContents() {
+}
+
 func (c *PredictionPhaseState) updateToNextTargetPrediction() {
 	recordNo := c.TargetPrediction.RecordNo
 	newTargetPrediction := c.AllPredictionRecords[recordNo]
@@ -303,6 +305,10 @@ func (c *ChartPhaseState) initContents(factors []Factor) {
 
 }
 
+func (c *ChartPhaseState) updateRemainingContents() {
+	c.GenericState.updateRemainingFactors()
+}
+
 // Implements workflow.StateEntities
 type CovPhaseState struct {
 	GenericState
@@ -331,6 +337,10 @@ func (c *CovPhaseState) initContents(factors []Factor) {
 			FactorName: factorConfigMap[fid].Name,
 			FactorId:   fid,
 			IsCausal:   factorConfigMap[fid].IsCausal})
+}
+
+func (c *CovPhaseState) updateRemainingContents() {
+	c.GenericState.updateRemainingFactors()
 }
 
 type RecordState struct {
