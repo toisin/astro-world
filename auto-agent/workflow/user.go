@@ -13,21 +13,27 @@ type UserData struct {
 }
 
 func MakeLoginUserData(u db.User) *UserData {
-	return makeAllUserData(u, true)
+	return makeAllUserData(u, true, "")
 }
 
-func MakeUserData(u db.User) *UserData {
-	return makeAllUserData(u, false)
+func MakeUserData(u db.User, gotoPhaseId string) *UserData {
+	return makeAllUserData(u, false, gotoPhaseId)
 }
 
-func makeAllUserData(u db.User, isNewLogin bool) *UserData {
+func makeAllUserData(u db.User, isNewLogin bool, gotoPhaseId string) *UserData {
 	// Process submitted answer
 	ud := &UserData{}
 	ud.User = u
 	ud.UiUserData = MakeUIUserData(u)
 	ud.UiUserData.ArchiveHistoryLength = ud.User.ArchiveHistoryLength
 	// Construct Prompt appropriately
-	if (u.CurrentPromptId == "") || (u.CurrentPhaseId == "") {
+	if gotoPhaseId != "" {
+		//go to specific phase
+		ud.CurrentPrompt = MakeFirstPhasePrompt(ud.UiUserData, gotoPhaseId)
+		ud.User.CurrentPhaseId = ud.UiUserData.CurrentPhaseId
+		ud.User.CurrentPromptId = ud.CurrentPrompt.GetPromptId()
+		ud.User.CurrentSequenceOrder = ud.CurrentPrompt.GetSequenceOrder()
+	} else if (u.CurrentPromptId == "") || (u.CurrentPhaseId == "") {
 		// No existing prompt, make the first one
 		ud.CurrentPrompt = MakeFirstPrompt(ud.UiUserData)
 		ud.User.CurrentPhaseId = ud.UiUserData.CurrentPhaseId

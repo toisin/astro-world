@@ -64,6 +64,11 @@ body {
   margin: 5px 0;
 }*/
 
+.help {
+  text-align: right;
+  color: white;
+}
+
 .researcher, .user {
   padding-bottom: 5px;
   /*padding: 5px 25px;*/

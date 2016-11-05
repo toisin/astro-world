@@ -339,6 +339,19 @@ func MakeFirstPrompt(uiUserData *UIUserData) Prompt {
 	return p
 }
 
+func MakeFirstPhasePrompt(uiUserData *UIUserData, phaseId string) Prompt {
+	var p Prompt
+	switch phaseId {
+	case PHASE_COV:
+		p = MakePrompt(appConfig.CovPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.CovPhase.Id, uiUserData)
+	case PHASE_CHART:
+		p = MakePrompt(appConfig.ChartPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.ChartPhase.Id, uiUserData)
+	case PHASE_PREDICTION:
+		p = MakePrompt(appConfig.PredictionPhase.OrderedSequences[0].FirstPrompt.Id, appConfig.PredictionPhase.Id, uiUserData)
+	}
+	return p
+}
+
 func MakePrompt(promptId string, phaseId string, uiUserData *UIUserData) Prompt {
 	pc := GetPromptConfig(promptId, phaseId)
 	return MakePromptFromConfig(*pc, uiUserData)

@@ -11,7 +11,7 @@ DisplayText[MSG_ROBOT] = 'Researcher';
 
 var Dialog = React.createClass({
   getInitialState: function() {
-    var state = {mode: 0, UIAction:""}
+    var state = {mode: 0, UIAction:"", showPhaseLinks: false}
     var user = this.props.user;
     var history = user.getHistory() ? user.getHistory() : {};
     state.isNewUser = history.length == 0;
@@ -32,6 +32,39 @@ var Dialog = React.createClass({
   showAction: function() {
     var app = this.props.app;
     app.showAction();
+  },
+
+  togglePhaseLinks: function(event) {
+    if (event) {
+      event.preventDefault();
+    }
+
+    this.state.showPhaseLinks = !this.state.showPhaseLinks;
+    this.setState(this.state);
+  },
+
+  gotoPhase: function(phase) {
+    this.state.showPhaseLinks = false;
+    var phaseno = "";
+    switch(phase) {
+    case "Cov":
+      phaseno = "I";
+      break;
+    case "Chart":
+      phaseno = "II";
+      break;
+    case "Prediction":
+      phaseno = "III";
+      break;
+    }
+
+    this.state.welcomeText = "Welcome to Phase " + phaseno + ".";
+    var self = this;
+    var user = this.props.user;
+    var onComplete = function() {self.setState(self.state);};
+    var response = {};
+    var jsonResponse = JSON.stringify(response);
+    user.gotoPhase(phase, jsonResponse, onComplete);
   },
 
   render: function() {
@@ -59,14 +92,27 @@ var Dialog = React.createClass({
     var prompt = user.getPrompt();
     var welcomeText = this.state.welcomeText;
 
+    var self = this;
+    var phaseILink = function() {self.gotoPhase("Cov")};
+    var phaseIILink = function() {self.gotoPhase("Chart")};
+    var phaseIIILink = function() {self.gotoPhase("Prediction")};
+
+    var helpText = this.state.showPhaseLinks ? 
+                  <div className="help"><a onClick={phaseILink}>Phase I</a> <a onClick={phaseIILink}>Phase II</a> <a onClick={phaseIIILink}>Phase III</a></div>:
+                  <div className="help"><a onClick={this.togglePhaseLinks}>?</a></div>;
+
+    // var helpText = <div className="help"><a href={phaseILink}>Phase I</a>|<a href={phaseIILink}>Phase II</a>|<a href={phaseIIILink}>Phase III</a></div>;
+
     if ((!prompt) || (Object.keys(prompt).length == 0)) {
         return  <div>
+                  {helpText}
                   <Title user={user} welcomeText={welcomeText}/>
                   <OldHistory user={user} oldHistory={oldHistory}/>
                   {messages}
                 </div>;
     } else {
         return  <div>
+                  {helpText}
                   <Title user={user} welcomeText={welcomeText}/>
                   <OldHistory user={user} oldHistory={oldHistory}/>
                   {messages}
@@ -98,7 +144,7 @@ var OldHistory = React.createClass({
           return  <div key={i}>
                     <Message texts={message.Texts} mtype={message.Mtype} user={user}/>
                   </div>;
-        })
+        });
     if (messages.length > 0) {
       if (state.showMessages) {
         return <div>

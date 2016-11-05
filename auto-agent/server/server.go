@@ -319,6 +319,7 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		promptId := r.FormValue("promptId")
 		phaseId := r.FormValue("phaseId")
 		questionText := r.FormValue("questionText")
+		gotoPhaseId := r.FormValue("gotophase")
 		var texts []string
 		dec := json.NewDecoder(strings.NewReader(questionText))
 		err := dec.Decode(&texts)
@@ -349,10 +350,15 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		// Process submitted answers
-		ud := workflow.MakeUserData(u)
-		ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"), &ud.User, ud.UiUserData, c)
+		var ud *workflow.UserData
 
+		if gotoPhaseId != "" {
+			ud = workflow.MakeUserData(u, gotoPhaseId)
+		} else {
+			// Process submitted answers
+			ud = workflow.MakeUserData(u, "")
+			ud.CurrentPrompt.ProcessResponse(r.FormValue("jsonResponse"), &ud.User, ud.UiUserData, c)
+		}
 		responseId := ud.CurrentPrompt.GetResponseId()
 		responseText := ud.CurrentPrompt.GetResponseText()
 
@@ -420,7 +426,8 @@ func (covH *ResponseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// TODO - Not the cleanest way to do this
 		// Reset ArchieveHistoryLength whe UpdateWithNextPrompt
 		// then let the server deal with setting the new value
-		if ud.UiUserData.ArchiveHistoryLength < 0 {
+		// OR if changing phase purposely
+		if (ud.UiUserData.ArchiveHistoryLength < 0) || (gotoPhaseId != "") {
 			ud.UiUserData.ArchiveHistoryLength = count
 			ud.User.ArchiveHistoryLength = count
 		}
