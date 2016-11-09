@@ -53,7 +53,7 @@ jsx -w -x jsx jsx js
 
 
 ## Deploy local server to cloud
-cd ~/src/github.com/toisin/
+cd ~/src/github.com/toisin/astro-world
 # replace <app-name> with actual app name e.g. "premium-cipher-661"
 # e.g goapp deploy -oauth -application premium-cipher-661 auto-agent
 goapp deploy -oauth -application <app-name> auto-agent

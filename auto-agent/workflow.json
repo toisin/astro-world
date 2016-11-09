@@ -438,6 +438,24 @@
         }
       ]
     },
+    "SupportPrompts": [
+      {
+        "Id": "decide_together",
+        "ShowOnFirstPass": true,
+        "RandomShowWithinNoOfPasses": 3,
+        "Text": [
+          "Be sure to talk to each other and agree on it."
+        ]
+      },
+      {
+        "Id": "talk_to_partner",
+        "ShowOnFirstPass": true,
+        "RandomShowWithinNoOfPasses": 3,
+        "Text": [
+          "Be sure to talk with each other."
+        ]
+      }
+    ],
     "OrderedSequences": [
       {
         "FirstPrompt": {
@@ -549,6 +567,9 @@
                   "PromptType": "MC",
                   "ResponseType": "Basic",
                   "UIActionModeId": "NO_UIACTION",
+                  "SupportPromptRef": {
+                    "Id": "decide_together"
+                  },
                   "ExpectedResponses": {
                     "Values": [
                       {
@@ -612,6 +633,9 @@
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",
                                                           "UIActionModeId": "RECORD_ONE_PERFORMANCE",
+                                                          "SupportPromptRef": {
+                                                            "Id": "talk_to_partner"
+                                                          },
                                                           "ExpectedResponses": {
                                                             "Values": [
                                                               {
@@ -624,6 +648,9 @@
                                                                   "PromptType": "MC",
                                                                   "ResponseType": "Basic",
                                                                   "UIActionModeId": "RECORD_ONE_PERFORMANCE",
+                                                                  "SupportPromptRef": {
+                                                                    "Id": "talk_to_partner"
+                                                                  },
                                                                   "ExpectedResponses": {
                                                                     "DynamicOptionsTemplateRef": {
                                                                       "Ids": "[\"up\",\"down\",\"no change\"]",
@@ -668,6 +695,9 @@
                                                                                           "PromptType": "NO_INPUT",
                                                                                           "ResponseType": "RECORD",
                                                                                           "UIActionModeId": "RECORD_SELECT_ONE_AND_SHOW_PERFORMANCE",
+                                                                                          "SupportPromptRef": {
+                                                                                            "Id": "decide_together"
+                                                                                          },
                                                                                           "ExpectedResponses": {
                                                                                             "Values": [
                                                                                               {
@@ -708,7 +738,7 @@
                                                                                                       {
                                                                                                         "Id": "ANY_RESPONSE",
                                                                                                         "NextPromptRef": {
-                                                                                                          "Id": "two_records.MC_is_diff.2.2"
+                                                                                                          "Id": "two_records.MC_is_causal.2.2"
                                                                                                         }
                                                                                                       }
                                                                                                     ]
@@ -747,6 +777,9 @@
                                                           "PromptType": "Text",
                                                           "ResponseType": "Basic",
                                                           "UIActionModeId": "RECORD_PERFORMANCE",
+                                                          "SupportPromptRef": {
+                                                            "Id": "talk_to_partner"
+                                                          },
                                                           "ExpectedResponses": {
                                                             "Values": [
                                                               {
@@ -787,6 +820,9 @@
                           "PromptType": "NO_INPUT",
                           "ResponseType": "RECORD",
                           "UIActionModeId": "RECORD_SELECT_TWO",
+                          "SupportPromptRef": {
+                            "Id": "decide_together"
+                          },
                           "ExpectedResponses": {
                             "Values": [
                               {
@@ -839,13 +875,16 @@
                                               {
                                                 "Id": "ANY_RESPONSE",
                                                 "NextPrompt": {
-                                                  "Id": "two_records.MC_is_diff.2.2",
+                                                  "Id": "two_records.MC_is_causal.2.2",
                                                   "Text": [
                                                     "Does {{.TargetFactor.FactorName}} make a difference to performance in space? Yes or No"
                                                   ],
                                                   "PromptType": "MC",
                                                   "ResponseType": "CAUSAL_CONCLUSION",
                                                   "UIActionModeId": "RECORD_PERFORMANCE",
+                                                  "SupportPromptRef": {
+                                                    "Id": "decide_together"
+                                                  },
                                                   "ExpectedResponses": {
                                                     "Values": [
                                                       {
@@ -894,6 +933,9 @@
                                                                   "PromptType": "MC",
                                                                   "ResponseType": "Basic",
                                                                   "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                  "SupportPromptRef": {
+                                                                    "Id": "talk_to_partner"
+                                                                  },
                                                                   "ExpectedResponses": {
                                                                     "Values": [
                                                                       {
@@ -957,6 +999,9 @@
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
                                                                   "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                  "SupportPromptRef": {
+                                                                    "Id": "talk_to_partner"
+                                                                  },
                                                                   "ExpectedResponses": {
                                                                     "CheckStateTemplateRef": "{{.TargetFactor.IsCausal}}",
                                                                     "Values": [
@@ -1004,6 +1049,9 @@
                                                                                   "PromptType": "MC",
                                                                                   "ResponseType": "Basic",
                                                                                   "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                                  "SupportPromptRef": {
+                                                                                    "Id": "talk_to_partner"
+                                                                                  },
                                                                                   "ExpectedResponses": {
                                                                                     "Values": [
                                                                                       {
@@ -1124,13 +1172,16 @@
                                                               {
                                                                 "Id": "Target factor non-varying",
                                                                 "NextPrompt": {
-                                                                  "Id": "noncausal.target_nonvarying.2.2.2.1",
+                                                                  "Id": "noncausal.target_nonvarying.Q_whatif.2.2.2.1",
                                                                   "Text": [
                                                                     "I see. But what do you think {{.RecordNoOne.FirstName}}'s performance would have been if {{.TargetFactor.FactorName}} was {{$factorId := .TargetFactor.FactorId}}{{$factor := index .RecordNoOne.FactorLevels $factorId}}{{$factor.OppositeLevel}} instead? Would the performance still be the same?"
                                                                   ],
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
                                                                   "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                  "SupportPromptRef": {
+                                                                    "Id": "talk_to_partner"
+                                                                  },
                                                                   "ExpectedResponses": {
                                                                     "Values": [
                                                                       {
@@ -1153,6 +1204,9 @@
                                                                   "PromptType": "MC",
                                                                   "ResponseType": "Basic",
                                                                   "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                  "SupportPromptRef": {
+                                                                    "Id": "talk_to_partner"
+                                                                  },
                                                                   "ExpectedResponses": {
                                                                     "Values": [
                                                                       {
@@ -1176,13 +1230,16 @@
                                                               {
                                                                 "Id": "Two records controlled",
                                                                 "NextPrompt": {
-                                                                  "Id": "noncausal.controlled.2.2.2.3",
+                                                                  "Id": "noncausal.controlled.Q_whatif.2.2.2.3",
                                                                   "Text": [
                                                                     "What do you think {{.RecordNoOne.FirstName}}'s performance would have been if {{.TargetFactor.FactorName}} was {{$factorId := .TargetFactor.FactorId}}{{$factor := index .RecordNoOne.FactorLevels $factorId}}{{$factor.OppositeLevel}} instead?"
                                                                   ],
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
                                                                   "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                  "SupportPromptRef": {
+                                                                    "Id": "talk_to_partner"
+                                                                  },
                                                                   "ExpectedResponses": {
                                                                     "CheckStateTemplateRef": "{{if ne .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}true{{else}}false{{end}}",
                                                                     "Values": [
@@ -1218,6 +1275,9 @@
                                                                           "PromptType": "MC",
                                                                           "ResponseType": "Basic",
                                                                           "UIActionModeId": "RECORD_PERFORMANCE",
+                                                                          "SupportPromptRef": {
+                                                                            "Id": "talk_to_partner"
+                                                                          },
                                                                           "ExpectedResponses": {
                                                                             "Values": [
                                                                               {
@@ -1318,10 +1378,9 @@
                                                                         "NextPrompt": {
                                                                           "Id": "maybe_causal.2.2.3.2.1",
                                                                           "Text": [
-                                                                            "Ok. So you think that these records show that {{.TargetFactor.FactorName}} may make a difference.",
-                                                                            "Press \"Enter\" when you are ready to continue."
+                                                                            "Ok. So you think that these records show that {{.TargetFactor.FactorName}} may make a difference."
                                                                           ],
-                                                                          "PromptType": "ENTER_TO_CONTINUE",
+                                                                          "PromptType": "STRAIGHT_THROUGH",
                                                                           "ResponseType": "Basic",
                                                                           "UIActionModeId": "RECORD_PERFORMANCE",
                                                                           "ExpectedResponses": {
@@ -1362,6 +1421,9 @@
                                                                                                   "PromptType": "NO_INPUT",
                                                                                                   "ResponseType": "RECORD",
                                                                                                   "UIActionModeId": "RECORD_SELECT_ONE_AND_SHOW_PERFORMANCE",
+                                                                                                  "SupportPromptRef": {
+                                                                                                    "Id": "decide_together"
+                                                                                                  },
                                                                                                   "ExpectedResponses": {
                                                                                                     "Values": [
                                                                                                       {
@@ -1427,10 +1489,9 @@
                                                                         "NextPrompt": {
                                                                           "Id": "maybe_noncausal.2.2.3.2.2",
                                                                           "Text": [
-                                                                            "Ok. So you think that these records show that {{.TargetFactor.FactorName}} does not make a difference to performance.",
-                                                                            "Press \"Enter\" when you are ready to continue."
+                                                                            "Ok. So you think that these records show that {{.TargetFactor.FactorName}} does not make a difference to performance."
                                                                           ],
-                                                                          "PromptType": "ENTER_TO_CONTINUE",
+                                                                          "PromptType": "STRAIGHT_THROUGH",
                                                                           "ResponseType": "Basic",
                                                                           "UIActionModeId": "RECORD_PERFORMANCE",
                                                                           "ExpectedResponses": {
@@ -1622,6 +1683,24 @@
         }
       ]
     },
+    "SupportPrompts": [
+      {
+        "Id": "decide_together",
+        "ShowOnFirstPass": true,
+        "RandomShowWithinNoOfPasses": 3,
+        "Text": [
+          "Don't forget to talk to each other and agree on it."
+        ]
+      },
+      {
+        "Id": "talk_to_partner",
+        "ShowOnFirstPass": true,
+        "RandomShowWithinNoOfPasses": 3,
+        "Text": [
+          "Don't forget to talk with each other."
+        ]
+      }
+    ],
     "OrderedSequences": [
       {
         "FirstPrompt": {
@@ -1701,6 +1780,9 @@
                                   "PromptType": "Text",
                                   "ResponseType": "Basic",
                                   "UIActionModeId": "ALL_RECORDS",
+                                  "SupportPromptRef": {
+                                    "Id": "talk_to_partner"
+                                  },
                                   "ExpectedResponses": {
                                     "Values": [
                                       {
@@ -1944,6 +2026,9 @@
                                                                   "PromptType": "Text",
                                                                   "ResponseType": "Basic",
                                                                   "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
+                                                                  "SupportPromptRef": {
+                                                                    "Id": "talk_to_partner"
+                                                                  },
                                                                   "ExpectedResponses": {
                                                                     "Values": [
                                                                       {
@@ -2012,6 +2097,9 @@
                                                                                           "PromptType": "Text",
                                                                                           "ResponseType": "Basic",
                                                                                           "UIActionModeId": "FITNESS_AVERAGE_RECORDS_SHOW_TWO_RECORDS",
+                                                                                          "SupportPromptRef": {
+                                                                                            "Id": "talk_to_partner"
+                                                                                          },
                                                                                           "ExpectedResponses": {
                                                                                             "Values": [
                                                                                               {
@@ -2086,32 +2174,18 @@
                                                                           "Text": [
                                                                             "Seems like you are not sure. That's ok. So we know they all have Average Fitness but they still have different performance. What could be a reason why these people have different performance?"
                                                                           ],
-                                                                          "PromptType": "STRAIGHT_THROUGH",
+                                                                          "PromptType": "Text",
                                                                           "ResponseType": "Basic",
                                                                           "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
+                                                                          "SupportPromptRef": {
+                                                                            "Id": "talk_to_partner"
+                                                                          },
                                                                           "ExpectedResponses": {
                                                                             "Values": [
                                                                               {
                                                                                 "Id": "ANY_RESPONSE",
-                                                                                "NextPrompt": {
-                                                                                  "Id": "talk.to.partner",
-                                                                                  "Text": [
-                                                                                    "Be sure to talk with each other.",
-                                                                                    "So, what do you think?"
-                                                                                  ],
-                                                                                  "PromptType": "Text",
-                                                                                  "ResponseType": "Basic",
-                                                                                  "UIActionModeId": "FITNESS_AVERAGE_RECORDS",
-                                                                                  "ExpectedResponses": {
-                                                                                    "Values": [
-                                                                                      {
-                                                                                        "Id": "ANY_RESPONSE",
-                                                                                        "NextPromptRef": {
-                                                                                          "Id": "intro fitness only explain diff performance"
-                                                                                        }
-                                                                                      }
-                                                                                    ]
-                                                                                  }
+                                                                                "NextPromptRef": {
+                                                                                  "Id": "intro fitness only explain diff performance"
                                                                                 }
                                                                               }
                                                                             ]
@@ -2182,6 +2256,9 @@
           "PromptType": "NO_INPUT",
           "ResponseType": "SELECT_TARGET_FACTOR",
           "UIActionModeId": "NEW_TARGET_FACTOR",
+          "SupportPromptRef": {
+            "Id": "decide_together"
+          },
           "ExpectedResponses": {
             "DynamicOptionsTemplateRef": {
               "Ids": "[{{range $i, $v := .RemainingFactors}}{{if gt $i  0}},{{end}}\"{{$v.FactorId}}\"{{end}}]",
@@ -2205,11 +2282,14 @@
                         "NextPrompt": {
                           "Id": "MC_is_causal",
                           "Text": [
-                            "So, what do you think? Overall does {{.TargetFactor.FactorName}} a difference to performance in space?"
+                            "So, what do you think? Overall does {{.TargetFactor.FactorName}} make a difference to performance in space?"
                           ],
                           "PromptType": "MC",
                           "ResponseType": "CAUSAL_CONCLUSION",
                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                          "SupportPromptRef": {
+                            "Id": "decide_together"
+                          },
                           "ExpectedResponses": {
                             "Values": [
                               {
@@ -2268,6 +2348,9 @@
                                                           "PromptType": "MC",
                                                           "ResponseType": "Basic",
                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                          "SupportPromptRef": {
+                                                            "Id": "talk_to_partner"
+                                                          },
                                                           "ExpectedResponses": {
                                                             "DynamicOptionsTemplateRef": {
                                                               "Ids": "[\"better\",\"worse\",\"the same\",\"not sure\"]",
@@ -2289,7 +2372,7 @@
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
                                                                         "NextPrompt": {
-                                                                          "Id": "causal.wrong.help.same_perf.MC_is_diff.1.1",
+                                                                          "Id": "causal.wrong.help.same_perf.MC_is_causal.1.1",
                                                                           "Text": [
                                                                             "Ok, so it seems that people who have {{$factor := index .ContentFactors .TargetFactor.FactorId}}{{$bestlevel := index $factor.Levels 0}}{{$bestlevel.Text}} and the people who have {{$alevel := index $factor.Levels 1}}{{$alevel.Text}} for {{.TargetFactor.FactorName}}, they all have the same kind of performance.",
                                                                             "So, what does this tell you? Overall, does {{.TargetFactor.FactorName}} make a difference to performance in space?"
@@ -2297,6 +2380,9 @@
                                                                           "PromptType": "MC",
                                                                           "ResponseType": "CAUSAL_CONCLUSION",
                                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                          "SupportPromptRef": {
+                                                                            "Id": "decide_together"
+                                                                          },
                                                                           "ExpectedResponses": {
                                                                             "Values": [
                                                                               {
@@ -2315,13 +2401,16 @@
                                                                                       {
                                                                                         "Id": "ANY_RESPONSE",
                                                                                         "NextPrompt": {
-                                                                                          "Id": "causal.wrong.help.wrong.MC_is_diff.1.2.1",
+                                                                                          "Id": "causal.wrong.help.wrong.MC_is_causal.1.2.1",
                                                                                           "Text": [
                                                                                             "So, what does this tell you? Overall, does {{.TargetFactor.FactorName}} make a difference to performance in space?"
                                                                                           ],
                                                                                           "PromptType": "MC",
                                                                                           "ResponseType": "CAUSAL_CONCLUSION",
                                                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                                          "SupportPromptRef": {
+                                                                                            "Id": "decide_together"
+                                                                                          },
                                                                                           "ExpectedResponses": {
                                                                                             "Values": [
                                                                                               {
@@ -2362,7 +2451,7 @@
                                                                                       {
                                                                                         "Id": "ANY_RESPONSE",
                                                                                         "NextPromptRef": {
-                                                                                          "Id": "non-causal.correct.correct.MC_is_causal.2.3"
+                                                                                          "Id": "non-causal.correct.correct.Q_someone_disagree.2.3.2"
                                                                                         }
                                                                                       }
                                                                                     ]
@@ -2392,7 +2481,7 @@
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
                                                                         "NextPromptRef": {
-                                                                          "Id": "causal.wrong.help.same_perf.MC_is_diff.1.1"
+                                                                          "Id": "causal.wrong.help.same_perf.MC_is_causal.1.1"
                                                                         }
                                                                       }
                                                                     ]
@@ -2415,7 +2504,7 @@
                                                                       {
                                                                         "Id": "ANY_RESPONSE",
                                                                         "NextPrompt": {
-                                                                          "Id": "non-causal.correct.correct.MC_is_causal.2.3",
+                                                                          "Id": "non-causal.correct.correct.Q_someone_disagree.2.3.2",
                                                                           "Text": [
                                                                             "So, what does this tell you? Overall, does {{.TargetFactor.FactorName}} make a difference to performance in space?"
                                                                           ],
@@ -2774,6 +2863,9 @@
                                                                           "PromptType": "MC",
                                                                           "ResponseType": "CAUSAL_CONCLUSION",
                                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                          "SupportPromptRef": {
+                                                                            "Id": "decide_together"
+                                                                          },
                                                                           "ExpectedResponses": {
                                                                             "Values": [
                                                                               {
@@ -3014,6 +3106,9 @@
                                           "PromptType": "MC",
                                           "ResponseType": "CAUSAL_CONCLUSION",
                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                          "SupportPromptRef": {
+                                            "Id": "decide_together"
+                                          },
                                           "ExpectedResponses": {
                                             "Values": [
                                               {
@@ -3101,6 +3196,9 @@
                                                   "PromptType": "MC",
                                                   "ResponseType": "Basic",
                                                   "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                  "SupportPromptRef": {
+                                                    "Id": "talk_to_partner"
+                                                  },
                                                   "ExpectedResponses": {
                                                     "DynamicOptionsTemplateRef": {
                                                       "Ids": "[\"better\",\"worse\",\"the same\"]",
@@ -3110,7 +3208,7 @@
                                                       {
                                                         "Id": "the same",
                                                         "NextPrompt": {
-                                                          "Id": "help.help.same_perf.MC_is_diff.3.3.1",
+                                                          "Id": "help.help.same_perf.MC_is_causal.3.3.1",
                                                           "Text": [
                                                             "So you think that people with these different levels of {{.TargetFactor.FactorName}} perform about the same.",
                                                             "So, what does this tell you? Overall, does {{.TargetFactor.FactorName}} make a difference to performance in space?"
@@ -3118,6 +3216,9 @@
                                                           "PromptType": "MC",
                                                           "ResponseType": "CAUSAL_CONCLUSION",
                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                          "SupportPromptRef": {
+                                                            "Id": "decide_together"
+                                                          },
                                                           "ExpectedResponses": {
                                                             "Values": [
                                                               {
@@ -3141,7 +3242,7 @@
                                                       {
                                                         "Id": "ANY_RESPONSE",
                                                         "NextPrompt": {
-                                                          "Id": "help.help.not_same_perf.MC_is_diff.3.3.2",
+                                                          "Id": "help.help.not_same_perf.MC_is_causal.3.3.2",
                                                           "Text": [
                                                             "So you think that people with these different levels of {{.TargetFactor.FactorName}} will perform differently.",
                                                             "So, what does this tell you? Overall, does {{.TargetFactor.FactorName}} make a difference to performance in space?"
@@ -3149,6 +3250,9 @@
                                                           "PromptType": "MC",
                                                           "ResponseType": "CAUSAL_CONCLUSION",
                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                          "SupportPromptRef": {
+                                                            "Id": "decide_together"
+                                                          },
                                                           "ExpectedResponses": {
                                                             "Values": [
                                                               {
@@ -3229,6 +3333,9 @@
                           "PromptType": "MC",
                           "ResponseType": "CAUSAL_CONCLUSION",
                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                          "SupportPromptRef": {
+                            "Id": "decide_together"
+                          },
                           "ExpectedResponses": {
                             "DynamicOptionsTemplateRef": {
                               "Ids": "[\"true\", \"false\"]",
@@ -3305,6 +3412,9 @@
                                           "PromptType": "MC",
                                           "ResponseType": "Basic",
                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                          "SupportPromptRef": {
+                                            "Id": "talk_to_partner"
+                                          },
                                           "ExpectedResponses": {
                                             "DynamicOptionsTemplateRef": {
                                               "Ids": "[\"better\",\"worse\",\"the same\"]",
@@ -3348,6 +3458,9 @@
                                                                   "PromptType": "MC",
                                                                   "ResponseType": "CAUSAL_CONCLUSION",
                                                                   "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                  "SupportPromptRef": {
+                                                                    "Id": "decide_together"
+                                                                  },
                                                                   "ExpectedResponses": {
                                                                     "DynamicOptionsTemplateRef": {
                                                                       "Ids": "[\"true\", \"false\"]",
@@ -3478,6 +3591,9 @@
                                                                   "PromptType": "MC",
                                                                   "ResponseType": "CAUSAL_CONCLUSION",
                                                                   "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                  "SupportPromptRef": {
+                                                                    "Id": "decide_together"
+                                                                  },
                                                                   "ExpectedResponses": {
                                                                     "DynamicOptionsTemplateRef": {
                                                                       "Ids": "[\"true\", \"false\"]",
@@ -3617,6 +3733,24 @@
         }
       ]
     },
+    "SupportPrompts": [
+      {
+        "Id": "decide_together",
+        "ShowOnFirstPass": true,
+        "RandomShowWithinNoOfPasses": 3,
+        "Text": [
+          "Don't forget to talk to each other and agree on it."
+        ]
+      },
+      {
+        "Id": "talk_to_partner",
+        "ShowOnFirstPass": true,
+        "RandomShowWithinNoOfPasses": 3,
+        "Text": [
+          "Don't forget to talk with each other."
+        ]
+      }
+    ],
     "OrderedSequences": [
       {
         "FirstPrompt": {
@@ -3667,6 +3801,9 @@
                                   "PromptType": "MC",
                                   "ResponseType": "CAUSAL_CONCLUSION",
                                   "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                  "SupportPromptRef": {
+                                    "Id": "decide_together"
+                                  },
                                   "ExpectedResponses": {
                                     "DynamicOptionsTemplateRef": {
                                       "Ids": "[\"true\", \"false\"]",
@@ -3743,6 +3880,9 @@
                                                   "PromptType": "MC",
                                                   "ResponseType": "Basic",
                                                   "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                  "SupportPromptRef": {
+                                                    "Id": "talk_to_partner"
+                                                  },
                                                   "ExpectedResponses": {
                                                     "DynamicOptionsTemplateRef": {
                                                       "Ids": "[\"better\",\"worse\",\"the same\"]",
@@ -3786,6 +3926,9 @@
                                                                           "PromptType": "MC",
                                                                           "ResponseType": "CAUSAL_CONCLUSION",
                                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                          "SupportPromptRef": {
+                                                                            "Id": "decide_together"
+                                                                          },
                                                                           "ExpectedResponses": {
                                                                             "DynamicOptionsTemplateRef": {
                                                                               "Ids": "[\"true\", \"false\"]",
@@ -3916,6 +4059,9 @@
                                                                           "PromptType": "MC",
                                                                           "ResponseType": "CAUSAL_CONCLUSION",
                                                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                                          "SupportPromptRef": {
+                                                                            "Id": "decide_together"
+                                                                          },
                                                                           "ExpectedResponses": {
                                                                             "DynamicOptionsTemplateRef": {
                                                                               "Ids": "[\"true\", \"false\"]",
@@ -4043,6 +4189,9 @@
           "PromptType": "MC",
           "ResponseType": "PREDICTION_PERFORMANCE",
           "UIActionModeId": "PREDICTION_RECORD",
+          "SupportPromptRef": {
+            "Id": "decide_together"
+          },
           "ExpectedResponses": {
             "DynamicOptionsTemplateRef": {
               "Ids": "[\"0\",\"1\",\"2\",\"3\",\"4\"]",
@@ -4098,6 +4247,9 @@
                                           "PromptType": "MC",
                                           "ResponseType": "PREDICTION_FACTOR_CONCLUSION",
                                           "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                          "SupportPromptRef": {
+                                            "Id": "talk_to_partner"
+                                          },
                                           "ExpectedResponses": {
                                             "DynamicOptionsTemplateRef": {
                                               "Ids": "[\"true\", \"false\"]",
@@ -4116,6 +4268,9 @@
                                                   "PromptType": "MC",
                                                   "ResponseType": "PREDICTION_FACTOR_CONCLUSION",
                                                   "UIActionModeId": "TARGET_FACTOR_RECORDS",
+                                                  "SupportPromptRef": {
+                                                    "Id": "talk_to_partner"
+                                                  },
                                                   "ExpectedResponses": {
                                                     "DynamicOptionsTemplateRef": {
                                                       "Ids": "[\"true\", \"true\", \"false\"]",
@@ -4217,6 +4372,9 @@
                                                           "PromptType": "MC",
                                                           "ResponseType": "PREDICTION_PERFORMANCE",
                                                           "UIActionModeId": "PREDICTION_RECORD",
+                                                          "SupportPromptRef": {
+                                                            "Id": "decide_together"
+                                                          },
                                                           "ExpectedResponses": {
                                                             "DynamicOptionsTemplateRef": {
                                                               "Ids": "[\"0\",\"1\",\"2\",\"3\",\"4\"]",
@@ -4225,7 +4383,7 @@
                                                             "Values": [
                                                               {
                                                                 "Id": "ANY_RESPONSE",
-                                                                "NextPromptRef": {
+                                                                "NextPrompt": {
                                                                   "Id": "next_prediction.1.2.2",
                                                                   "Text": [
                                                                     "Ok. Let's look at another prediction."

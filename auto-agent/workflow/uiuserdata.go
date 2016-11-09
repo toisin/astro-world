@@ -50,17 +50,23 @@ type StateEntities interface {
 	GetLastMemo() UIMemoResponse
 	setContentFactors(map[string]UIFactor)
 	GetContentFactors() map[string]UIFactor
+	initSupportPromptCount(string, int)
+	isShowSupportPrompt(string) bool
+	resetSupportPromptCount(string, int)
+	decrementSupportPromptCount(string)
+	isSupportPromptInitialized(string) bool
 }
 
 type GenericState struct {
-	PhaseId          string
-	Username         string
-	Screenname       string
-	TargetFactor     FactorState
-	RemainingFactors []UIFactor
-	Beliefs          BeliefsState
-	LastMemo         UIMemoResponse
-	ContentFactors   map[string]UIFactor
+	PhaseId               string
+	Username              string
+	Screenname            string
+	TargetFactor          FactorState
+	RemainingFactors      []UIFactor
+	Beliefs               BeliefsState
+	LastMemo              UIMemoResponse
+	ContentFactors        map[string]UIFactor
+	SupportPromptCountMap map[string]int // SupportPrompt ID+Phase ID as key, number of tmes invoked as values
 }
 
 type BeliefsState struct {
@@ -163,6 +169,9 @@ func (c *GenericState) updateRemainingFactors() {
 }
 
 func (c *GenericState) initContents() {
+	if c.SupportPromptCountMap == nil {
+		c.SupportPromptCountMap = make(map[string]int)
+	}
 	c.ContentFactors = make(map[string]UIFactor, len(GetPhase(c.PhaseId).ContentRef.Factors))
 	for i, v := range GetPhase(c.PhaseId).ContentRef.Factors {
 		f := GetFactorConfig(v.Id)
@@ -182,6 +191,42 @@ func (c *GenericState) initContents() {
 			}
 		}
 		c.ContentFactors[f.Id] = temp
+	}
+}
+
+func (c *GenericState) isSupportPromptInitialized(id string) bool {
+	if c.SupportPromptCountMap[id] != 0 {
+		return true
+	}
+	return false
+}
+
+func (c *GenericState) initSupportPromptCount(id string, count int) {
+	if c.SupportPromptCountMap[id] == 0 {
+		c.SupportPromptCountMap[id] = count + 1
+		// TODO cleanup
+		// fmt.Fprintf(os.Stderr, "Random count init to: %s, id: %s \n\n", c.SupportPromptCountMap[id], id)
+	}
+}
+
+func (c *GenericState) isShowSupportPrompt(id string) bool {
+	if c.SupportPromptCountMap[id] == 1 {
+		return true
+	}
+	return false
+}
+
+func (c *GenericState) resetSupportPromptCount(id string, count int) {
+	c.SupportPromptCountMap[id] = count + 1
+	// TODO cleanup
+	// fmt.Fprintf(os.Stderr, "Random count reset to: %s, id: %s \n\n", c.SupportPromptCountMap[id], id)
+}
+
+func (c *GenericState) decrementSupportPromptCount(id string) {
+	if c.SupportPromptCountMap[id] != 0 {
+		c.SupportPromptCountMap[id] = c.SupportPromptCountMap[id] - 1
+		// TODO cleanup
+		// fmt.Fprintf(os.Stderr, "Random count decrement to: %s, id: %s \n\n", c.SupportPromptCountMap[id], id)
 	}
 }
 

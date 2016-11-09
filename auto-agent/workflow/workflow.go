@@ -121,6 +121,7 @@ type PhaseConfig struct {
 	// ContentRef: Type of content being referenced is not configurable
 	// each phase expects a specific type of content, e.g. CovPhase expects Factors
 	ContentRef       ContentConfig
+	SupportPrompts   []SupportPromptConfig
 	OrderedSequences []Sequence
 }
 
@@ -140,6 +141,20 @@ type PromptConfig struct {
 	ResponseType      string
 	ExpectedResponses ExpectedResponseConfig
 	sequenceOrder     int
+	SupportPromptRef  SupportPromptConfigRef
+}
+
+type SupportPromptConfig struct {
+	Id                         string // Id must be unique within the phase
+	PhaseId                    string
+	Text                       []string
+	ShowOnFirstPass            bool
+	RandomShowWithinNoOfPasses int
+}
+
+type SupportPromptConfigRef struct {
+	Id      string // Id must be unique within the phase
+	PhaseId string
 }
 
 type ExpectedResponseConfig struct {
@@ -168,8 +183,9 @@ type PromptConfigRef struct {
 }
 
 // var phaseConfigMap = make(map[string]PhaseConfig)
-var promptConfigMap = make(map[string]*PromptConfig) //key:PhaseConfig.Id+PromptConfig.Id
-var factorConfigMap = make(map[string]Factor)        //key:PhaseConfig.Id+PromptConfig.Id
+var promptConfigMap = make(map[string]*PromptConfig)              //key:PhaseConfig.Id+PromptConfig.Id
+var supportPromptConfigMap = make(map[string]SupportPromptConfig) //key:PhaseConfig.Id+PromptConfig.Id
+var factorConfigMap = make(map[string]Factor)                     //key:PhaseConfig.Id+PromptConfig.Id
 var contentConfig ContentConfig
 var appConfig AppConfig
 
@@ -197,7 +213,7 @@ func WriteWorkflowText(w http.ResponseWriter) {
 	chartPhaseConfig := appConfig.ChartPhase
 	predictionPhaseConfig := appConfig.PredictionPhase
 
-	err := writer.Write([]string{"Cov Phase", "", "", "", "", "", ""})
+	err := writer.Write([]string{"Cov Phase", "Prompt Id", "Type", "Values", "Support", "Text", "", ""})
 	if err != nil {
 		log.Fatal("Cannot write file", err)
 	}
@@ -206,7 +222,7 @@ func WriteWorkflowText(w http.ResponseWriter) {
 		writePromptInText("", covPhaseConfig.OrderedSequences[i].FirstPrompt, writer, 0, ExpectedResponseValue{})
 	}
 
-	err = writer.Write([]string{"Chart Phase", "", "", "", "", "", ""})
+	err = writer.Write([]string{"Chart Phase", "Prompt Id", "Type", "Values", "Support", "Text", "", ""})
 	if err != nil {
 		log.Fatal("Cannot write file", err)
 	}
@@ -215,7 +231,7 @@ func WriteWorkflowText(w http.ResponseWriter) {
 		writePromptInText("", chartPhaseConfig.OrderedSequences[i].FirstPrompt, writer, 0, ExpectedResponseValue{})
 	}
 
-	err = writer.Write([]string{"Prediction Phase", "", "", "", "", "", ""})
+	err = writer.Write([]string{"Prediction Phase", "Prompt Id", "Type", "Values", "Support", "Text", "", ""})
 	if err != nil {
 		log.Fatal("Cannot write file", err)
 	}
@@ -239,9 +255,10 @@ func writePromptInText(pId string, pc PromptConfig, writer *csv.Writer, level in
 	}
 	pId = indent + pId
 	pText := pc.Text
-	var value = []string{strconv.Itoa(level), pId, pPromptType, evalue.Id, "", "", ""}
+	supportPromptId := pc.SupportPromptRef.Id
+	var value = []string{strconv.Itoa(level), pId, pPromptType, evalue.Id, supportPromptId, "", "", ""}
 	for i, v := range pText {
-		value[4+i] = v
+		value[5+i] = v
 	}
 	err := writer.Write(value)
 	if err != nil {
@@ -273,12 +290,15 @@ func InitWorkflow() {
 		covPhaseConfig := appConfig.CovPhase
 		chartPhaseConfig := appConfig.ChartPhase
 		predictionPhaseConfig := appConfig.PredictionPhase
+		populateSupportPromptConfigMap(covPhaseConfig.SupportPrompts, covPhaseConfig.Id)
 		for i, _ := range covPhaseConfig.OrderedSequences {
 			populatePromptConfigMap(&covPhaseConfig.OrderedSequences[i].FirstPrompt, covPhaseConfig.Id, i)
 		}
+		populateSupportPromptConfigMap(chartPhaseConfig.SupportPrompts, chartPhaseConfig.Id)
 		for i, _ := range chartPhaseConfig.OrderedSequences {
 			populatePromptConfigMap(&chartPhaseConfig.OrderedSequences[i].FirstPrompt, chartPhaseConfig.Id, i)
 		}
+		populateSupportPromptConfigMap(predictionPhaseConfig.SupportPrompts, predictionPhaseConfig.Id)
 		for i, _ := range predictionPhaseConfig.OrderedSequences {
 			populatePromptConfigMap(&predictionPhaseConfig.OrderedSequences[i].FirstPrompt, predictionPhaseConfig.Id, i)
 		}
@@ -290,6 +310,12 @@ func InitWorkflow() {
 	populateContentRef(&appConfig.CovPhase.ContentRef)
 	populateContentRef(&appConfig.ChartPhase.ContentRef)
 	populateContentRef(&appConfig.PredictionPhase.ContentRef)
+}
+
+func populateSupportPromptConfigMap(sps []SupportPromptConfig, phaseId string) {
+	for _, v := range sps {
+		supportPromptConfigMap[phaseId+v.Id] = v
+	}
 }
 
 func populatePromptConfigMap(pc *PromptConfig, phaseId string, sequenceOrder int) {
@@ -359,6 +385,7 @@ func MakePrompt(promptId string, phaseId string, uiUserData *UIUserData) Prompt 
 
 func MakePromptFromConfig(pc PromptConfig, uiUserData *UIUserData) Prompt {
 	phaseId := pc.PhaseId
+
 	switch phaseId {
 	case PHASE_COV:
 		return MakeCovPrompt(pc, uiUserData)

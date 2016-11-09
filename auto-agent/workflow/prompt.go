@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 	"text/template"
+	"time"
 
 	"db"
 	"util"
@@ -31,6 +33,7 @@ type Prompt interface {
 	initUIPrompt(*UIUserData)
 	initUIAction()
 	updateState(*UIUserData)
+	updateSupportPrompt(*UIUserData)
 }
 
 // The "superclass" of all Prompt interface implementation
@@ -101,6 +104,45 @@ func (cp *GenericPrompt) init(p PromptConfig, uiUserData *UIUserData) {
 	uiUserData.initPrompt(cp.currentPrompt)
 }
 
+func (cp *GenericPrompt) updateSupportPrompt(uiUserData *UIUserData) {
+	p := cp.promptConfig
+	if p.SupportPromptRef.Id != "" {
+		id := p.PhaseId + p.SupportPromptRef.Id
+		s := supportPromptConfigMap[id]
+
+		var random *rand.Rand
+		var count int
+		if s.ShowOnFirstPass && !uiUserData.State.isSupportPromptInitialized(id) {
+			for _, v := range s.Text {
+				p.Text = append(p.Text, v)
+				// TODO cleanup
+				// fmt.Fprintf(os.Stderr, "Prompt Text On First Pass: %s \n\n", p.Text)
+			}
+			random = rand.New(rand.NewSource(time.Now().UnixNano()))
+			count = random.Intn(s.RandomShowWithinNoOfPasses)
+			uiUserData.State.initSupportPromptCount(id, count)
+		} else if s.RandomShowWithinNoOfPasses != 0 {
+			random = rand.New(rand.NewSource(time.Now().UnixNano()))
+			count = random.Intn(s.RandomShowWithinNoOfPasses)
+			uiUserData.State.initSupportPromptCount(id, count)
+
+			if uiUserData.State.isShowSupportPrompt(id) {
+				for _, v := range s.Text {
+					p.Text = append(p.Text, v)
+					// TODO cleanup
+					// fmt.Fprintf(os.Stderr, "Prompt Text: %s \n\n", p.Text)
+				}
+				random = rand.New(rand.NewSource(time.Now().UnixNano()))
+				count = random.Intn(s.RandomShowWithinNoOfPasses)
+				uiUserData.State.resetSupportPromptCount(id, count)
+			} else {
+				uiUserData.State.decrementSupportPromptCount(id)
+			}
+		}
+	}
+	cp.promptConfig = p
+}
+
 func (cp *GenericPrompt) initUIAction() {
 	if cp.currentUIAction == nil {
 		cp.currentUIAction = NewUIBasicAction()
@@ -113,11 +155,10 @@ func (cp *GenericPrompt) initUIPrompt(uiUserData *UIUserData) {
 	if pc.ExpectedResponses.DynamicOptionsTemplateRef.Ids == "" {
 		cp.currentUIPrompt = NewUIBasicPrompt()
 		cp.currentUIPrompt.setPromptType(pc.PromptType)
+		cp.currentUIPrompt.setId(pc.Id)
 		// invoking the initialization methods in the "subclass"
 		// in case if they have been overriden
 		cp.currentPrompt.initUIPromptDynamicText(uiUserData, nil)
-		cp.currentUIPrompt.setText(cp.promptDynamicText.String())
-		cp.currentUIPrompt.setId(pc.Id)
 		options := make([]*UIOption, len(pc.ExpectedResponses.Values))
 
 		for i := range pc.ExpectedResponses.Values {
@@ -141,13 +182,10 @@ func (cp *GenericPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
 	pc := cp.promptConfig
 	cp.currentUIPrompt = NewUIBasicPrompt()
 	cp.currentUIPrompt.setPromptType(pc.PromptType)
+	cp.currentUIPrompt.setId(pc.Id)
 	// invoking the initialization methods in the "subclass"
 	// in case if they have been overriden
 	cp.currentPrompt.initUIPromptDynamicText(uiUserData, nil)
-	if cp.promptDynamicText != nil {
-		cp.currentUIPrompt.setText(cp.promptDynamicText.String())
-	}
-	cp.currentUIPrompt.setId(pc.Id)
 
 	var optionIds, optionTexts []string
 
@@ -182,16 +220,15 @@ func (cp *GenericPrompt) initDynamicResponseUIPrompt(uiUserData *UIUserData) {
 }
 
 func (cp *GenericPrompt) initUIPromptDynamicText(uiUserData *UIUserData, r Response) {
-	if cp.promptDynamicText == nil {
-		p := &UIPromptDynamicText{}
-		p.previousResponse = r
-		p.promptConfig = cp.promptConfig
-		// invoking the initialization methods in the "subclass"
-		// in case if they have been overriden
-		cp.currentPrompt.updateState(uiUserData)
-		p.state = cp.state
-		cp.promptDynamicText = p
-	}
+	p := &UIPromptDynamicText{}
+	p.previousResponse = r
+	p.promptConfig = cp.promptConfig
+	// invoking the initialization methods in the "subclass"
+	// in case if they have been overriden
+	cp.currentPrompt.updateState(uiUserData)
+	p.state = cp.state
+	cp.promptDynamicText = p
+	cp.currentUIPrompt.setText(p.String())
 }
 
 func (cp *GenericPrompt) processSimpleResponse(r string, u *db.User, uiUserData *UIUserData, c appengine.Context) {
@@ -462,6 +499,7 @@ func (erh *StaticExpectedResponseHandler) init(p PromptConfig) {
 func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserData *UIUserData) Prompt {
 	var rid string // The string value to be used to determine what the next prompt is
 	var p *PromptConfigRef
+	var nextPrompt Prompt
 	currentPhaseId := uiUserData.CurrentPhaseId
 
 	if len(erh.expectedResponseMap) == 1 {
@@ -578,7 +616,8 @@ func (erh *StaticExpectedResponseHandler) generateNextPrompt(r Response, uiUserD
 		uiUserData.ArchiveHistoryLength = -1
 	}
 	// fmt.Fprintf(os.Stderr, "Prompt: %s\n\n", p)
-	nextPrompt := MakePrompt(p.Id, p.PhaseId, uiUserData)
+	nextPrompt = MakePrompt(p.Id, p.PhaseId, uiUserData)
+	nextPrompt.updateSupportPrompt(uiUserData)
 	nextPrompt.initUIPromptDynamicText(uiUserData, r)
 
 	return nextPrompt

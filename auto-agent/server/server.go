@@ -39,6 +39,7 @@ func init() {
 	//TODO should not rely on a separate http request but it only needs to happen once
 	// needs to find a better place
 	http.Handle(IMPORTDB_REQUEST, &ImportRecordDBHandler{})
+	http.Handle(CLEARALLDB_REQUEST, &ClearAllDBHandler{})
 	http.Handle(CLEARDB_REQUEST, &ClearRecordDBHandler{})
 	http.Handle(CLEARALLUSERS_REQUEST, &ClearAllUsersDBHandler{})
 	http.Handle(CLEARUSERLOGS_REQUEST, &ClearUserLogsDBHandler{})
@@ -72,6 +73,7 @@ const COV_GETUSER = "/astro-world/getuser"
 const COV_SENDRESPONSE = "/astro-world/sendresponse"
 const IMPORTDB_REQUEST = "/astro-world/importDB"
 const CLEARDB_REQUEST = "/astro-world/clearDB"
+const CLEARALLDB_REQUEST = "/astro-world/clearAllDB"
 const CLEARALLUSERS_REQUEST = "/astro-world/clearAllUsersDB"
 const CLEARUSERLOGS_REQUEST = "/astro-world/clearUserLogsDB"
 const WRITEWORKFLOWTEXT_REQUEST = "/astro-world/writeWorkflowText"
@@ -83,6 +85,7 @@ type ResponseHandler StaticHandler
 type NewUserHandler StaticHandler
 type GetUserHandler StaticHandler
 type ImportRecordDBHandler StaticHandler
+type ClearAllDBHandler StaticHandler
 type ClearRecordDBHandler StaticHandler
 type ClearAllUsersDBHandler StaticHandler
 type ClearUserLogsDBHandler StaticHandler
@@ -91,6 +94,12 @@ type WriteWorkflowTextHandler StaticHandler
 func (covH *ImportRecordDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	ImportRecordsDB(c)
+	http.ServeFile(w, r, "static/index.html")
+}
+
+func (covH *ClearAllDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	ClearAllDB(c)
 	http.ServeFile(w, r, "static/index.html")
 }
 
@@ -587,6 +596,32 @@ func ImportRecordsDB(c appengine.Context) {
 			log.Fatal(err)
 			return
 		}
+	}
+}
+
+func ClearAllDB(c appengine.Context) {
+	DeleteAllEntities(c, "Record")
+	DeleteAllEntities(c, "UserLog")
+	DeleteAllEntities(c, "User")
+	DeleteAllEntities(c, "Message")
+	DeleteAllEntities(c, "Memo")
+}
+
+func DeleteAllEntities(c appengine.Context, kind string) {
+	q := datastore.NewQuery(kind)
+
+	ks, err := q.KeysOnly().GetAll(c, nil)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "DB Error Getting Entities Kind %s: %s!\n\n", kind, err.Error())
+		log.Fatal(err)
+		return
+	}
+
+	err = datastore.DeleteMulti(c, ks)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "DB Error Deleting Entities Kind %s: %s!\n\n", kind, err.Error())
+		log.Fatal(err)
+		return
 	}
 }
 
