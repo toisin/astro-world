@@ -133,12 +133,15 @@ type Sequence struct {
 }
 
 type PromptConfig struct {
-	Id                string // Id must be unique within the phase
-	PhaseId           string
-	Text              []string
-	UIActionModeId    string
-	PromptType        string
-	ResponseType      string
+	Id               string // Id must be unique within the phase
+	PhaseId          string
+	Text             []string
+	UIActionModeId   string
+	PromptType       string
+	ResponseType     string
+	ExtraScaffolding bool // Once ExtraScaffolding is turned on,
+	// it can not be turned off by another PromptConfig.
+	// Only StateEntities can turn it off
 	ExpectedResponses ExpectedResponseConfig
 	sequenceOrder     int
 	SupportPromptRef  SupportPromptConfigRef

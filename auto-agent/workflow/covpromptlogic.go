@@ -328,5 +328,13 @@ func (cp *CovPrompt) updateState(uiUserData *UIUserData) {
 		// 			IsCausal:   factorConfigMap[fid].IsCausal})
 		// }
 	}
+	// setNeedExtraScaffold is done no matter state is newly constructed or not
+	// because it is turned on as soon as one prompt toggles it on.
+	// Once it is on, it can only be turned off on the next content
+	// (see StateEntities.updateToNextContent()). It cannot be turned off by
+	// another prompt
+	if cp.promptConfig.ExtraScaffolding {
+		cp.state.setNeedExtraScaffold(true)
+	}
 	uiUserData.State = cp.state
 }

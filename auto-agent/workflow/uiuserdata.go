@@ -42,6 +42,7 @@ type StateEntities interface {
 	setLastMemo(UIMemoResponse)
 	GetPhaseId() string
 	GetBeliefs() BeliefsState
+	isFirstContent() bool
 	isContentCompleted() bool
 	updateToNextContent(bool)
 	updateRemainingContents()
@@ -55,9 +56,12 @@ type StateEntities interface {
 	resetSupportPromptCount(string, int)
 	decrementSupportPromptCount(string)
 	isSupportPromptInitialized(string) bool
+	setNeedExtraScaffold(bool)
 }
 
 type GenericState struct {
+	notFirstContent       bool
+	IsAdvancedPath        bool
 	PhaseId               string
 	Username              string
 	Screenname            string
@@ -144,7 +148,15 @@ func (cp *GenericState) isContentCompleted() bool {
 	return true
 }
 
+func (c *GenericState) setNeedExtraScaffold(isNeedExtraScaffold bool) {
+	c.IsAdvancedPath = !isNeedExtraScaffold
+}
+
 func (c *GenericState) updateToNextContent(autoUpdate bool) {
+	// From the second content on, turn extra scaffold off unless if explicitly turned on in workflow.json
+	if !c.isFirstContent() {
+		c.IsAdvancedPath = true
+	}
 	if autoUpdate {
 		fid := c.RemainingFactors[0].FactorId
 		c.setTargetFactor(
@@ -155,12 +167,19 @@ func (c *GenericState) updateToNextContent(autoUpdate bool) {
 	}
 }
 
+func (c *GenericState) isFirstContent() bool {
+	return !c.notFirstContent
+}
+
 // Not applicable to all phases
 func (c *GenericState) updateRemainingFactors() {
+	// TargetFactor has been completed
 	factorId := c.TargetFactor.FactorId
 	if c.RemainingFactors != nil {
 		for i, v := range c.RemainingFactors {
 			if v.FactorId == factorId {
+				c.notFirstContent = true
+				// Remove TargetFactor from list of remaining Factors
 				c.RemainingFactors = append(c.RemainingFactors[:i], c.RemainingFactors[i+1:]...)
 				break
 			}
@@ -317,6 +336,10 @@ func (c *PredictionPhaseState) isContentCompleted() bool {
 }
 
 func (c *PredictionPhaseState) updateToNextContent(autoUpdate bool) {
+	// From the second content on, turn extra scaffold off unless if explicitly turned on in workflow.json
+	if !c.isFirstContent() {
+		c.IsAdvancedPath = true
+	}
 	c.updateToNextTargetPrediction()
 }
 
