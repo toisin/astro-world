@@ -32,6 +32,11 @@ var CovAction = React.createClass({
           return  <PriorBeliefFactors user={user} onComplete={onComplete} app={app}/>;
         case "PRIOR_BELIEF_LEVELS":
           return  <PriorBeliefLevels user={user} onComplete={onComplete} app={app}/>;
+        case "RECORD_PERFORMANCE_TEST":
+          return <div>
+                  {investigatingFactorHeading}
+                  <RecordPerformance user={user} app={app} showPerformanceLevels/>
+                </div>;
         case "RECORD_SELECT_ONE":
           return <div>
                   {investigatingFactorHeading}

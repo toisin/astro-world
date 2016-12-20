@@ -514,8 +514,8 @@
         "FirstPrompt": {
           "Id": "test record select",
           "Text": [
-            "What I have in my database is a list of records of how the applicants performed. If you study the records carefully, you will be able to see which factors make a difference to performance and which don't.",
-            "Let's try it. On the screen, you can look for an applicant who you want to see. Just select a level for each factor, and the computer will find you an applicant who has all those levels and tell you his/her performance.",
+            "I have a list of records about the applicants. If you study them carefully, you can see which factors matter to performance and which don't.",
+            "Let's try it. On the screen, you can find any applicant to look at. Just select a level for each factor, and the computer will find you an applicant with those levels and tell you his/her performance.",
             "Ok, make your selection. Remember to click \"Enter\" when you are ready."
           ],
           "PromptType": "NO_INPUT",
@@ -528,12 +528,12 @@
                 "NextPrompt": {
                   "Id": "test record result",
                   "Text": [
-                    "You selected Record #{{.RecordNoOne.RecordNo}}, {{.RecordNoOne.RecordName}}. And you can see that the applicant's performance was {{.RecordNoOne.Performance}}.",
+                    "You selected Record #{{.RecordNoOne.RecordNo}}, {{.RecordNoOne.RecordName}}. You can see that performance can be from A to E. And {{.RecordNoOne.FirstName}}'s performance was {{.RecordNoOne.Performance}}.",
                     "Now that you know how to select a record, you can start figuring out whether each factor matters by looking through the records. Hit \"Enter\" when you are ready to continue."
                   ],
                   "PromptType": "ENTER_TO_CONTINUE",
                   "ResponseType": "COMPLETE",
-                  "UIActionModeId": "RECORD_PERFORMANCE"
+                  "UIActionModeId": "RECORD_PERFORMANCE_TEST"
                 }
               }
             ]

@@ -385,6 +385,32 @@ var RecordPerformance = React.createClass({
       var record1 = user.getState().RecordNoOne && user.getState().RecordNoOne.RecordNo ? user.getState().RecordNoOne:null;
       var record2 = user.getState().RecordNoTwo && user.getState().RecordNoTwo.RecordNo ? user.getState().RecordNoTwo:null;
 
+      var showPerformanceLevels = this.props.showPerformanceLevels ? 
+          <div> 
+                <table className="record">
+                  <tbody>
+                  <tr>
+                    <td colSpan="4">Performance Levels:</td>
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td><td>A</td><td>-</td><td>very well</td>
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td><td>B</td><td>-</td><td>well</td>
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td><td>C</td><td>-</td><td>so so</td>
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td><td>D</td><td>-</td><td>poorly</td>
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td><td>E</td><td>-</td><td>very poorly</td>
+                  </tr>
+                  </tbody>
+                </table>
+          </div> : null ;
+
       var performance = function(r) {
         return !hidePerformance ? <p className="performance-level">Performance Level:
                     <span className="grade">{r.Performance}</span>
@@ -450,6 +476,7 @@ var RecordPerformance = React.createClass({
       return <div className = "hbox">
                 {record1Details}
                 {record2Details}
+                {showPerformanceLevels}
               </div>;
   }
 });
