@@ -364,7 +364,7 @@ var MemoForm = React.createClass({
 
     return <div className="mbox">
             <h3>Memo to the foundation</h3>
-            <form id="actionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
+            <form autoComplete="off" id="actionForm" onSubmit={this.handleSubmit} onChange={this.handleChange}>
             <p>
                 We recommend that you &nbsp;
                 <input type="text" name="ask" size="20" autofocus className="con" placeholder="Enter ask/do not ask"/> &nbsp;
