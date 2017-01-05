@@ -126,7 +126,7 @@ type PhaseConfig struct {
 }
 
 type Sequence struct {
-	RepeatOverContent bool // If true, repeat content over the list of contents sepecify in ContentRef
+	RepeatOverContent bool // If true, repeat content over the list of contents specify in ContentRef
 	KeepChatHistory   bool // If true, do not collapse chat history
 	AutoSelectContent bool // If true, automatically selects the next target factor at the end of the sequence
 	FirstPrompt       PromptConfig

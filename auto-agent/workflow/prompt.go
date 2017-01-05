@@ -34,6 +34,7 @@ type Prompt interface {
 	initUIAction()
 	updateState(*UIUserData)
 	updateSupportPrompt(*UIUserData)
+	updateToNextContent(bool)
 }
 
 // The "superclass" of all Prompt interface implementation
@@ -90,6 +91,10 @@ func (cp *GenericPrompt) GetUIAction() UIAction {
 
 func (cp *GenericPrompt) GetUIPrompt() UIPrompt {
 	return cp.currentUIPrompt
+}
+
+func (cp *GenericPrompt) updateToNextContent(autoUpdate bool) {
+	cp.state.updateToNextContent(autoUpdate)
 }
 
 func (cp *GenericPrompt) init(p PromptConfig, uiUserData *UIUserData) {
@@ -385,6 +390,9 @@ func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserDat
 	sequenceOrder := cp.promptConfig.sequenceOrder
 	currentS = &currentPhase.OrderedSequences[sequenceOrder]
 
+	// TODO debug current sequence
+	// fmt.Fprintf(os.Stderr, "currentS: %s\n\n", currentS)
+
 	// TODO - Not the cleanest way to do this
 	// Reset ArchieveHistoryLength to let the server deal with setting the new value
 	if !currentS.KeepChatHistory {
@@ -398,7 +406,7 @@ func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserDat
 		// Check if all content has been through the current sequence
 		// if not, go to the next content, otherwise, repeat sequence for the remaining content
 		if !cp.state.isContentCompleted() {
-			cp.state.updateToNextContent(currentS.AutoSelectContent)
+			cp.updateToNextContent(currentS.AutoSelectContent)
 			nextS = currentS
 		}
 	}
@@ -414,9 +422,10 @@ func (cp *GenericPrompt) generateFirstPromptInNextSequence(uiUserData *UIUserDat
 		}
 	}
 	nextPromptId = nextS.FirstPrompt.Id
-
-	return MakePrompt(nextPromptId, phaseId, uiUserData)
-
+	nextP := MakePrompt(nextPromptId, phaseId, uiUserData)
+	// Somehow the following was not necessary even for the first content
+	// nextP.updateToNextContent(nextS.AutoSelectContent)
+	return nextP
 }
 
 func (cp *GenericPrompt) makeExpectedResponseHandler(pc PromptConfig) ExpectedResponseHandler {
