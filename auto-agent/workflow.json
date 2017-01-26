@@ -959,9 +959,9 @@
                                                                         "NextPrompt": {
                                                                           "Id": "causal.uncontrolled.sure.2.2.1.2.1",
                                                                           "Text": [
-                                                                            "Ok. Now, let's look for more records and see what we find. Press \"Enter\" when you are ready to continue."
+                                                                            "I see. Hmm... I am not convinced. I think you cannot tell whether {{.TargetFactor.FactorName}} makes a difference.","Maybe {{.RecordNoOne.FirstName}} has {{if eq .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}the same grade as {{.RecordNoTwo.FirstName}} because a bunch of things just happen to even out.{{else}}a {{if lt .RecordNoOne.PerformanceLevel .RecordNoTwo.PerformanceLevel}}higher{{else}}lower{{end}} grade than {{.RecordNoTwo.FirstName}} because {{.RecordNoTwo.FirstName}} has {{$otherFactorId := index .VaryingFactorIds 0}}{{$otherFactor := index .RecordNoTwo.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}} and {{.RecordNoOne.FirstName}} has {{$otherFactor := index .RecordNoOne.FactorLevels $otherFactorId}}{{$otherFactor.SelectedLevel}} for {{$otherFactor.FactorName}}.{{end}}"
                                                                           ],
-                                                                          "PromptType": "ENTER_TO_CONTINUE",
+                                                                          "PromptType": "STRAIGHT_THROUGH",
                                                                           "ResponseType": "Basic",
                                                                           "ExtraScaffolding": true,
                                                                           "UIActionModeId": "RECORD_PERFORMANCE",
@@ -970,7 +970,7 @@
                                                                               {
                                                                                 "Id": "ANY_RESPONSE",
                                                                                 "NextPromptRef": {
-                                                                                  "Id": "two_records.2"
+                                                                                  "Id": "causal.uncontrolled.unsure.find_better.2.2.1.2.2"
                                                                                 }
                                                                               }
                                                                             ]
@@ -1436,7 +1436,7 @@
                                                 "NextPrompt": {
                                                   "Id": "unsure.2.2.3",
                                                   "Text": [
-                                                    "It's ok that you are not sure wheather {{.TargetFactor.FactorName}} makes a difference to performance."
+                                                    "It's ok that you are not sure whether {{.TargetFactor.FactorName}} makes a difference to performance."
                                                   ],
                                                   "PromptType": "STRAIGHT_THROUGH",
                                                   "ResponseType": "Basic",
