@@ -126,7 +126,7 @@ func (covH *ClearUserLogsDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 
 func (covH *WriteWorkflowTextHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", "attachment; filename=workflowText.csv")
-	w.Header().Set("Content-Type", "application/CSV")
+	w.Header().Set("Content-Type", "text/csv")
 	workflow.WriteWorkflowText(w)
 }
 
@@ -731,7 +731,7 @@ func ClearAllUsersDB(c appengine.Context) {
 
 func (h *DumpUserLogsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	q := datastore.NewQuery("UserLog")
+	q := datastore.NewQuery("UserLog").Order("Username").Order("Date")
 
 	var logs []db.UserLog
 	// To retrieve the results,
@@ -744,7 +744,7 @@ func (h *DumpUserLogsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/CSV")
+	w.Header().Set("Content-Type", "text/csv")
 
 	db.WriteUserLogAsCSV(w, logs)
 }
