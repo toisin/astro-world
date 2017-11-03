@@ -44,6 +44,7 @@ func init() {
 	http.Handle(CLEARALLUSERS_REQUEST, &ClearAllUsersDBHandler{})
 	http.Handle(CLEARUSERLOGS_REQUEST, &ClearUserLogsDBHandler{})
 	http.Handle(WRITEWORKFLOWTEXT_REQUEST, &WriteWorkflowTextHandler{})
+	http.Handle(DUMPUSERLOGS_REQUEST, &DumpUserLogsHandler{})
 
 	workflow.InitWorkflow()
 }
@@ -77,6 +78,7 @@ const CLEARALLDB_REQUEST = "/astro-world/clearAllDB"
 const CLEARALLUSERS_REQUEST = "/astro-world/clearAllUsersDB"
 const CLEARUSERLOGS_REQUEST = "/astro-world/clearUserLogsDB"
 const WRITEWORKFLOWTEXT_REQUEST = "/astro-world/writeWorkflowText"
+const DUMPUSERLOGS_REQUEST = "/astro-world/userLogs.csv"
 
 type GetHandler StaticHandler
 type HistoryHandler StaticHandler
@@ -90,6 +92,7 @@ type ClearRecordDBHandler StaticHandler
 type ClearAllUsersDBHandler StaticHandler
 type ClearUserLogsDBHandler StaticHandler
 type WriteWorkflowTextHandler StaticHandler
+type DumpUserLogsHandler StaticHandler
 
 func (covH *ImportRecordDBHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
@@ -724,4 +727,24 @@ func ClearAllUsersDB(c appengine.Context) {
 		log.Fatal(err)
 		return
 	}
+}
+
+func (h *DumpUserLogsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	q := datastore.NewQuery("UserLog")
+
+	var logs []db.UserLog
+	// To retrieve the results,
+	// you must execute the Query using its GetAll or Run methods.
+	_, err := q.GetAll(c, &logs)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "DB Error Getting All Users:"+err.Error()+"!\n\n")
+		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/CSV")
+
+	db.WriteUserLogAsCSV(w, logs)
 }
