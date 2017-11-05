@@ -31,3 +31,8 @@ indexes:
   properties:
   - name: RecordNo
     direction: desc
+
+- kind: UserLog
+  properties:
+  - name: Username
+  - name: Date
