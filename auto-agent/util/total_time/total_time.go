@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/csv"
-	"fmt"
 	"io"
 	"os"
 	"sort"
@@ -13,26 +12,12 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stderr, "Missing required file\n")
-		os.Exit(1)
-	}
-
-	filename := os.Args[1]
-
-	f, err := os.Open(filename)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Could not open %s\n", filename)
-		os.Exit(1)
-	}
+	f := util.OpenFileFromArg()
 	defer f.Close()
 
 	r := util.NewCSVReader(f)
 	ttpu, err := totalTimePerUser(r)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s", err)
-		os.Exit(1)
-	}
+	util.MaybeExit(err)
 
 	// Put in a slice and sort it.
 	slice := make(totalInfoSlice, len(ttpu))
@@ -49,7 +34,8 @@ func main() {
 	w.Write([]string{"Username", "Duration"})
 
 	for _, info := range slice {
-		w.Write([]string{info.username, strconv.FormatInt(int64(info.duration.Minutes()), 10)})
+		err = w.Write([]string{info.username, strconv.FormatInt(int64(info.duration.Minutes()), 10)})
+		util.MaybeExit(err)
 	}
 	w.Flush()
 }
