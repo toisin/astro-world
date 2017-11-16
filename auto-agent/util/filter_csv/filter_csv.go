@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/toisin/astro-world/auto-agent/util"
+	util ".."
 )
 
 const promptIDIdx = 2
