@@ -10,16 +10,15 @@ import (
 )
 
 func main() {
-	// Usage: ./filter_csv filter.csv source.csv
+	util.CheckStdinMode("add_task_id")
+
+	// Usage: cat source.csv | ./filter_csv filter.csv
 
 	filterFile := util.OpenFileFromArgAt(1)
 	defer filterFile.Close()
 	filterReader := util.NewCSVReader(filterFile)
 
-	sourceFile := util.OpenFileFromArgAt(2)
-	defer sourceFile.Close()
-
-	r := util.NewCSVReader(sourceFile)
+	r := util.NewCSVReader(os.Stdin)
 	w := csv.NewWriter(os.Stdout)
 
 	// Header

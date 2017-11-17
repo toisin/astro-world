@@ -14,11 +14,11 @@ single_record.hide_performance.1
 ```sh
 cd auto-agent/util/filter_csv
 go build filter_csv.go
-./filter_csv prompt-id-filter.csv ~/Downloads/userLogs.csv
+cat ~/Downloads/userLogs.csv | ./filter_csv prompt-id-filter.csv
 ```
 
 or pipe it to a file
 
 ```sh
-./filter_csv prompt-id-filter.csv ~/Downloads/userLogs.csv > out.csv
+cat ~/Downloads/userLogs.csv | ./filter_csv prompt-id-filter.csv > out.csv
 ```

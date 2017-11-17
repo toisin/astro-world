@@ -7,11 +7,11 @@ Adds a few columns at the end of each row.
 ```sh
 cd auto-agent/util/add_coding_fields
 go build add_coding_fields.go
-./add_coding_fields ~/Downloads/userLogs.csv
+cat  ~/Downloads/userLogs.csv | ./add_coding_fields
 ```
 
 or pipe it to a file
 
 ```sh
-./add_coding_fields ~/Downloads/userLogs.csv > out.csv
+cat ~/Downloads/userLogs.csv | ./add_coding_fields > out.csv
 ```

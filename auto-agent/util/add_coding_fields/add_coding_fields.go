@@ -92,10 +92,9 @@ var (
 )
 
 func main() {
-	sourceFile := util.OpenFileFromArgAt(1)
-	defer sourceFile.Close()
+	util.CheckStdinMode("add_coding_fields")
 
-	r := util.NewCSVReader(sourceFile)
+	r := util.NewCSVReader(os.Stdin)
 	w := csv.NewWriter(os.Stdout)
 
 	headers, err := r.Read()
