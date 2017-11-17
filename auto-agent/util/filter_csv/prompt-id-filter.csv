@@ -11,6 +11,7 @@ causal.target_nonvarying.Q_why.2.2.1.1
 causal.uncontrolled.MC_are_sure.2.2.1.2
 causal.uncontrolled.Q_why.2.2.1.2
 help.Q_why.3.1
+MC_one_or_two
 non-causal.correct.correct.Q_someone_disagree.2.3.2
 non-causal.Q_why.2
 noncausal.controlled.correct.MC_are_sure.2.2.2.3.2
@@ -19,6 +20,7 @@ noncausal.target_nonvarying.Q_why.2.2.2.1
 noncausal.uncontrolled.MC_are_sure.2.2.2.2
 noncausal.uncontrolled.Q_why.2.2.2.2
 pick_team
+show chart
 single_record.hide_performance.1
 single_record.MC_enough_info.1
 single_record.show_performance.1
