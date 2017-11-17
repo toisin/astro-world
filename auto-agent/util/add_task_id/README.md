@@ -7,11 +7,11 @@ Reads a CSV file and adds a row called TaskId based on the QuestionText.
 ```sh
 cd auto-agent/util/add_task_id
 go build
-./add_task_id ~/Downloads/userLogs.csv
+cat ~/Downloads/userLogs.csv | ./add_task_id
 ```
 
 or pipe it to a file
 
 ```sh
-./add_task_id ~/Downloads/userLogs.csv > out.csv
+cat ~/Downloads/userLogs.csv | ./add_task_id > out.csv
 ```

@@ -21,10 +21,9 @@ var taskIDRegexps = map[string]*regexp.Regexp{
 }
 
 func main() {
-	sourceFile := util.OpenFileFromArgAt(1)
-	defer sourceFile.Close()
+	util.CheckStdinMode("add_task_id")
 
-	r := util.NewCSVReader(sourceFile)
+	r := util.NewCSVReader(os.Stdin)
 	w := csv.NewWriter(os.Stdout)
 
 	// Header
