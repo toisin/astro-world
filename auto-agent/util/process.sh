@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if [ "$#" -ne 3 ]; then
-  echo "Usage: $0 source.csv out1.csv out2.csv" >&2
+if [ "$#" -ne 5 ]; then
+  echo "Usage: $0 source.csv rm2g1.csv rm2g2.csv rm10g1.csv rm10g2" >&2
   exit 1
 fi
 
@@ -25,4 +25,4 @@ cat "$1" | \
   add_task_id/add_task_id | \
   add_coding_fields/add_coding_fields | \
   filter_csv/filter_csv filter_csv/prompt-id-filter.csv | \
-  random_user/random_user "$2" "$3"
+  random_user/random_user "$2" "$3" "$4" "$5"
