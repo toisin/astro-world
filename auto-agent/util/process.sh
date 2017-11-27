@@ -21,6 +21,10 @@ cd filter_csv
 go build filter_csv.go
 cd ..
 
+cd order_rows
+go build order_rows.go
+cd ..
+
 cd random_user
 go build random_user.go
 cd ..
@@ -30,4 +34,5 @@ cat "$1" | \
   add_coding_columns/add_coding_columns | \
   add_coding_fields/add_coding_fields | \
   filter_csv/filter_csv filter_csv/prompt-id-filter.csv | \
+  order_rows/order_rows | \
   random_user/random_user "$2" "$3" "$4" "$5"
