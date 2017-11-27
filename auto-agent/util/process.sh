@@ -25,6 +25,10 @@ cd order_rows
 go build order_rows.go
 cd ..
 
+cd fix_usernames
+go build fix_usernames.go
+cd ..
+
 cd random_user
 go build random_user.go
 cd ..
@@ -35,4 +39,5 @@ cat "$1" | \
   add_coding_fields/add_coding_fields | \
   filter_csv/filter_csv filter_csv/prompt-id-filter.csv | \
   order_rows/order_rows | \
+  fix_usernames/fix_usernames | \
   random_user/random_user "$2" "$3" "$4" "$5"
