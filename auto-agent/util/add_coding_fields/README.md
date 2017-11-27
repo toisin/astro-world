@@ -1,6 +1,6 @@
 # Description
 
-Adds a few columns at the end of each row.
+Adds a few ? to the cells for the new columns we added using add_coding_columns.
 
 ## Usage
 

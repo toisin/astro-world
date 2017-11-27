@@ -9,6 +9,10 @@ cd add_task_id
 go build add_task_id.go
 cd ..
 
+cd add_coding_columns
+go build add_coding_columns.go
+cd ..
+
 cd add_coding_fields
 go build add_coding_fields.go
 cd ..
@@ -23,6 +27,7 @@ cd ..
 
 cat "$1" | \
   add_task_id/add_task_id | \
+  add_coding_columns/add_coding_columns | \
   add_coding_fields/add_coding_fields | \
   filter_csv/filter_csv filter_csv/prompt-id-filter.csv | \
   random_user/random_user "$2" "$3" "$4" "$5"
