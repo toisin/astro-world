@@ -100,23 +100,8 @@ func main() {
 	headers, err := r.Read()
 	util.MaybeExit(err)
 
-	headers = append(headers, newHeaders...)
 	err = w.Write(headers)
 	util.MaybeExit(err)
-
-	// Build map from id to []string
-	extraFieldsMap := map[string][]string{}
-	for key, promptIDs := range mapping {
-		for _, promptID := range promptIDs {
-			extraFields := make([]string, len(newHeaders))
-			idx := indexOf(newHeaders, key)
-			if idx == -1 {
-				log.Fatalf("Could not find %s", key)
-			}
-			extraFields[idx] = "?"
-			extraFieldsMap[promptID] = extraFields
-		}
-	}
 
 	for {
 		row, err := r.Read()
@@ -125,8 +110,7 @@ func main() {
 		}
 		util.MaybeExit(err)
 
-		extraFields := computeExtraFields(row[promptIDIdx])
-		row = append(row, extraFields...)
+		row = addQuestionMarksAsNeeded(row, headers)
 
 		w.Write(row)
 	}
@@ -143,13 +127,22 @@ func indexOf(list []string, word string) int {
 	return -1
 }
 
-func computeExtraFields(promptID string) []string {
-	fields := make([]string, len(newHeaders))
-	for i, h := range newHeaders {
-		m := mapping[h]
-		if indexOf(m, promptID) != -1 {
-			fields[i] = "?"
+func addQuestionMarksAsNeeded(row []string, headers []string) []string {
+	if len(row) != len(headers) {
+		log.Panicln("Invalid headers/row")
+	}
+	promptID := row[promptIDIdx]
+	for _, nh := range newHeaders {
+		if indexOf(mapping[nh], promptID) != -1 {
+			i := indexOf(headers, nh)
+			if i == -1 {
+				log.Panicf("Could not find matching header, %s\n", nh)
+				os.Exit(1)
+			}
+			if row[i] == "" {
+				row[i] = "?"
+			}
 		}
 	}
-	return fields
+	return row
 }
