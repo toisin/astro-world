@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ "$#" -ne 5 ]; then
-  echo "Usage: $0 source.csv rm2g1.csv rm2g2.csv rm10g1.csv rm10g2" >&2
+  echo "Usage: $0 source.csv rm2g1.csv rm2g2.csv rm10g1.csv rm10g2.csv" >&2
   exit 1
 fi
 

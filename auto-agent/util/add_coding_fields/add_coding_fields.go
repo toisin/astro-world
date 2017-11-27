@@ -118,8 +118,6 @@ func main() {
 		}
 	}
 
-	allEmptyExtraFields := make([]string, len(newHeaders))
-
 	for {
 		row, err := r.Read()
 		if err == io.EOF {
@@ -127,11 +125,8 @@ func main() {
 		}
 		util.MaybeExit(err)
 
-		if extraFields, ok := extraFieldsMap[row[promptIDIdx]]; ok {
-			row = append(row, extraFields...)
-		} else {
-			row = append(row, allEmptyExtraFields...)
-		}
+		extraFields := computeExtraFields(row[promptIDIdx])
+		row = append(row, extraFields...)
 
 		w.Write(row)
 	}
@@ -146,4 +141,15 @@ func indexOf(list []string, word string) int {
 		}
 	}
 	return -1
+}
+
+func computeExtraFields(promptID string) []string {
+	fields := make([]string, len(newHeaders))
+	for i, h := range newHeaders {
+		m := mapping[h]
+		if indexOf(m, promptID) != -1 {
+			fields[i] = "?"
+		}
+	}
+	return fields
 }
