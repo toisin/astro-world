@@ -7,12 +7,17 @@ import (
 
 // OpenFileFromArg opens a file passed as the first argument on the command line.
 func OpenFileFromArg() *os.File {
-	if len(os.Args) < 2 {
+	return OpenFileFromArgAt(1)
+}
+
+// OpenFileFromArgAt opens a file passed as the idx argument on the command line.
+func OpenFileFromArgAt(idx int) *os.File {
+	if len(os.Args) < idx+1 {
 		fmt.Fprintf(os.Stderr, "Missing required file\n")
 		os.Exit(1)
 	}
 
-	filename := os.Args[1]
+	filename := os.Args[idx]
 
 	f, err := os.Open(filename)
 	if err != nil {
