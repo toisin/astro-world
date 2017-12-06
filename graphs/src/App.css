@@ -1,0 +1,41 @@
+line,
+path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+path {
+  stroke-width: 2.5;
+}
+
+.coding-fields-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.task-id-line {
+  stroke: #555;
+  stroke-dasharray: 5, 5;
+}
+
+.task-id-label {
+  font-size: 10px;
+  fill: #555;
+}
+
+.axis-label {
+  font-size: 10px;
+}
+
+.coding-fields > h3 {
+  text-transform: capitalize;
+}
+
+.coding-field > h3,
+.coding-field > h4 {
+  all: unset;
+  display: block;
+  padding: 20px 20px 0 20px;
+  font-size: 14px;
+}
