@@ -21,7 +21,12 @@ function App({data}: {data: Data}) {
 }
 
 function UserGraph({data, match}) {
-  return <Graphs data={data} username={match.params.username} />;
+  return (
+      <div>
+        <h2>{match.params.username}</h2>
+        <Graphs data={data} username={match.params.username} />
+      </div>
+  );
 }
 
 function Graphs({data, username: user = ''}: {data: Data, username?: string}) {
@@ -54,7 +59,7 @@ function Graphs({data, username: user = ''}: {data: Data, username?: string}) {
     }
 
     sections.push(
-      <div className={`${codingFieldName}s coding-fields`} key={codingFieldName}>
+      <div className={`${codingFieldName}s coding-fields ${user === '' ? 'page-break' : ''}`} key={codingFieldName}>
         <h3>{codingFieldName}</h3>
         <div className="coding-fields-container">{cs}</div>
       </div>
